@@ -27,7 +27,11 @@ api_version = "2026-04"
   compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
 
 [auth]
-redirect_urls = [ ]
+redirect_urls = [
+  "https://p01--pandaforms-app--77wd8gj6rv7k.code.run/auth/callback",
+  "https://p01--pandaforms-app--77wd8gj6rv7k.code.run/auth/shopify/callback",
+  "https://p01--pandaforms-app--77wd8gj6rv7k.code.run/auth/login"
+]
 
 [build]
 include_config_on_deploy = true
