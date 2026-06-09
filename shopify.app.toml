@@ -1,13 +1,13 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "e4365077ea2d7c76e750365fcb0c7e11"
+client_id = "84113268652bb64dc6a80730f8039338"
 name = "PandaForms"
-application_url = "https://example.com"
+application_url = "https://p01--pandaforms-shopify-app--y7sz6xfjwml6.code.run"
 embedded = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = ""
+scopes = "read_customers,write_customers,read_products,read_themes,write_themes"
 optional_scopes = [ ]
 use_legacy_install_flow = false
 
@@ -30,6 +30,6 @@ include_config_on_deploy = true
 automatically_update_urls_on_dev = true
 
 [app_proxy]
-url = "https://example.com/api"
+url = "https://p01--pandaforms-shopify-app--y7sz6xfjwml6.code.run/api"
 subpath = "pandaforms"
 prefix = "apps"
