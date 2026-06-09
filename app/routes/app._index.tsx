@@ -156,7 +156,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         { type: "text", label: "Last Name", placeholder: "Last Name", required: true, position: 2, width: "half", name: "last_name" },
         { type: "email", label: "Email Address", placeholder: "email@example.com", required: true, position: 3, width: "full", name: "email" },
         { type: "phone", label: "Phone Number", placeholder: "+1 (555) 000-0000", required: false, position: 4, width: "full", name: "phone" },
-        { type: "password", label: "Password", placeholder: "Password", required: true, position: 5, width: "full", name: "password" },
       ];
       break;
     case "product_enquiry":
@@ -263,12 +262,12 @@ export default function Index() {
           boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)"
         }}>
           <div style={{ flex: "1 1 500px" }}>
-            <Badge tone="attention">🚀 PandaForms Premium Suite</Badge>
+            <Badge tone="attention">PandaForms Suite</Badge>
             <div style={{ fontSize: "24px", fontWeight: "800", marginTop: "12px", marginBottom: "8px", letterSpacing: "-0.5px" }}>
               B2B & Custom Storefront Forms
             </div>
             <div style={{ fontSize: "16px", opacity: 0.85, maxWidth: "600px", lineHeight: "1.6" }}>
-              Design gorgeous responsive forms in under 2 minutes. Automate wholesale approvals, tag customers, collect PDF attachments, and track real-time SMTP delivery health logs with zero coding.
+              Design responsive forms, manage wholesale approvals, tag customers, and track SMTP delivery health from Shopify admin.
             </div>
           </div>
           <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
@@ -297,7 +296,7 @@ export default function Index() {
               <Text variant="headingSm" as="h3" tone="subdued">Total Forms Created</Text>
               <Text variant="headingLg" as="p" fontWeight="bold">{totalForms}</Text>
               <Button size="slim" variant="plain" onClick={() => navigate("/app/forms")}>
-                Manage Forms →
+                Manage Forms
               </Button>
             </BlockStack>
           </Card>
@@ -306,7 +305,7 @@ export default function Index() {
               <Text variant="headingSm" as="h3" tone="subdued">Submissions Captured</Text>
               <Text variant="headingLg" as="p" fontWeight="bold">{totalSubmissions}</Text>
               <Button size="slim" variant="plain" onClick={() => navigate("/app/submissions")}>
-                View Submissions →
+                View Submissions
               </Button>
             </BlockStack>
           </Card>
@@ -320,7 +319,7 @@ export default function Index() {
                 {pendingSubmissions > 0 && <Badge tone="attention">Review Required</Badge>}
               </InlineStack>
               <Button size="slim" variant="plain" onClick={() => navigate("/app/submissions?status=PENDING")}>
-                Review Submissions →
+                Review Submissions
               </Button>
             </BlockStack>
           </Card>
@@ -445,7 +444,6 @@ export default function Index() {
                   onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.background = "#e2e8f0"; }}
                   onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.background = fetcher.state !== "idle" && fetcher.formData?.get("templateType") === tmpl.id ? "#e0e7ff" : "#f1f5f9"; }}
                 >
-                  <span style={{ fontSize: "14px" }}>⚡</span>
                   {fetcher.state !== "idle" && fetcher.formData?.get("templateType") === tmpl.id
                     ? "Creating Form..." : tmpl.title}
                   <span style={{ fontSize: "10px", backgroundColor: "#fff", padding: "2px 6px", borderRadius: "999px", color: "#64748b", fontWeight: "bold" }}>

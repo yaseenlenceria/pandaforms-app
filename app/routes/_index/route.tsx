@@ -22,9 +22,9 @@ export default function App() {
   return (
     <div className={styles.index}>
       <div className={styles.content}>
-        <h1 className={styles.heading}>A short heading about [your app]</h1>
+        <h1 className={styles.heading}>PandaForms for Shopify</h1>
         <p className={styles.text}>
-          A tagline about [your app] that describes your value proposition.
+          Create storefront forms, collect submissions, and manage customer approval workflows from Shopify admin.
         </p>
         {showForm && (
           <Form className={styles.form} method="post" action="/auth/login">
@@ -40,16 +40,13 @@ export default function App() {
         )}
         <ul className={styles.list}>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>Form builder</strong>. Build wholesale, registration, contact, enquiry, appointment, and return request forms.
           </li>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>Submissions inbox</strong>. Review, approve, reject, export, and track every storefront submission.
           </li>
           <li>
-            <strong>Product feature</strong>. Some detail about your feature and
-            its benefit to your customer.
+            <strong>Customer sync</strong>. Create or update Shopify customers after merchant approval.
           </li>
         </ul>
       </div>

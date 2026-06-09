@@ -107,8 +107,8 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
         adminNotificationEmails,
         disableCountryOptions: !!disableCountryOptions,
         defaultCountryPhoneCode,
-        integrationHubSpot: !!integrationHubSpot,
-        integrationReCAPTCHA: !!integrationReCAPTCHA,
+        integrationHubSpot: false,
+        integrationReCAPTCHA: false,
       },
     }),
     db.formField.deleteMany({
@@ -376,8 +376,8 @@ export default function FormBuilder() {
   const [adminNotificationEmails, setAdminNotificationEmails] = useState(form.adminNotificationEmails || "");
   const [disableCountryOptions, setDisableCountryOptions] = useState(form.disableCountryOptions || false);
   const [defaultCountryPhoneCode, setDefaultCountryPhoneCode] = useState(form.defaultCountryPhoneCode || "+1 for Us");
-  const [integrationHubSpot, setIntegrationHubSpot] = useState(form.integrationHubSpot || false);
-  const [integrationReCAPTCHA, setIntegrationReCAPTCHA] = useState(form.integrationReCAPTCHA || false);
+  const [integrationHubSpot, setIntegrationHubSpot] = useState(false);
+  const [integrationReCAPTCHA, setIntegrationReCAPTCHA] = useState(false);
   const [theme, setTheme] = useState(form.theme || "minimal");
 
   const [toastVisible, setToastVisible] = useState(false);
@@ -501,7 +501,7 @@ export default function FormBuilder() {
   };
 
   const getFieldBorderColor = (type: string) => {
-    if (type.startsWith("customer_") || ["first_name", "last_name", "email", "password", "phone", "address", "country_state", "accepts_marketing"].includes(type)) {
+    if (type.startsWith("customer_") || ["first_name", "last_name", "email", "phone", "address", "country_state", "accepts_marketing"].includes(type)) {
       return "#10854d"; // Shopify green
     }
     if (["title", "description", "step"].includes(type)) {
@@ -511,7 +511,7 @@ export default function FormBuilder() {
   };
 
   const getFieldCategoryInfo = (type: string) => {
-    if (type.startsWith("customer_") || ["first_name", "last_name", "email", "password", "phone", "address", "country_state", "accepts_marketing"].includes(type)) {
+    if (type.startsWith("customer_") || ["first_name", "last_name", "email", "phone", "address", "country_state", "accepts_marketing"].includes(type)) {
       return { label: "Shopify Customer Field", tone: "success" as const };
     }
     if (["title", "description", "step"].includes(type)) {
@@ -537,8 +537,8 @@ export default function FormBuilder() {
           adminNotificationEmails,
           disableCountryOptions,
           defaultCountryPhoneCode,
-          integrationHubSpot,
-          integrationReCAPTCHA,
+          integrationHubSpot: false,
+          integrationReCAPTCHA: false,
         }),
       },
       {
@@ -558,7 +558,6 @@ export default function FormBuilder() {
       { key: "text", label: "Customer First Name", desc: "Connects to customer first name.", placeholder: "First Name" },
       { key: "text", label: "Customer Last Name", desc: "Connects to customer last name.", placeholder: "Last Name" },
       { key: "email", label: "Customer Email", desc: "Connects to customer email address.", placeholder: "Email" },
-      { key: "password", label: "Customer Password", desc: "Conceals user account password.", placeholder: "Password" },
       { key: "checkbox", label: "Subscribe Checkbox", desc: "Customer tags as accepts marketing.", placeholder: "" },
       { key: "phone", label: "Customer Phone Number", desc: "Connects to telephone field.", placeholder: "+1 (555) 000-0000" },
       { key: "textarea", label: "Customer Address", desc: "Captures full address details.", placeholder: "Address" },
@@ -572,11 +571,9 @@ export default function FormBuilder() {
       { key: "select", label: "Dropdown Menu", desc: "Provides single selectable options list.", placeholder: "" },
       { key: "radio", label: "Radio Buttons", desc: "Select one option out of many.", placeholder: "" },
       { key: "checkbox_list", label: "Checkboxes", desc: "Allows selecting multiple choices.", placeholder: "" },
-      { key: "password", label: "Password Field", desc: "Masks password keys for security.", placeholder: "" },
       { key: "phone", label: "Tel Field", desc: "For telephone phone number details.", placeholder: "" },
       { key: "textarea", label: "Textarea", desc: "Allows multi-line comments.", placeholder: "" },
       { key: "date", label: "Datepicker", desc: "Pick preferred appointment date.", placeholder: "" },
-      { key: "file", label: "Upload Field", desc: "Permits file, PDF, or image uploads.", placeholder: "" },
     ],
     content: [
       { key: "title", label: "Extra Title", desc: "For titles inside form blocks.", placeholder: "Section Title" },
@@ -751,11 +748,9 @@ export default function FormBuilder() {
                                                 { label: "Radio Buttons", value: "radio" },
                                                 { label: "Checkboxes", value: "checkbox_list" },
                                                 { label: "Single Checkbox", value: "checkbox" },
-                                                { label: "Password Field", value: "password" },
                                                 { label: "Tel Field", value: "phone" },
                                                 { label: "Textarea", value: "textarea" },
                                                 { label: "Datepicker", value: "date" },
-                                                { label: "Upload Field", value: "file" },
                                                 { label: "Step Divider", value: "step" },
                                                 { label: "Extra Title", value: "title" },
                                                 { label: "Richtext Description", value: "description" },
@@ -1389,13 +1384,15 @@ export default function FormBuilder() {
                     Integrations
                   </Text>
                   <Checkbox
-                    label="HubSpot"
-                    checked={integrationHubSpot}
+                    label="HubSpot (planned)"
+                    checked={false}
+                    disabled
                     onChange={setIntegrationHubSpot}
                   />
                   <Checkbox
-                    label="Google reCAPTCHA"
-                    checked={integrationReCAPTCHA}
+                    label="Google reCAPTCHA (planned)"
+                    checked={false}
+                    disabled
                     onChange={setIntegrationReCAPTCHA}
                   />
                 </BlockStack>

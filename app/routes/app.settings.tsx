@@ -89,10 +89,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     wholesaleCustomerTag: wholesaleCustomerTag || "wholesale",
     adminEmailNotifications: !!adminEmailNotifications,
     adminEmailAddress: adminEmailAddress || "",
-    enableReCAPTCHA: !!enableReCAPTCHA,
+    enableReCAPTCHA: false,
     recaptchaSiteKey: recaptchaSiteKey || "",
     recaptchaSecretKey: recaptchaSecretKey || "",
-    enableHubSpot: !!enableHubSpot,
+    enableHubSpot: false,
     hubspotApiKey: hubspotApiKey || "",
     saveToCustomerNotes: !!saveToCustomerNotes,
     customerConfirmationEmail: !!customerConfirmationEmail,
@@ -126,10 +126,10 @@ export default function Settings() {
   const [wholesaleCustomerTag, setWholesaleCustomerTag] = useState(settings.wholesaleCustomerTag);
   const [adminEmailNotifications, setAdminEmailNotifications] = useState(settings.adminEmailNotifications);
   const [adminEmailAddress, setAdminEmailAddress] = useState(settings.adminEmailAddress || "");
-  const [enableReCAPTCHA, setEnableReCAPTCHA] = useState(settings.enableReCAPTCHA);
+  const [enableReCAPTCHA, setEnableReCAPTCHA] = useState(false);
   const [recaptchaSiteKey, setRecaptchaSiteKey] = useState(settings.recaptchaSiteKey || "");
   const [recaptchaSecretKey, setRecaptchaSecretKey] = useState(settings.recaptchaSecretKey || "");
-  const [enableHubSpot, setEnableHubSpot] = useState(settings.enableHubSpot);
+  const [enableHubSpot, setEnableHubSpot] = useState(false);
   const [hubspotApiKey, setHubspotApiKey] = useState(settings.hubspotApiKey || "");
   const [saveToCustomerNotes, setSaveToCustomerNotes] = useState(settings.saveToCustomerNotes);
 
@@ -155,10 +155,10 @@ export default function Settings() {
         wholesaleCustomerTag,
         adminEmailNotifications,
         adminEmailAddress,
-        enableReCAPTCHA,
+        enableReCAPTCHA: false,
         recaptchaSiteKey,
         recaptchaSecretKey,
-        enableHubSpot,
+        enableHubSpot: false,
         hubspotApiKey,
         saveToCustomerNotes,
         customerConfirmationEmail,
@@ -267,9 +267,10 @@ export default function Settings() {
 
                 <Text variant="headingSm" as="h3">Spam Prevention</Text>
                 <Checkbox
-                  label="Enable Google reCAPTCHA v2"
-                  helpText="Protect your storefront registration forms from automated spam bots."
-                  checked={enableReCAPTCHA}
+                  label="Google reCAPTCHA v2 (planned)"
+                  helpText="This connector is not active yet and should not be enabled for App Store review."
+                  checked={false}
+                  disabled
                   onChange={setEnableReCAPTCHA}
                 />
 
@@ -295,9 +296,10 @@ export default function Settings() {
 
                 <Text variant="headingSm" as="h3">HubSpot Integration</Text>
                 <Checkbox
-                  label="Enable HubSpot CRM Sync"
-                  helpText="Automatically push new registrants as Contacts in your HubSpot list."
-                  checked={enableHubSpot}
+                  label="HubSpot CRM sync (planned)"
+                  helpText="This connector is not active yet and should not be enabled for App Store review."
+                  checked={false}
+                  disabled
                   onChange={setEnableHubSpot}
                 />
 

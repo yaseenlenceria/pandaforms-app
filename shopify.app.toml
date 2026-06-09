@@ -7,7 +7,7 @@ embedded = true
 
 [access_scopes]
 # Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "read_customers,write_customers,read_products,read_themes,write_themes"
+scopes = "read_customers,write_customers"
 optional_scopes = [ ]
 use_legacy_install_flow = false
 
@@ -21,6 +21,10 @@ api_version = "2026-04"
   [[webhooks.subscriptions]]
   uri = "/webhooks/app/scopes_update"
   topics = [ "app/scopes_update" ]
+
+  [[webhooks.subscriptions]]
+  uri = "/webhooks/gdpr"
+  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
 
 [auth]
 redirect_urls = [ ]

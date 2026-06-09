@@ -1,8 +1,9 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
 import { json } from "@remix-run/node";
 import db from "../db.server";
-import { unauthenticated } from "../shopify.server";
+import { authenticate, unauthenticated } from "../shopify.server";
 import { sendEmail } from "../email.server";
+import { escapeHtml, escapeHtmlWithLineBreaks } from "../utils/html";
 
 // Handle CORS
 const corsHeaders = {
@@ -24,6 +25,15 @@ function isSyncForm(formTitle: string): boolean {
     title.includes("dealer") ||
     title.includes("account") ||
     title.includes("application")
+  );
+}
+
+function isSensitiveField(key: string): boolean {
+  const lowerKey = key.toLowerCase();
+  return (
+    lowerKey.includes("password") ||
+    lowerKey.includes("recaptcha") ||
+    lowerKey.includes("g-recaptcha")
   );
 }
 
@@ -53,9 +63,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return json({ error: "Missing formId or fields" }, { status: 400, headers: corsHeaders });
   }
 
+  const { session } = await authenticate.public.appProxy(request);
+  if (!session?.shop) {
+    return json({ error: "Unauthorized app proxy request" }, { status: 401, headers: corsHeaders });
+  }
+
   // 2. Fetch the Form
-  const form = await db.form.findUnique({
-    where: { id: formId },
+  const form = await db.form.findFirst({
+    where: { id: formId, shop: session.shop },
     include: { fields: true },
   });
 
@@ -64,6 +79,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 
   const shop = form.shop;
+  const safeFields = Object.fromEntries(
+    Object.entries(fields).filter(([key]) => !isSensitiveField(key))
+  );
 
   // 3. Extract primary customer fields (Name, Email, Phone, Company)
   let customerName = "";
@@ -71,7 +89,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   let phone = "";
   let companyName = "";
 
-  for (const [key, val] of Object.entries(fields)) {
+  for (const [key, val] of Object.entries(safeFields)) {
     const lowerKey = key.toLowerCase();
     const strVal = String(val).trim();
     if (lowerKey.includes("first name")) {
@@ -137,7 +155,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       email,
       phone,
       status,
-      submittedData: JSON.stringify(fields),
+      submittedData: JSON.stringify(safeFields),
       uploadedFiles: uploadedFiles || null,
       shop,
       emailStatus: "PENDING",
@@ -158,20 +176,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     if (settings.adminEmailNotifications && settings.adminEmailAddress) {
       const subject = `New Submission: ${form.title}`;
       let fieldsHtml = "";
-      for (const [key, val] of Object.entries(fields)) {
-        fieldsHtml += `<p><strong>${key}:</strong> ${val}</p>`;
+      for (const [key, val] of Object.entries(safeFields)) {
+        fieldsHtml += `<p><strong>${escapeHtml(key)}:</strong> ${escapeHtml(val)}</p>`;
       }
       if (uploadedFiles) {
-        fieldsHtml += `<p><strong>Uploaded Files:</strong> <a href="${uploadedFiles}">${uploadedFiles}</a></p>`;
+        const uploadedFilesUrl = escapeHtml(uploadedFiles);
+        fieldsHtml += `<p><strong>Uploaded Files:</strong> <a href="${uploadedFilesUrl}">${uploadedFilesUrl}</a></p>`;
       }
       const adminHtml = `
         <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
-          <h2 style="color: #4f46e5; border-bottom: 1px solid #eee; padding-bottom: 10px;">🐼 New Submission Received</h2>
-          <p>You received a new submission on your form: <strong>${form.title}</strong></p>
+          <h2 style="color: #4f46e5; border-bottom: 1px solid #eee; padding-bottom: 10px;">New Submission Received</h2>
+          <p>You received a new submission on your form: <strong>${escapeHtml(form.title)}</strong></p>
           <div style="background-color: #f9fafb; padding: 15px; border-radius: 6px; margin: 20px 0;">
             ${fieldsHtml}
           </div>
-          <p>Submission ID: <code style="font-family: monospace; font-size: 12px; background: #eef; padding: 2px 4px; border-radius: 3px;">${submission.id}</code></p>
+          <p>Submission ID: <code style="font-family: monospace; font-size: 12px; background: #eef; padding: 2px 4px; border-radius: 3px;">${escapeHtml(submission.id)}</code></p>
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
           <small style="color: #777;">Manage this submission in your PandaForms dashboard.</small>
         </div>
@@ -195,8 +214,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const customerHtml = `
         <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
           <h2 style="color: #4f46e5; border-bottom: 1px solid #eee; padding-bottom: 10px;">Submission Received</h2>
-          <p>Hi ${customerName || "there"},</p>
-          <p>${body.replace(/\n/g, "<br/>")}</p>
+          <p>Hi ${escapeHtml(customerName || "there")},</p>
+          <p>${escapeHtmlWithLineBreaks(body)}</p>
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
           <small style="color: #777;">Sent via PandaForms.</small>
         </div>
@@ -267,23 +286,19 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const searchJson: any = await searchResponse.json();
       const customerNode = searchJson.data?.customers?.edges?.[0]?.node;
 
-      const firstName = fields["First Name"] || fields["customer_first_name"] || customerName.split(" ")[0] || "";
-      const lastName = fields["Last Name"] || fields["customer_last_name"] || customerName.split(" ").slice(1).join(" ") || "Customer";
+      const firstName = safeFields["First Name"] || safeFields["customer_first_name"] || customerName.split(" ")[0] || "";
+      const lastName = safeFields["Last Name"] || safeFields["customer_last_name"] || customerName.split(" ").slice(1).join(" ") || "Customer";
 
       // Extra Answers to note
       let fieldsNotes = "";
-      for (const [key, val] of Object.entries(fields)) {
-        const lowerKey = key.toLowerCase();
-        if (lowerKey.includes("password") || lowerKey.includes("recaptcha") || lowerKey.includes("g-recaptcha")) {
-          continue;
-        }
+      for (const [key, val] of Object.entries(safeFields)) {
         fieldsNotes += `\n${key}: ${val}`;
       }
       const customerNotes = `Submitted Form: ${form.title}\nSubmitted At: ${submission.createdAt.toISOString()}\n\nAnswers:${fieldsNotes}`;
 
       // Metafields Extraction
       const metafields = [];
-      for (const [key, val] of Object.entries(fields)) {
+      for (const [key, val] of Object.entries(safeFields)) {
         const matchedField = form.fields.find(
           (f) => f.label === key || f.name === key
         );

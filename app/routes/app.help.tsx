@@ -16,7 +16,7 @@ export default function HelpCenter() {
     },
     {
       q: "How can I enable Google reCAPTCHA for my custom forms?",
-      a: "Go to Settings → Admin notification and tagging. Check 'Enable Google reCAPTCHA v2' and enter your Site Key and Secret Key from Google. This blocks spam bots from submitting forms.",
+      a: "Google reCAPTCHA is planned but not active yet. Keep this option disabled until it is implemented and tested.",
     },
     {
       q: "How can I enable automatic approval so users get access immediately after submitting?",
@@ -36,7 +36,7 @@ export default function HelpCenter() {
     },
     {
       q: "How can I integrate HubSpot with my custom form?",
-      a: "Go to Settings → Admin notification and tagging → HubSpot Integration. Check 'Enable HubSpot CRM Sync' and paste your HubSpot Access Token. New submissions will automatically create Contacts in HubSpot.",
+      a: "HubSpot sync is planned but not active yet. Keep this option disabled until it is implemented and tested.",
     },
   ];
 

@@ -54,7 +54,6 @@
 (function() {
   const blockId = "{{ block.id }}";
   const formId = "{{ block.settings.form_id }}";
-  const apiUrl = "{{ block.settings.api_url }}".replace(/\/$/, "");
   
   if (!formId) {
     document.querySelector(`#pandaforms-${blockId} .pandaforms-loading`).innerHTML = 
@@ -72,11 +71,10 @@
   
   let redirectUrl = "";
   
-  // App Proxy vs Absolute URL Routing
   let configEndpoint = `/apps/pandaforms/form-config?id=${formId}`;
   let submitEndpoint = `/apps/pandaforms/submit`;
   
-  // Fetch Form Configuration (First try relative App Proxy path, fallback to direct Backend API URL)
+  // Fetch Form Configuration through the Shopify app proxy.
   fetch(configEndpoint, {
     headers: {
       'ngrok-skip-browser-warning': 'true',
@@ -85,22 +83,7 @@
   })
     .then(res => {
       if (!res.ok) throw new Error("Proxy configuration fetch failed");
-      submitEndpoint = `/apps/pandaforms/submit`;
       return res.json();
-    })
-    .catch(err => {
-      console.warn("Proxy endpoint failed, falling back to direct API:", err);
-      configEndpoint = `${apiUrl}/api/form-config?id=${formId}`;
-      submitEndpoint = `${apiUrl}/api/submit`;
-      return fetch(configEndpoint, {
-        headers: {
-          'ngrok-skip-browser-warning': 'true',
-          'bypass-tunnel-reminder': 'true'
-        }
-      }).then(res => {
-        if (!res.ok) throw new Error("Direct API config fetch failed");
-        return res.json();
-      });
     })
     .then(data => {
       const form = data.form;
@@ -606,9 +589,8 @@
            <strong style="display: block; margin-bottom: 8px; font-size: 15px; color: #b91c1c;">⚠️ PandaForms — Form Failed to Load</strong>
            Could not connect to the PandaForms backend. Please check:<br/><br/>
            1. <strong>shopify app dev</strong> is running in your terminal<br/>
-           2. The <strong>App Backend URL</strong> in Theme Editor matches your current tunnel URL<br/>
-           3. Your Form ID is correct: <code style="background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px;">${formId}</code><br/><br/>
-           Currently configured URL: <code style="background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px;">${apiUrl}</code>
+           2. The PandaForms app proxy is configured and deployed<br/>
+           3. Your Form ID is correct: <code style="background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px;">${formId}</code>
          </div>
        `;
      });
@@ -697,8 +679,6 @@
   "settings": [
     { "type": "header", "content": "Form Setup" },
     { "type": "text", "id": "form_id", "label": "Form ID", "placeholder": "Enter Form UUID" },
-    { "type": "text", "id": "api_url", "label": "App Backend URL", "default": "http://localhost:3000" },
-    
     { "type": "header", "content": "Section Spacing" },
     {
       "type": "select",

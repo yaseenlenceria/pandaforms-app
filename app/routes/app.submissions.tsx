@@ -26,6 +26,7 @@ import { AlertBubbleIcon, CheckIcon, ExportIcon, RefreshIcon, EmailIcon } from "
 import { authenticate, unauthenticated } from "../shopify.server";
 import db from "../db.server";
 import { sendEmail } from "../email.server";
+import { escapeHtml, escapeHtmlWithLineBreaks } from "../utils/html";
 
 function isSyncForm(formTitle: string): boolean {
   const title = formTitle.toLowerCase();
@@ -261,16 +262,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     try {
       const data = JSON.parse(sub.submittedData);
       for (const [key, val] of Object.entries(data)) {
-        fieldsHtml += `<p><strong>${key}:</strong> ${val}</p>`;
+        fieldsHtml += `<p><strong>${escapeHtml(key)}:</strong> ${escapeHtml(val)}</p>`;
       }
     } catch(e) {
-      fieldsHtml = `<p>${sub.submittedData}</p>`;
+      fieldsHtml = `<p>${escapeHtml(sub.submittedData)}</p>`;
     }
 
     const emailHtml = `
       <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
-        <h2 style="color: #4f46e5; border-bottom: 1px solid #eee; padding-bottom: 10px;">🐼 Form Submission Details (Resend)</h2>
-        <p>Form: <strong>${sub.form.title}</strong></p>
+        <h2 style="color: #4f46e5; border-bottom: 1px solid #eee; padding-bottom: 10px;">Form Submission Details (Resend)</h2>
+        <p>Form: <strong>${escapeHtml(sub.form.title)}</strong></p>
         <div style="background-color: #f9fafb; padding: 15px; border-radius: 6px; margin: 20px 0;">
           ${fieldsHtml}
         </div>
@@ -343,8 +344,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const approvalHtml = `
         <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
           <h2 style="color: #10b981; border-bottom: 1px solid #eee; padding-bottom: 10px;">Account Approved</h2>
-          <p>Hi ${sub.customerName || "there"},</p>
-          <p>${body.replace(/\n/g, "<br/>")}</p>
+          <p>Hi ${escapeHtml(sub.customerName || "there")},</p>
+          <p>${escapeHtmlWithLineBreaks(body)}</p>
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
           <small style="color: #777;">Sent via PandaForms.</small>
         </div>
@@ -385,8 +386,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       const rejectionHtml = `
         <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #eee; border-radius: 8px;">
           <h2 style="color: #ef4444; border-bottom: 1px solid #eee; padding-bottom: 10px;">Update Regarding Application</h2>
-          <p>Hi ${sub.customerName || "there"},</p>
-          <p>${body.replace(/\n/g, "<br/>")}</p>
+          <p>Hi ${escapeHtml(sub.customerName || "there")},</p>
+          <p>${escapeHtmlWithLineBreaks(body)}</p>
           <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
           <small style="color: #777;">Sent via PandaForms.</small>
         </div>

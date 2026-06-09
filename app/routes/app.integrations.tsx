@@ -90,10 +90,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       smtpPass: smtpPass || "",
       smtpFrom: smtpFrom || "",
       smtpSecure: !!smtpSecure,
-      enableReCAPTCHA: !!enableReCAPTCHA,
+      enableReCAPTCHA: false,
       recaptchaSiteKey: recaptchaSiteKey || "",
       recaptchaSecretKey: recaptchaSecretKey || "",
-      enableHubSpot: !!enableHubSpot,
+      enableHubSpot: false,
       hubspotApiKey: hubspotApiKey || "",
     },
     create: {
@@ -104,10 +104,10 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       smtpPass: smtpPass || "",
       smtpFrom: smtpFrom || "",
       smtpSecure: !!smtpSecure,
-      enableReCAPTCHA: !!enableReCAPTCHA,
+      enableReCAPTCHA: false,
       recaptchaSiteKey: recaptchaSiteKey || "",
       recaptchaSecretKey: recaptchaSecretKey || "",
-      enableHubSpot: !!enableHubSpot,
+      enableHubSpot: false,
       hubspotApiKey: hubspotApiKey || "",
     },
   });
@@ -130,12 +130,12 @@ export default function Integrations() {
   const [smtpSecure, setSmtpSecure] = useState(settings.smtpSecure ?? true);
 
   // reCAPTCHA States
-  const [enableReCAPTCHA, setEnableReCAPTCHA] = useState(settings.enableReCAPTCHA || false);
+  const [enableReCAPTCHA, setEnableReCAPTCHA] = useState(false);
   const [recaptchaSiteKey, setRecaptchaSiteKey] = useState(settings.recaptchaSiteKey || "");
   const [recaptchaSecretKey, setRecaptchaSecretKey] = useState(settings.recaptchaSecretKey || "");
 
   // HubSpot States
-  const [enableHubSpot, setEnableHubSpot] = useState(settings.enableHubSpot || false);
+  const [enableHubSpot, setEnableHubSpot] = useState(false);
   const [hubspotApiKey, setHubspotApiKey] = useState(settings.hubspotApiKey || "");
 
   // Test Connection SMTP state
@@ -155,10 +155,10 @@ export default function Integrations() {
         smtpPass,
         smtpFrom,
         smtpSecure,
-        enableReCAPTCHA,
+        enableReCAPTCHA: false,
         recaptchaSiteKey,
         recaptchaSecretKey,
-        enableHubSpot,
+        enableHubSpot: false,
         hubspotApiKey,
       },
       {
@@ -316,8 +316,10 @@ export default function Integrations() {
             <Card>
               <BlockStack gap="400">
                 <Checkbox
-                  label="Enable Google reCAPTCHA v2 spam filter"
-                  checked={enableReCAPTCHA}
+                  label="Google reCAPTCHA v2 spam filter (planned)"
+                  helpText="This connector is not active yet and should not be enabled for App Store review."
+                  checked={false}
+                  disabled
                   onChange={setEnableReCAPTCHA}
                 />
                 
@@ -351,8 +353,10 @@ export default function Integrations() {
             <Card>
               <BlockStack gap="400">
                 <Checkbox
-                  label="Enable HubSpot CRM Contact synchronization"
-                  checked={enableHubSpot}
+                  label="HubSpot CRM contact synchronization (planned)"
+                  helpText="This connector is not active yet and should not be enabled for App Store review."
+                  checked={false}
+                  disabled
                   onChange={setEnableHubSpot}
                 />
                 
@@ -369,18 +373,18 @@ export default function Integrations() {
             </Card>
           </Layout.AnnotatedSection>
 
-          {/* Premium Connectors (Phase 2) */}
+          {/* Planned connectors */}
           <Layout.AnnotatedSection
             id="premium-integrations"
-            title="Phase 2 Integrations"
-            description="Connect to your email marketing platforms and automation tools to expand B2B workflows."
+            title="Planned integrations"
+            description="Upcoming connector options for email marketing platforms and automation tools."
           >
             <InlineGrid columns={{ xs: 1, sm: 2 }} gap="400">
               {[
-                { name: "Klaviyo", desc: "Sync custom form properties to Klaviyo marketing lists.", badge: "Premium" },
-                { name: "Mailchimp", desc: "Sync form leads directly to Mailchimp audences.", badge: "Premium" },
-                { name: "Google Sheets", desc: "Write submissions directly as rows in Google Sheets.", badge: "Advanced" },
-                { name: "Zapier", desc: "Connect form events to thousands of web apps via webhook.", badge: "Advanced" },
+                { name: "Klaviyo", desc: "Planned connector for Klaviyo marketing lists.", badge: "Planned" },
+                { name: "Mailchimp", desc: "Planned connector for Mailchimp audiences.", badge: "Planned" },
+                { name: "Google Sheets", desc: "Planned connector for spreadsheet exports.", badge: "Planned" },
+                { name: "Zapier", desc: "Planned connector for automation webhooks.", badge: "Planned" },
               ].map((item) => (
                 <Card key={item.name}>
                   <BlockStack gap="200" style={{ height: "100%", justifyContent: "space-between" }}>

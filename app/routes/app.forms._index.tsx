@@ -192,8 +192,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
         { type: "text", label: "Customer First Name", required: true, width: "half", position: 1, name: "customer_first_name" },
         { type: "text", label: "Customer Last Name", required: true, width: "half", position: 2, name: "customer_last_name" },
         { type: "email", label: "Customer Email", required: true, width: "full", position: 3, name: "customer_email" },
-        { type: "password", label: "Customer Password", required: true, width: "full", position: 4, name: "customer_password" },
-        { type: "checkbox", label: "Subscribe to newsletter", required: false, width: "full", position: 5, name: "subscribe_marketing" },
+        { type: "checkbox", label: "Subscribe to newsletter", required: false, width: "full", position: 4, name: "subscribe_marketing" },
       ];
       break;
     case "enquiry":
@@ -260,8 +259,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
             { label: "Changed my mind", value: "changed_mind", desc: "", defaultChecked: false },
           ])
         },
-        { type: "file", label: "Upload Proof of Defect (Image/PDF)", required: false, width: "full", position: 5, name: "proof" },
-        { type: "textarea", label: "Details / Explanation", required: false, width: "full", position: 6, name: "notes" },
+        { type: "textarea", label: "Details / Explanation", required: false, width: "full", position: 5, name: "notes" },
       ];
       break;
     default:
@@ -399,11 +397,11 @@ export default function FormsList() {
 
   const templatesList = [
     { key: "wholesale", title: "Wholesale registration form", desc: "Connects to Shopify Customer API. Auto-tags approved accounts.", badge: "Customer Sync" },
-    { key: "customer_reg", title: "Customer registration form", desc: "Standard shopper store registration with email & password.", badge: "Customer Sync" },
+    { key: "customer_reg", title: "Customer registration form", desc: "Standard shopper registration request with customer sync.", badge: "Customer Sync" },
     { key: "enquiry", title: "Product enquiry form", desc: "Allows shoppers to ask questions about product specs directly.", badge: "Theme Page" },
     { key: "contact", title: "Contact form", desc: "Generic contact enquiry form to capture general queries.", badge: "General" },
     { key: "appointment", title: "Book an appointment", desc: "Fittings, consultation requests, or appointment bookings.", badge: "Contact Form" },
-    { key: "return", title: "Return request", desc: "Processes return requests with order number & defect uploads.", badge: "File Upload" },
+    { key: "return", title: "Return request", desc: "Processes return requests with order number and customer notes.", badge: "Service" },
   ];
 
   return (
