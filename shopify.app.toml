@@ -42,31 +42,4 @@ url = "https://p01--pandaforms-app--77wd8gj6rv7k.code.run/api"
 subpath = "pandaforms"
 prefix = "apps"
 
-[navigation]
-[[navigation.items]]
-title = "Home"
-link = "/app"
 
-[[navigation.items]]
-title = "Forms"
-link = "/app/forms"
-
-[[navigation.items]]
-title = "Submissions"
-link = "/app/submissions"
-
-[[navigation.items]]
-title = "Analytics"
-link = "/app/analytics"
-
-[[navigation.items]]
-title = "Integrations"
-link = "/app/integrations"
-
-[[navigation.items]]
-title = "Settings"
-link = "/app/settings"
-
-[[navigation.items]]
-title = "Help Center"
-link = "/app/help"
