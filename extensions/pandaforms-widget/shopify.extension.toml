@@ -1,3 +1,7 @@
 name = "pandaforms-widget"
 type = "theme"
 uid = "4d7c2395-8e58-5ca5-c198-e1254605b8cded4a1547"
+
+[[extensions.targeting]]
+target = "section"
+module = "blocks/form_widget.liquid"
