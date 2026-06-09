@@ -12,7 +12,7 @@
       <!-- Login Link Top Container -->
       <div class="pandaforms-login-top" style="display: none; text-align: center; margin-bottom: 15px; font-size: 14px; color: {{ block.settings.text_color }};">
         <span class="pandaforms-login-prefix-top"></span>
-        <a class="pandaforms-login-link-top" href="/account/login" style="margin-left: 5px; font-weight: 600; text-decoration: underline; color: {{ block.settings.btn_bg_color }};"></a>
+        <a class="pandaforms-login-link-top" href="{{ routes.account_login_url }}" style="margin-left: 5px; font-weight: 600; text-decoration: underline; color: {{ block.settings.btn_bg_color }};"></a>
       </div>
 
       <!-- Fields flexbox wrapper -->
@@ -38,7 +38,7 @@
       <!-- Login Link Bottom Container -->
       <div class="pandaforms-login-bottom" style="display: none; text-align: center; margin-top: 15px; font-size: 14px; color: {{ block.settings.text_color }};">
         <span class="pandaforms-login-prefix-bottom"></span>
-        <a class="pandaforms-login-link-bottom" href="/account/login" style="margin-left: 5px; font-weight: 600; text-decoration: underline; color: {{ block.settings.btn_bg_color }};"></a>
+        <a class="pandaforms-login-link-bottom" href="{{ routes.account_login_url }}" style="margin-left: 5px; font-weight: 600; text-decoration: underline; color: {{ block.settings.btn_bg_color }};"></a>
       </div>
     </form>
   </div>
@@ -693,7 +693,7 @@
 {% schema %}
 {
   "name": "PandaForms Widget",
-  "target": "section",
+  "target": "body",
   "settings": [
     { "type": "header", "content": "Form Setup" },
     { "type": "text", "id": "form_id", "label": "Form ID", "placeholder": "Enter Form UUID" },
