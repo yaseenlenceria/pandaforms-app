@@ -1,5 +1,5 @@
-import type { HeadersFunction, LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
-import { Link, Outlet, useLoaderData, useRouteError } from "@remix-run/react";
+import type { HeadersFunction, LoaderFunctionArgs } from "@remix-run/node";
+import { Outlet, useLoaderData, useRouteError } from "@remix-run/react";
 import { boundary } from "@shopify/shopify-app-remix/server";
 import { AppProvider } from "@shopify/shopify-app-remix/react";
 import { NavMenu } from "@shopify/app-bridge-react";
@@ -11,12 +11,7 @@ export const links = () => [{ rel: "stylesheet", href: polarisStyles }];
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.admin(request);
-
   return { apiKey: process.env.SHOPIFY_API_KEY || "" };
-};
-
-export const meta: MetaFunction<typeof loader> = ({ data }) => {
-  return [{ name: "shopify-api-key", content: data?.apiKey || "" }];
 };
 
 export default function App() {
@@ -25,15 +20,13 @@ export default function App() {
   return (
     <AppProvider isEmbeddedApp apiKey={apiKey}>
       <NavMenu>
-        <Link to="/app" rel="home">
-          Home
-        </Link>
-        <Link to="/app/forms">Forms</Link>
-        <Link to="/app/submissions">Submissions</Link>
-        <Link to="/app/analytics">Analytics</Link>
-        <Link to="/app/integrations">Integrations</Link>
-        <Link to="/app/settings">Settings</Link>
-        <Link to="/app/help">Help Center</Link>
+        <a href="/app" rel="home">Home</a>
+        <a href="/app/forms">Forms</a>
+        <a href="/app/submissions">Submissions</a>
+        <a href="/app/analytics">Analytics</a>
+        <a href="/app/integrations">Integrations</a>
+        <a href="/app/settings">Settings</a>
+        <a href="/app/help">Help Center</a>
       </NavMenu>
       <Outlet />
     </AppProvider>
