@@ -1,0 +1,194 @@
+{% comment %}
+  PandaForms section app block
+  This block appears in Online Store > Theme Editor > Add section > Apps.
+{% endcomment %}
+
+{%- assign spacing_px = '24px' -%}
+{%- if block.settings.card_spacing == 'none' -%}
+  {%- assign spacing_px = '0px' -%}
+{%- elsif block.settings.card_spacing == 'small' -%}
+  {%- assign spacing_px = '12px' -%}
+{%- elsif block.settings.card_spacing == 'large' -%}
+  {%- assign spacing_px = '48px' -%}
+{%- elsif block.settings.card_spacing == 'huge' -%}
+  {%- assign spacing_px = '80px' -%}
+{%- endif -%}
+
+<section class="pandaforms-section" id="pandaforms-{{ block.id }}" style="padding-top: {{ spacing_px }}; padding-bottom: {{ spacing_px }}; width: 100%;">
+  <div class="pandaforms-card" style="max-width: {{ block.settings.form_width }}px; margin: 0 auto; padding: 28px; border-radius: {{ block.settings.border_radius }}px; background: {{ block.settings.bg_color }}; color: {{ block.settings.text_color }}; border: 1px solid {{ block.settings.border_color }};">
+    <div class="pandaforms-loading" style="text-align:center; padding: 16px;">Loading PandaForms...</div>
+    <div class="pandaforms-content" style="display:none;">
+      <h2 class="pandaforms-title" style="margin: 0 0 8px; text-align:center; color: {{ block.settings.text_color }};"></h2>
+      <p class="pandaforms-desc" style="margin: 0 0 22px; text-align:center; color: {{ block.settings.text_color }}; opacity:.78;"></p>
+      <form class="pandaforms-form" style="display:flex; flex-direction:column; gap:16px;">
+        <div class="pandaforms-fields" style="display:flex; flex-wrap:wrap; gap:16px;"></div>
+        <button type="submit" class="pandaforms-submit" style="width:100%; padding:13px 16px; border:0; border-radius:{{ block.settings.button_radius }}px; background:{{ block.settings.button_bg_color }}; color:{{ block.settings.button_text_color }}; font-weight:700; cursor:pointer;">
+          {{ block.settings.button_text }}
+        </button>
+      </form>
+    </div>
+    <div class="pandaforms-success" style="display:none; text-align:center; padding:20px; color: {{ block.settings.success_color }};">
+      <h3 style="margin:0 0 8px;">Success</h3>
+      <p class="pandaforms-success-msg" style="margin:0;"></p>
+    </div>
+  </div>
+</section>
+
+<script>
+(function() {
+  var blockId = {{ block.id | json }};
+  var formId = {{ block.settings.form_id | json }};
+  var apiUrl = {{ block.settings.api_url | json }}.replace(/\/$/, '');
+  var root = document.getElementById('pandaforms-' + blockId);
+  if (!root) return;
+  var loading = root.querySelector('.pandaforms-loading');
+  var content = root.querySelector('.pandaforms-content');
+  var fieldsWrap = root.querySelector('.pandaforms-fields');
+  var formEl = root.querySelector('.pandaforms-form');
+  var success = root.querySelector('.pandaforms-success');
+  var submitBtn = root.querySelector('.pandaforms-submit');
+  var redirectUrl = '';
+
+  function showError(message) {
+    loading.innerHTML = '<p style="color:#b42318; margin:0;">' + message + '</p>';
+  }
+
+  if (!formId) {
+    showError('PandaForms: Please add the Form ID from the PandaForms app.');
+    return;
+  }
+
+  function fieldInput(field) {
+    var label = field.label || field.name || 'Field';
+    var key = field.key || field.id || label.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+    var type = field.type || 'text';
+    var required = field.required ? 'required' : '';
+    var placeholder = field.placeholder || '';
+    var width = field.width || '100';
+    var html = '<div style="flex: 1 1 calc(' + width + '% - 16px); min-width: 220px;">';
+    html += '<label style="display:block; margin:0 0 6px; font-weight:600; color:{{ block.settings.text_color }};">' + label + (field.required ? ' <span style="color:#d72c0d;">*</span>' : '') + '</label>';
+    if (type === 'textarea') {
+      html += '<textarea name="' + key + '" placeholder="' + placeholder + '" ' + required + ' style="width:100%; min-height:110px; padding:11px 12px; border:1px solid {{ block.settings.input_border_color }}; border-radius:6px; background:{{ block.settings.input_bg_color }}; color:{{ block.settings.input_text_color }};"></textarea>';
+    } else {
+      var inputType = type === 'email' ? 'email' : type === 'phone' ? 'tel' : type === 'date' ? 'date' : 'text';
+      html += '<input type="' + inputType + '" name="' + key + '" placeholder="' + placeholder + '" ' + required + ' style="width:100%; padding:11px 12px; border:1px solid {{ block.settings.input_border_color }}; border-radius:6px; background:{{ block.settings.input_bg_color }}; color:{{ block.settings.input_text_color }};" />';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function loadForm() {
+    var proxyUrl = '/apps/pandaforms/form-config?id=' + encodeURIComponent(formId);
+    var directUrl = apiUrl + '/api/form-config?id=' + encodeURIComponent(formId);
+    fetch(proxyUrl).then(function(res) {
+      if (!res.ok) throw new Error('proxy failed');
+      return res.json();
+    }).catch(function() {
+      return fetch(directUrl).then(function(res) {
+        if (!res.ok) throw new Error('direct failed');
+        return res.json();
+      });
+    }).then(function(data) {
+      var form = data.form || data;
+      root.querySelector('.pandaforms-title').textContent = form.title || form.name || 'PandaForms';
+      root.querySelector('.pandaforms-desc').textContent = form.description || '';
+      root.querySelector('.pandaforms-success-msg').textContent = form.successMessage || 'Thank you. Your form has been submitted.';
+      redirectUrl = form.redirectUrl || '';
+      var fields = form.fields || [];
+      fieldsWrap.innerHTML = fields.map(fieldInput).join('');
+      loading.style.display = 'none';
+      content.style.display = 'block';
+    }).catch(function(err) {
+      console.error(err);
+      showError('PandaForms: Form could not load. Please check Form ID and app URL.');
+    });
+  }
+
+  formEl.addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = '.65';
+    submitBtn.textContent = 'Submitting...';
+    var payload = {};
+    Array.prototype.forEach.call(formEl.elements, function(el) {
+      if (el.name) payload[el.name] = el.value;
+    });
+    var proxySubmit = '/apps/pandaforms/submit';
+    var directSubmit = apiUrl + '/api/submit';
+    function post(url) {
+      return fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ formId: formId, fields: payload })
+      });
+    }
+    post(proxySubmit).then(function(res) {
+      if (!res.ok) throw new Error('proxy submit failed');
+      return res.json();
+    }).catch(function() {
+      return post(directSubmit).then(function(res) { return res.json(); });
+    }).then(function(res) {
+      if (res && res.success) {
+        if (redirectUrl) window.location.href = redirectUrl;
+        content.style.display = 'none';
+        success.style.display = 'block';
+      } else {
+        alert((res && res.error) || 'Submission failed. Please try again.');
+      }
+    }).catch(function(err) {
+      console.error(err);
+      alert('Submission failed. Please try again.');
+    }).finally(function() {
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '1';
+      submitBtn.textContent = {{ block.settings.button_text | json }};
+    });
+  });
+
+  loadForm();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "PandaForms Widget",
+  "target": "section",
+  "settings": [
+    { "type": "header", "content": "Form Setup" },
+    { "type": "text", "id": "form_id", "label": "Form ID", "placeholder": "Paste Form ID from PandaForms" },
+    { "type": "text", "id": "api_url", "label": "App URL", "default": "https://p01--pandaforms-shopify-app--y7sz6xfjwml6.code.run" },
+
+    { "type": "header", "content": "Layout" },
+    {
+      "type": "select",
+      "id": "card_spacing",
+      "label": "Top & Bottom Spacing",
+      "default": "medium",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "small", "label": "Small" },
+        { "value": "medium", "label": "Medium" },
+        { "value": "large", "label": "Large" },
+        { "value": "huge", "label": "Extra Large" }
+      ]
+    },
+    { "type": "range", "id": "form_width", "label": "Form Width", "min": 420, "max": 1200, "step": 20, "default": 800 },
+    { "type": "range", "id": "border_radius", "label": "Card Radius", "min": 0, "max": 32, "step": 2, "default": 8 },
+
+    { "type": "header", "content": "Colours" },
+    { "type": "color", "id": "bg_color", "label": "Card Background", "default": "#ffffff" },
+    { "type": "color", "id": "text_color", "label": "Text", "default": "#202223" },
+    { "type": "color", "id": "border_color", "label": "Border", "default": "#e1e3e5" },
+    { "type": "color", "id": "input_bg_color", "label": "Input Background", "default": "#ffffff" },
+    { "type": "color", "id": "input_text_color", "label": "Input Text", "default": "#202223" },
+    { "type": "color", "id": "input_border_color", "label": "Input Border", "default": "#8c9196" },
+    { "type": "color", "id": "button_bg_color", "label": "Button Background", "default": "#008060" },
+    { "type": "color", "id": "button_text_color", "label": "Button Text", "default": "#ffffff" },
+    { "type": "color", "id": "success_color", "label": "Success Text", "default": "#008060" },
+
+    { "type": "header", "content": "Button" },
+    { "type": "text", "id": "button_text", "label": "Button Text", "default": "Submit" },
+    { "type": "range", "id": "button_radius", "label": "Button Radius", "min": 0, "max": 32, "step": 2, "default": 6 }
+  ]
+}
+{% endschema %}
