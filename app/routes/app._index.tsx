@@ -114,6 +114,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     smtpConfigured,
     reCaptchaConfigured,
     shop,
+    apiKey: process.env.SHOPIFY_API_KEY || "",
   });
 };
 
@@ -227,6 +228,8 @@ export default function Index() {
     activities,
     smtpConfigured,
     reCaptchaConfigured,
+    shop,
+    apiKey,
   } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const navigate = useNavigate();
@@ -288,6 +291,69 @@ export default function Index() {
             </Button>
           </div>
         </div>
+
+        {/* Theme Onboarding Guide Card */}
+        <Card>
+          <BlockStack gap="400">
+            <InlineStack align="space-between" blockAlign="center">
+              <BlockStack gap="100">
+                <Text variant="headingMd" as="h2">
+                  🛠️ Storefront Theme Integration Guide
+                </Text>
+                <Text variant="bodyMd" as="p" tone="subdued">
+                  PandaForms supports two ways to display your forms on your storefront. Follow these steps to make them visible:
+                </Text>
+              </BlockStack>
+              <Button
+                variant="primary"
+                url={`https://${shop}/admin/themes/current/editor?context=apps&activateAppId=${apiKey}/form_widget`}
+                target="_blank"
+                icon={SettingsIcon}
+              >
+                Open Theme Editor & Enable Embed
+              </Button>
+            </InlineStack>
+
+            <Divider />
+
+            <InlineGrid columns={{ xs: 1, md: 2 }} gap="600">
+              <BlockStack gap="200">
+                <Text variant="headingSm" as="h3" tone="success">
+                  Option A: Add as a Custom Page Section (Recommended)
+                </Text>
+                <Text variant="bodyMd" as="p">
+                  Best for dedicatng a specific page (e.g. <code>/pages/wholesale</code> or <code>/pages/contact</code>) to a single form.
+                </Text>
+                <Box padding="300" background="bg-surface-active" borderRadius="200">
+                  <BlockStack gap="100">
+                    <Text variant="bodySm" as="p"><strong>1. Create a Page:</strong> Go to <strong>Online Store → Pages</strong> in Shopify and add a new page (e.g. "Wholesale Registration").</Text>
+                    <Text variant="bodySm" as="p"><strong>2. Customize Theme:</strong> Go to <strong>Online Store → Themes</strong>, and click <strong>Customize</strong> on your active theme.</Text>
+                    <Text variant="bodySm" as="p"><strong>3. Go to Page:</strong> Use the top template selector in the Theme Editor to select your newly created page.</Text>
+                    <Text variant="bodySm" as="p"><strong>4. Add App Section:</strong> Click <strong>Add section</strong> in the left sidebar, switch to the <strong>Apps</strong> tab, and choose <strong>PandaForms Widget</strong>.</Text>
+                    <Text variant="bodySm" as="p"><strong>5. Set Form ID:</strong> Open the block settings on the right, copy your <strong>Form ID</strong> from your Forms list, paste it, and click <strong>Save</strong>.</Text>
+                  </BlockStack>
+                </Box>
+              </BlockStack>
+
+              <BlockStack gap="200">
+                <Text variant="headingSm" as="h3" tone="attention">
+                  Option B: Enable App Embed globally
+                </Text>
+                <Text variant="bodyMd" as="p">
+                  Allows you to inject the form widget into the body of your page templates globally.
+                </Text>
+                <Box padding="300" background="bg-surface-active" borderRadius="200">
+                  <BlockStack gap="100">
+                    <Text variant="bodySm" as="p"><strong>1. Enable App Embed:</strong> Click the <strong>Open Theme Editor & Enable Embed</strong> button above.</Text>
+                    <Text variant="bodySm" as="p"><strong>2. Toggle Switch:</strong> Locate <strong>PandaForms Widget</strong> in the App embeds list on the left side and toggle it to <strong>Enabled</strong>.</Text>
+                    <Text variant="bodySm" as="p"><strong>3. Configure Form:</strong> Paste your <strong>Form ID</strong> into the settings card on the right.</Text>
+                    <Text variant="bodySm" as="p"><strong>4. Save Changes:</strong> Click <strong>Save</strong> in the top-right corner of the Shopify Theme Editor.</Text>
+                  </BlockStack>
+                </Box>
+              </BlockStack>
+            </InlineGrid>
+          </BlockStack>
+        </Card>
 
         {/* 3 Core Numeric Stats */}
         <InlineGrid columns={{ xs: 1, md: 3 }} gap="400">

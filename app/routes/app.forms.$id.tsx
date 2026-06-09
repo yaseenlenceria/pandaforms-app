@@ -56,7 +56,11 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
     throw new Response("Form not found", { status: 404 });
   }
 
-  return json({ form });
+  return json({
+    form,
+    shop,
+    apiKey: process.env.SHOPIFY_API_KEY || "",
+  });
 };
 
 export const action = async ({ params, request }: ActionFunctionArgs) => {
@@ -160,7 +164,7 @@ interface FormFieldItem {
 }
 
 export default function FormBuilder() {
-  const { form } = useLoaderData<typeof loader>();
+  const { form, shop, apiKey } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const shopify = useAppBridge();
   const navigation = useNavigation();
@@ -1287,6 +1291,45 @@ export default function FormBuilder() {
                   <Text variant="bodySm" as="p" tone="subdued">
                     Use this ID to show the form in the theme widget.
                   </Text>
+                </BlockStack>
+              </Card>
+
+              {/* Theme Integration Guide Card */}
+              <Card>
+                <BlockStack gap="300">
+                  <Text variant="headingSm" as="h3">
+                    Storefront Theme Setup
+                  </Text>
+                  <Text variant="bodySm" as="p" tone="subdued">
+                    Copy the Form ID above, then add it to your store:
+                  </Text>
+                  
+                  <Divider />
+                  
+                  <BlockStack gap="200">
+                    <Text variant="bodySm" as="strong">
+                      1. Add to Page Section (Recommended)
+                    </Text>
+                    <Text variant="bodyXs" as="p" tone="subdued">
+                      Go to <strong>Online Store → Themes → Customize</strong>. Choose/create a page, click <strong>Add section</strong>, choose <strong>Apps → PandaForms Widget</strong>, paste the Form ID, and Save.
+                    </Text>
+                    
+                    <Text variant="bodySm" as="strong">
+                      2. Add globally via App Embed
+                    </Text>
+                    <Text variant="bodyXs" as="p" tone="subdued">
+                      Click the button below to enable the app embed globally on your theme, and configure your Form ID in settings.
+                    </Text>
+                  </BlockStack>
+
+                  <Button
+                    variant="primary"
+                    url={`https://${shop}/admin/themes/current/editor?context=apps&activateAppId=${apiKey}/form_widget`}
+                    target="_blank"
+                    fullWidth
+                  >
+                    Enable App Embed in Theme
+                  </Button>
                 </BlockStack>
               </Card>
 
