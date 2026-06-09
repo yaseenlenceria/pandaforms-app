@@ -1,0 +1,138 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Note that some adapters may set a maximum length for the String type by default, please ensure your strings are long
+// enough when changing adapters.
+// See https://www.prisma.io/docs/orm/reference/prisma-schema-reference#string for more information
+datasource db {
+  provider = "sqlite"
+  url      = "file:dev.sqlite"
+}
+
+model Session {
+  id                  String    @id
+  shop                String
+  state               String
+  isOnline            Boolean   @default(false)
+  scope               String?
+  expires             DateTime?
+  accessToken         String
+  userId              BigInt?
+  firstName           String?
+  lastName            String?
+  email               String?
+  accountOwner        Boolean   @default(false)
+  locale              String?
+  collaborator        Boolean?  @default(false)
+  emailVerified       Boolean?  @default(false)
+  refreshToken        String?
+  refreshTokenExpires DateTime?
+}
+
+model Form {
+  id                      String       @id @default(uuid())
+  title                   String
+  description             String?
+  successMessage          String?      @default("Thank you for your submission!")
+  redirectUrl             String?
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @updatedAt
+  fields                  FormField[]
+  submissions             Submission[]
+  shop                    String
+  status                  String       @default("ACTIVE") // ACTIVE, DRAFT, ARCHIVED
+  theme                   String       @default("minimal") // minimal, glassmorphism, dark, playful, classic
+  views                   Int          @default(0)
+  // Advanced Settings from image
+  loginLinkPrefix         String?      @default("Already have an account?")
+  loginLinkLabel          String?      @default("Sign In")
+  loginLinkPosition       String?      @default("After Submit Button")
+  emailExistsMessage      String?      @default("Email Already Taken! Try a different Email or Login")
+  adminNotificationEmails String?
+  disableCountryOptions   Boolean      @default(false)
+  defaultCountryPhoneCode String?      @default("+1")
+  integrationHubSpot      Boolean      @default(false)
+  integrationReCAPTCHA    Boolean      @default(false)
+}
+
+model FormField {
+  id              String   @id @default(uuid())
+  formId          String
+  form            Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  type            String
+  label           String
+  placeholder     String?
+  required        Boolean  @default(false)
+  choices         String?
+  position        Int      @default(0)
+  width           String   @default("full") // "full" or "half"
+  name            String?
+  requiredMessage String?
+  metafieldKey    String?
+  isDynamicTag    Boolean  @default(false)
+  logicRules      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Submission {
+  id            String   @id @default(uuid())
+  formId        String
+  form          Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+  customerName  String?
+  email         String?
+  phone         String?
+  status        String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  submittedData String
+  uploadedFiles String?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  shop          String
+  emailStatus   String   @default("PENDING") // PENDING, SENT, FAILED, N/A
+  emailLog      String?  @default("")
+  syncStatus    String   @default("PENDING") // PENDING, SUCCESS, FAILED, SKIPPED, N/A
+  syncLog       String?  @default("")
+}
+
+model Setting {
+  id                     String   @id @default(uuid())
+  shop                   String   @unique
+  autoApprove            Boolean  @default(false)
+  approvedCustomerTag    String   @default("approved")
+  wholesaleCustomerTag   String   @default("wholesale")
+  adminEmailNotifications Boolean  @default(true)
+  adminEmailAddress      String?
+  // SMTP settings
+  smtpHost               String?  @default("")
+  smtpPort               Int?     @default(587)
+  smtpUser               String?  @default("")
+  smtpPass               String?  @default("")
+  smtpFrom               String?  @default("")
+  smtpSecure             Boolean  @default(true)
+  // Advanced auto-approve settings
+  autoApproveDomains     String?  @default("")
+  autoApproveWholesaleIfCompany Boolean @default(false)
+  // New configuration options
+  enableReCAPTCHA        Boolean  @default(false)
+  recaptchaSiteKey       String?  @default("")
+  recaptchaSecretKey     String?  @default("")
+  enableHubSpot          Boolean  @default(false)
+  hubspotApiKey          String?  @default("")
+  saveToCustomerNotes    Boolean  @default(true)
+  customerConfirmationEmail Boolean @default(true)
+  customerApprovalEmail    Boolean @default(true)
+  customerRejectionEmail   Boolean @default(true)
+  confirmationEmailSubject String? @default("We received your submission!")
+  confirmationEmailBody    String? @default("Thank you for submitting the form. We are reviewing your application.")
+  approvalEmailSubject    String? @default("Your account has been approved!")
+  approvalEmailBody        String? @default("Congratulations! Your account has been approved. You now have full access.")
+  rejectionEmailSubject    String? @default("Update regarding your application")
+  rejectionEmailBody        String? @default("Thank you for your interest. Unfortunately, we cannot approve your application at this time.")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
