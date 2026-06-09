@@ -1,21 +1,22 @@
-FROM node:18-alpine
-RUN apk add --no-cache openssl
+FROM node:22-alpine
 
-EXPOSE 3000
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV PORT=3000
 
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 
-RUN npm ci --omit=dev && npm cache clean --force
-# Remove CLI packages since we don't need them in production by default.
-# Remove this line if you want to run CLI commands in your container.
-RUN npm remove @shopify/cli
+RUN npm ci
 
 COPY . .
 
 RUN npm run build
+
+RUN npm prune --omit=dev && npm cache clean --force
+
+EXPOSE 3000
 
 CMD ["npm", "run", "docker-start"]
