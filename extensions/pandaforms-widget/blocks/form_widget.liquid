@@ -370,14 +370,17 @@
       // Render Fields
       form.fields.forEach(field => {
         const fieldWrapper = document.createElement('div');
-        fieldWrapper.className = `pandaforms-field-wrapper ${field.width === 'half' ? 'width-half' : 'width-full'}`;
+        fieldWrapper.className = `pandaforms-field-wrapper ${field.width === 'third' ? 'width-third' : field.width === 'half' ? 'width-half' : 'width-full'}`;
         fieldWrapper.style.display = field.type === 'hidden' ? 'none' : 'flex';
         fieldWrapper.style.flexDirection = 'column';
         fieldWrapper.style.gap = '5px';
         fieldWrapper.style.boxSizing = 'border-box';
         
         // Dynamic styling for responsive width
-        if (field.width === 'half') {
+        if (field.width === 'third') {
+          fieldWrapper.style.flex = '1 1 calc(33.33% - 11px)';
+          fieldWrapper.style.minWidth = '180px';
+        } else if (field.width === 'half') {
           fieldWrapper.style.flex = '1 1 calc(50% - 8px)';
           fieldWrapper.style.minWidth = '240px';
         } else {

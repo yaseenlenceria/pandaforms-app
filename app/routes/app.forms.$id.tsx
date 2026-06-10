@@ -797,6 +797,12 @@ export default function FormBuilder() {
                                             <span style={{ fontSize: "13px", color: "#202223" }}>Field Column Width</span>
                                             <InlineStack gap="200">
                                               <Button
+                                                pressed={field.width === "third"}
+                                                onClick={() => updateFieldProperty(index, "width", "third")}
+                                              >
+                                                33% (1/3 Width)
+                                              </Button>
+                                              <Button
                                                 pressed={field.width === "half"}
                                                 onClick={() => updateFieldProperty(index, "width", "half")}
                                               >
@@ -1003,6 +1009,21 @@ export default function FormBuilder() {
                         </Text>
                       </InlineStack>
                       <InlineStack gap="200" blockAlign="center">
+                        <div style={{ minWidth: "180px" }}>
+                          <Select
+                            label="Form Style Theme"
+                            labelHidden
+                            options={[
+                              { label: "Minimalist (Clean)", value: "minimal" },
+                              { label: "Glassmorphism (Frosted)", value: "glassmorphism" },
+                              { label: "Modern Dark (Vibrant Dark)", value: "dark" },
+                              { label: "Playful / Bold (Neon Brutalism)", value: "playful" },
+                              { label: "Classic Shopify Theme (Polaris Match)", value: "classic" },
+                            ]}
+                            value={theme}
+                            onChange={setTheme}
+                          />
+                        </div>
                         <Button pressed={previewViewport === "desktop"} onClick={() => setPreviewViewport("desktop")} size="slim">Desktop Preview</Button>
                         <Button pressed={previewViewport === "mobile"} onClick={() => setPreviewViewport("mobile")} size="slim">Mobile Preview</Button>
                         <Badge tone="success">Storefront Theme Match</Badge>
@@ -1077,7 +1098,24 @@ export default function FormBuilder() {
                               {fields
                                 .filter((f) => f.type !== "hidden")
                                 .map((f, idx) => {
-                                  const isHalf = f.width === "half";
+                                  const widthStyle = (() => {
+                                    if (f.width === "third") {
+                                      return {
+                                        flex: "1 1 calc(33.33% - 14px)",
+                                        minWidth: "180px",
+                                      };
+                                    }
+                                    if (f.width === "half") {
+                                      return {
+                                        flex: "1 1 calc(50% - 10px)",
+                                        minWidth: "240px",
+                                      };
+                                    }
+                                    return {
+                                      flex: "1 1 100%",
+                                      minWidth: "100%",
+                                    };
+                                  })();
                                   return (
                                     <div
                                       key={idx}
@@ -1085,8 +1123,7 @@ export default function FormBuilder() {
                                         display: "flex",
                                         flexDirection: "column",
                                         gap: "8px",
-                                        flex: isHalf ? "1 1 calc(50% - 10px)" : "1 1 100%",
-                                        minWidth: isHalf ? "240px" : "100%",
+                                        ...widthStyle,
                                         boxSizing: "border-box",
                                       }}
                                     >
@@ -1333,29 +1370,7 @@ export default function FormBuilder() {
                 </BlockStack>
               </Card>
 
-              {/* Form Design Theme Card */}
-              <Card>
-                <BlockStack gap="300">
-                  <Text variant="headingSm" as="h3">
-                    Form Style Theme
-                  </Text>
-                  <Select
-                    label="Choose Theme Design"
-                    options={[
-                      { label: "Minimalist (Clean)", value: "minimal" },
-                      { label: "Glassmorphism (Frosted)", value: "glassmorphism" },
-                      { label: "Modern Dark (Vibrant Dark)", value: "dark" },
-                      { label: "Playful / Bold (Neon Brutalism)", value: "playful" },
-                      { label: "Classic Shopify Theme (Polaris Match)", value: "classic" },
-                    ]}
-                    value={theme}
-                    onChange={setTheme}
-                  />
-                  <Text variant="bodyXs" tone="subdued">
-                    Changes will reflect instantly in the live preview window and the live storefront.
-                  </Text>
-                </BlockStack>
-              </Card>
+
 
               {/* Additional settings Card */}
               <Card>

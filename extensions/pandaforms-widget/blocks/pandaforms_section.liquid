@@ -48,6 +48,7 @@
   var success = root.querySelector('.pandaforms-success');
   var submitBtn = root.querySelector('.pandaforms-submit');
   var redirectUrl = '';
+  var themeStyles = {};
 
   function showError(message) {
     loading.innerHTML = '<p style="color:#b42318; margin:0;">' + message + '</p>';
@@ -58,20 +59,94 @@
     return;
   }
 
+  function toStyleString(obj) {
+    if (!obj) return '';
+    return Object.keys(obj).map(function(key) {
+      var kebab = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+      return kebab + ':' + obj[key];
+    }).join(';') + ';';
+  }
+
+  function getThemeStyles(selectedTheme) {
+    switch (selectedTheme) {
+      case 'dark':
+        return {
+          wrapper: { backgroundColor: '#0f172a', color: '#f8fafc', padding: '32px', borderRadius: '12px', border: '1px solid #334155' },
+          title: { color: '#f8fafc' },
+          desc: { color: '#94a3b8' },
+          label: { color: '#cbd5e1' },
+          input: { backgroundColor: '#1e293b', border: '1px solid #475569', color: '#f8fafc', borderRadius: '6px' },
+          button: { backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '6px' }
+        };
+      case 'glassmorphism':
+        return {
+          wrapper: { backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#ffffff', padding: '0', border: 'none' },
+          innerWrapper: { backgroundColor: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.2)', boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)', padding: '32px' },
+          title: { color: '#ffffff' },
+          desc: { color: 'rgba(255, 255, 255, 0.8)' },
+          label: { color: '#ffffff' },
+          input: { backgroundColor: 'rgba(255, 255, 255, 0.2)', border: '1px solid rgba(255, 255, 255, 0.3)', color: '#ffffff', borderRadius: '10px' },
+          button: { backgroundColor: '#ffffff', color: '#764ba2', border: 'none', borderRadius: '10px' }
+        };
+      case 'playful':
+        return {
+          wrapper: { backgroundColor: '#fef08a', color: '#1c1917', padding: '32px', borderRadius: '0px', border: '3px solid #1c1917', boxShadow: '8px 8px 0px #1c1917' },
+          title: { color: '#1c1917' },
+          desc: { color: '#44403c' },
+          label: { color: '#1c1917' },
+          input: { backgroundColor: '#ffffff', border: '3px solid #1c1917', color: '#1c1917', borderRadius: '0px', boxShadow: '4px 4px 0px #1c1917' },
+          button: { backgroundColor: '#f43f5e', color: '#ffffff', border: '3px solid #1c1917', borderRadius: '0px', boxShadow: '4px 4px 0px #1c1917' }
+        };
+      case 'classic':
+        return {
+          wrapper: { backgroundColor: '#f6f6f7', color: '#202223', padding: '24px', borderRadius: '4px', border: '1px solid #e1e3e5' },
+          title: { color: '#202223' },
+          desc: { color: '#6d7175' },
+          label: { color: '#202223' },
+          input: { backgroundColor: '#ffffff', border: '1px solid #8c9196', color: '#202223', borderRadius: '4px' },
+          button: { backgroundColor: '#008060', color: '#ffffff', border: 'none', borderRadius: '4px' }
+        };
+      case 'minimal':
+      default:
+        return {
+          wrapper: { backgroundColor: '#ffffff', color: '#1e293b', padding: '24px', borderRadius: '8px', border: '1px solid #e2e8f0' },
+          title: { color: '#0f172a' },
+          desc: { color: '#64748b' },
+          label: { color: '#334155' },
+          input: { backgroundColor: '#ffffff', border: 'none', borderBottom: '2px solid #cbd5e1', color: '#1e293b', borderRadius: '0px' },
+          button: { backgroundColor: '#0f172a', color: '#ffffff', border: 'none', borderRadius: '8px' }
+        };
+    }
+  }
+
   function fieldInput(field) {
     var label = field.label || field.name || 'Field';
     var key = field.key || field.id || label.toLowerCase().replace(/[^a-z0-9]+/g, '_');
     var type = field.type || 'text';
     var required = field.required ? 'required' : '';
     var placeholder = field.placeholder || '';
-    var width = field.width || '100';
-    var html = '<div style="flex: 1 1 calc(' + width + '% - 16px); min-width: 220px;">';
-    html += '<label style="display:block; margin:0 0 6px; font-weight:600; color:{{ block.settings.text_color }};">' + label + (field.required ? ' <span style="color:#d72c0d;">*</span>' : '') + '</label>';
+    
+    // Determine flex width percentage
+    var pct = '100';
+    var minW = '100%';
+    if (field.width === 'half') {
+      pct = '50';
+      minW = '240px';
+    } else if (field.width === 'third') {
+      pct = '33.33';
+      minW = '180px';
+    }
+    
+    var labelStyle = toStyleString(themeStyles.label || {});
+    var inputStyle = toStyleString(themeStyles.input || {});
+    
+    var html = '<div style="flex: 1 1 calc(' + pct + '% - 16px); min-width: ' + minW + '; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px;">';
+    html += '<label style="display:block; margin:0 0 6px; font-weight:600;' + labelStyle + '">' + label + (field.required ? ' <span style="color:#d72c0d;">*</span>' : '') + '</label>';
     if (type === 'textarea') {
-      html += '<textarea name="' + key + '" placeholder="' + placeholder + '" ' + required + ' style="width:100%; min-height:110px; padding:11px 12px; border:1px solid {{ block.settings.input_border_color }}; border-radius:6px; background:{{ block.settings.input_bg_color }}; color:{{ block.settings.input_text_color }};"></textarea>';
+      html += '<textarea name="' + key + '" placeholder="' + placeholder + '" ' + required + ' style="width:100%; min-height:110px; padding:11px 12px; box-sizing:border-box;' + inputStyle + '"></textarea>';
     } else {
       var inputType = type === 'email' ? 'email' : type === 'phone' ? 'tel' : type === 'date' ? 'date' : 'text';
-      html += '<input type="' + inputType + '" name="' + key + '" placeholder="' + placeholder + '" ' + required + ' style="width:100%; padding:11px 12px; border:1px solid {{ block.settings.input_border_color }}; border-radius:6px; background:{{ block.settings.input_bg_color }}; color:{{ block.settings.input_text_color }};" />';
+      html += '<input type="' + inputType + '" name="' + key + '" placeholder="' + placeholder + '" ' + required + ' style="width:100%; padding:11px 12px; box-sizing:border-box;' + inputStyle + '" />';
     }
     html += '</div>';
     return html;
@@ -90,8 +165,40 @@
       });
     }).then(function(data) {
       var form = data.form || data;
-      root.querySelector('.pandaforms-title').textContent = form.title || form.name || 'PandaForms';
-      root.querySelector('.pandaforms-desc').textContent = form.description || '';
+      
+      // Initialize theme styles
+      var theme = form.theme || 'minimal';
+      themeStyles = getThemeStyles(theme);
+      
+      // Apply theme styles to Card
+      var cardEl = root.querySelector('.pandaforms-card');
+      if (cardEl) {
+        Object.assign(cardEl.style, themeStyles.wrapper);
+        if (themeStyles.innerWrapper) {
+          Object.assign(cardEl.style, themeStyles.innerWrapper);
+          var sectEl = root.querySelector('.pandaforms-section') || root;
+          sectEl.style.backgroundImage = themeStyles.wrapper.backgroundImage;
+          sectEl.style.color = themeStyles.wrapper.color;
+        }
+      }
+      
+      var titleEl = root.querySelector('.pandaforms-title');
+      if (titleEl) {
+        titleEl.textContent = form.title || form.name || 'PandaForms';
+        Object.assign(titleEl.style, themeStyles.title || {});
+      }
+      
+      var descEl = root.querySelector('.pandaforms-desc');
+      if (descEl) {
+        descEl.textContent = form.description || '';
+        Object.assign(descEl.style, themeStyles.desc || {});
+      }
+      
+      var submitBtnEl = root.querySelector('.pandaforms-submit');
+      if (submitBtnEl) {
+        Object.assign(submitBtnEl.style, themeStyles.button || {});
+      }
+      
       root.querySelector('.pandaforms-success-msg').textContent = form.successMessage || 'Thank you. Your form has been submitted.';
       redirectUrl = form.redirectUrl || '';
       var fields = form.fields || [];
