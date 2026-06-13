@@ -15,7 +15,6 @@ import {
   InlineGrid,
   Button,
 } from "@shopify/polaris";
-import { ViewIcon, PersonIcon, CalendarIcon } from "@shopify/polaris-icons";
 import { authenticate } from "../shopify.server";
 import db from "../db.server";
 

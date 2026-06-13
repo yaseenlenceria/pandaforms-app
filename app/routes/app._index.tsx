@@ -15,14 +15,12 @@ import {
   Icon,
   Divider,
   Box,
+  Modal,
 } from "@shopify/polaris";
 import {
   PlusIcon,
   SettingsIcon,
-  ViewIcon,
   CheckIcon,
-  AlertBubbleIcon,
-  CalendarIcon,
   PersonIcon,
 } from "@shopify/polaris-icons";
 import { authenticate } from "../shopify.server";
@@ -56,6 +54,20 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     where: { shop },
     orderBy: { updatedAt: "desc" },
     take: 5,
+  });
+
+  const formsSummary = await db.form.findMany({
+    where: { shop },
+    orderBy: { updatedAt: "desc" },
+    take: 8,
+    include: {
+      _count: {
+        select: {
+          submissions: true,
+          fields: true,
+        },
+      },
+    },
   });
 
   // Get settings for health check
@@ -110,6 +122,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     totalSubmissions,
     pendingSubmissions,
     latestSubmissions,
+    formsSummary,
     activities: finalActivities,
     smtpConfigured,
     reCaptchaConfigured,
@@ -225,38 +238,42 @@ export default function Index() {
     totalSubmissions,
     pendingSubmissions,
     latestSubmissions,
+    formsSummary,
     activities,
-    smtpConfigured,
-    reCaptchaConfigured,
     shop,
     apiKey,
   } = useLoaderData<typeof loader>();
   const fetcher = useFetcher();
   const navigate = useNavigate();
+  const [createModalOpen, setCreateModalOpen] = useState(false);
 
   const handleCreateTemplate = (templateType: string) => {
     fetcher.submit({ templateType }, { method: "POST" });
   };
 
   const templates = [
-    { id: "wholesale", title: "Wholesale Registration", tag: "Customer Sync" },
-    { id: "customer_reg", title: "Customer Registration", tag: "Customer Sync" },
-    { id: "product_enquiry", title: "Product Enquiry", tag: "Page Widget" },
-    { id: "contact", title: "Contact Form", tag: "General" },
-    { id: "appointment", title: "Appointment Booking", tag: "Specialty" },
-    { id: "return_request", title: "Return Request", tag: "Service" },
+    { id: "wholesale", title: "Wholesale Registration", tag: "B2B", description: "Approve business customers and sync wholesale tags." },
+    { id: "customer_reg", title: "Customer Registration", tag: "Customer", description: "Collect customer details before account approval." },
+    { id: "product_enquiry", title: "Product Enquiry", tag: "Sales", description: "Let shoppers ask questions from product or landing pages." },
+    { id: "contact", title: "Contact Form", tag: "Support", description: "Simple support form for general store messages." },
+    { id: "appointment", title: "Appointment Booking", tag: "Booking", description: "Capture appointment requests with preferred dates." },
+    { id: "return_request", title: "Return Request", tag: "Service", description: "Collect order numbers and return reasons cleanly." },
   ];
+
+  const isCreating = fetcher.state !== "idle";
+  const creatingTemplateType = fetcher.formData?.get("templateType");
 
   return (
     <Page>
       <BlockStack gap="600">
         
-        {/* Value Proposition Hero */}
+        {/* Dashboard Header */}
         <div style={{
-          background: "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)",
+          background: "linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%)",
+          border: "1px solid #e2e8f0",
           borderRadius: "16px",
-          padding: "48px 40px",
-          color: "#ffffff",
+          padding: "36px 32px",
+          color: "#111827",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -265,29 +282,29 @@ export default function Index() {
           boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)"
         }}>
           <div style={{ flex: "1 1 500px" }}>
-            <Badge tone="attention">PandaForms Suite</Badge>
+            <Badge tone="info">Merchant dashboard</Badge>
             <div style={{ fontSize: "24px", fontWeight: "800", marginTop: "12px", marginBottom: "8px", letterSpacing: "-0.5px" }}>
-              B2B & Custom Storefront Forms
+              Manage forms, submissions, and storefront setup
             </div>
             <div style={{ fontSize: "16px", opacity: 0.85, maxWidth: "600px", lineHeight: "1.6" }}>
-              Design responsive forms, manage wholesale approvals, tag customers, and track SMTP delivery health from Shopify admin.
+              Create a form from a guided template, review every submission, and see which forms are working from one page.
             </div>
           </div>
           <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
             <Button
-              onClick={() => handleCreateTemplate("wholesale")}
+              onClick={() => setCreateModalOpen(true)}
               variant="primary"
               size="large"
               icon={PlusIcon}
-              disabled={fetcher.state !== "idle"}
+              disabled={isCreating}
             >
-              {fetcher.state !== "idle" ? "Creating..." : "Create Form"}
+              {isCreating ? "Creating..." : "Create form"}
             </Button>
-            <Button
-              onClick={() => navigate("/app/forms")}
-              size="large"
-            >
-              View My Forms
+            <Button onClick={() => navigate("/app/forms")} size="large">
+              Manage forms
+            </Button>
+            <Button onClick={() => navigate("/app/submissions")} size="large">
+              View submissions
             </Button>
           </div>
         </div>
@@ -298,10 +315,10 @@ export default function Index() {
             <InlineStack align="space-between" blockAlign="center">
               <BlockStack gap="100">
                 <Text variant="headingMd" as="h2">
-                  🛠️ Storefront Theme Integration Guide
+                  Storefront setup
                 </Text>
                 <Text variant="bodyMd" as="p" tone="subdued">
-                  PandaForms supports two ways to display your forms on your storefront. Follow these steps to make them visible:
+                  Add PandaForms to the theme once, then paste the form ID for the form you want to show.
                 </Text>
               </BlockStack>
               <Button
@@ -310,7 +327,7 @@ export default function Index() {
                 target="_blank"
                 icon={SettingsIcon}
               >
-                Open Theme Editor & Enable Embed
+                Open theme editor
               </Button>
             </InlineStack>
 
@@ -319,35 +336,32 @@ export default function Index() {
             <InlineGrid columns={{ xs: 1, md: 2 }} gap="600">
               <BlockStack gap="200">
                 <Text variant="headingSm" as="h3" tone="success">
-                  Option A: Add as a Custom Page Section (Recommended)
+                  Best option: add PandaForms Widget to a page
                 </Text>
                 <Text variant="bodyMd" as="p">
-                  Best for dedicatng a specific page (e.g. <code>/pages/wholesale</code> or <code>/pages/contact</code>) to a single form.
+                  Use this for pages like <code>/pages/wholesale</code>, <code>/pages/contact</code>, or <code>/pages/returns</code>.
                 </Text>
                 <Box padding="300" background="bg-surface-active" borderRadius="200">
                   <BlockStack gap="100">
-                    <Text variant="bodySm" as="p"><strong>1. Create a Page:</strong> Go to <strong>Online Store → Pages</strong> in Shopify and add a new page (e.g. "Wholesale Registration").</Text>
-                    <Text variant="bodySm" as="p"><strong>2. Customize Theme:</strong> Go to <strong>Online Store → Themes</strong>, and click <strong>Customize</strong> on your active theme.</Text>
-                    <Text variant="bodySm" as="p"><strong>3. Go to Page:</strong> Use the top template selector in the Theme Editor to select your newly created page.</Text>
-                    <Text variant="bodySm" as="p"><strong>4. Add App Section:</strong> Click <strong>Add section</strong> in the left sidebar, switch to the <strong>Apps</strong> tab, and choose <strong>PandaForms Widget</strong>.</Text>
-                    <Text variant="bodySm" as="p"><strong>5. Set Form ID:</strong> Open the block settings on the right, copy your <strong>Form ID</strong> from your Forms list, paste it, and click <strong>Save</strong>.</Text>
+                    <Text variant="bodySm" as="p"><strong>1.</strong> Create or open the Shopify page where the form should appear.</Text>
+                    <Text variant="bodySm" as="p"><strong>2.</strong> In theme customize, add the <strong>PandaForms Widget</strong> app section.</Text>
+                    <Text variant="bodySm" as="p"><strong>3.</strong> Paste the <strong>Form ID</strong>, choose theme styling, and save.</Text>
                   </BlockStack>
                 </Box>
               </BlockStack>
 
               <BlockStack gap="200">
                 <Text variant="headingSm" as="h3" tone="attention">
-                  Option B: Enable App Embed globally
+                  Alternative: enable the app embed
                 </Text>
                 <Text variant="bodyMd" as="p">
-                  Allows you to inject the form widget into the body of your page templates globally.
+                  Use this only when you want one configured form injected globally through the theme app embed.
                 </Text>
                 <Box padding="300" background="bg-surface-active" borderRadius="200">
                   <BlockStack gap="100">
-                    <Text variant="bodySm" as="p"><strong>1. Enable App Embed:</strong> Click the <strong>Open Theme Editor & Enable Embed</strong> button above.</Text>
-                    <Text variant="bodySm" as="p"><strong>2. Toggle Switch:</strong> Locate <strong>PandaForms Widget</strong> in the App embeds list on the left side and toggle it to <strong>Enabled</strong>.</Text>
-                    <Text variant="bodySm" as="p"><strong>3. Configure Form:</strong> Paste your <strong>Form ID</strong> into the settings card on the right.</Text>
-                    <Text variant="bodySm" as="p"><strong>4. Save Changes:</strong> Click <strong>Save</strong> in the top-right corner of the Shopify Theme Editor.</Text>
+                    <Text variant="bodySm" as="p"><strong>1.</strong> Open the theme editor and enable <strong>PandaForms Widget</strong> in app embeds.</Text>
+                    <Text variant="bodySm" as="p"><strong>2.</strong> Paste the form ID in the embed settings.</Text>
+                    <Text variant="bodySm" as="p"><strong>3.</strong> Save the theme and test the storefront page.</Text>
                   </BlockStack>
                 </Box>
               </BlockStack>
@@ -390,6 +404,76 @@ export default function Index() {
             </BlockStack>
           </Card>
         </InlineGrid>
+
+        <Card>
+          <BlockStack gap="300">
+            <InlineStack align="space-between" blockAlign="center">
+              <BlockStack gap="100">
+                <Text variant="headingMd" as="h2">Submissions by form</Text>
+                <Text variant="bodyMd" as="p" tone="subdued">
+                  See which form is collecting submissions, how many fields it has, and where to review entries.
+                </Text>
+              </BlockStack>
+              <Button onClick={() => navigate("/app/forms")}>Manage all forms</Button>
+            </InlineStack>
+            <Divider />
+            {formsSummary.length === 0 ? (
+              <Box padding="400" textAlign="center">
+                <BlockStack gap="200" align="center">
+                  <Text variant="bodyMd" as="p" tone="subdued">No forms yet. Start with a template and publish it to your theme.</Text>
+                  <Button variant="primary" icon={PlusIcon} onClick={() => setCreateModalOpen(true)}>
+                    Create first form
+                  </Button>
+                </BlockStack>
+              </Box>
+            ) : (
+              <IndexTable
+                resourceName={{ singular: "form", plural: "forms" }}
+                itemCount={formsSummary.length}
+                headings={[
+                  { title: "Form" },
+                  { title: "Status" },
+                  { title: "Submissions" },
+                  { title: "Views" },
+                  { title: "Action" },
+                ]}
+                selectable={false}
+              >
+                {formsSummary.map((form, index) => (
+                  <IndexTable.Row id={form.id} key={form.id} position={index}>
+                    <IndexTable.Cell>
+                      <BlockStack gap="050">
+                        <Text variant="bodyMd" as="strong" fontWeight="bold">{form.title}</Text>
+                        <Text variant="bodySm" as="p" tone="subdued">{form._count.fields} fields</Text>
+                      </BlockStack>
+                    </IndexTable.Cell>
+                    <IndexTable.Cell>
+                      <Badge tone={form.status === "ACTIVE" ? "success" : form.status === "ARCHIVED" ? "warning" : "info"}>
+                        {form.status}
+                      </Badge>
+                    </IndexTable.Cell>
+                    <IndexTable.Cell>
+                      <Text variant="bodyMd" as="p" fontWeight="bold">{form._count.submissions}</Text>
+                    </IndexTable.Cell>
+                    <IndexTable.Cell>
+                      <Text variant="bodyMd" as="p">{form.views}</Text>
+                    </IndexTable.Cell>
+                    <IndexTable.Cell>
+                      <InlineStack gap="200">
+                        <Button size="slim" onClick={() => navigate(`/app/submissions?formId=${form.id}`)}>
+                          Review
+                        </Button>
+                        <Button size="slim" variant="plain" onClick={() => navigate(`/app/forms/${form.id}`)}>
+                          Edit
+                        </Button>
+                      </InlineStack>
+                    </IndexTable.Cell>
+                  </IndexTable.Row>
+                ))}
+              </IndexTable>
+            )}
+          </BlockStack>
+        </Card>
 
         {/* Mid Section: Recent Activities & Latest Submissions */}
         <InlineGrid columns={{ xs: 1, md: 2 }} gap="400">
@@ -481,45 +565,80 @@ export default function Index() {
         {/* Quick-Start Templates CTAs */}
         <Card>
           <BlockStack gap="300">
-            <Text variant="headingMd" as="h2">Quick-start Templates</Text>
-            <Text variant="bodyMd" as="p" tone="subdued">
-              Click any template to instantly pre-populate and launch a fully functional storefront form.
-            </Text>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-              {templates.map((tmpl) => (
-                <button
-                  key={tmpl.id}
-                  onClick={() => handleCreateTemplate(tmpl.id)}
-                  disabled={fetcher.state !== "idle"}
-                  style={{
-                    background: fetcher.state !== "idle" && fetcher.formData?.get("templateType") === tmpl.id
-                      ? "#e0e7ff" : "#f1f5f9",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "999px",
-                    padding: "10px 20px",
-                    fontSize: "13px",
-                    fontWeight: "600",
-                    color: "#334155",
-                    cursor: "pointer",
-                    whiteSpace: "nowrap",
-                    transition: "all 0.15s ease",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "6px"
-                  }}
-                  onMouseEnter={(e) => { (e.target as HTMLButtonElement).style.background = "#e2e8f0"; }}
-                  onMouseLeave={(e) => { (e.target as HTMLButtonElement).style.background = fetcher.state !== "idle" && fetcher.formData?.get("templateType") === tmpl.id ? "#e0e7ff" : "#f1f5f9"; }}
-                >
-                  {fetcher.state !== "idle" && fetcher.formData?.get("templateType") === tmpl.id
-                    ? "Creating Form..." : tmpl.title}
-                  <span style={{ fontSize: "10px", backgroundColor: "#fff", padding: "2px 6px", borderRadius: "999px", color: "#64748b", fontWeight: "bold" }}>
-                    {tmpl.tag}
-                  </span>
-                </button>
-              ))}
-            </div>
+            <InlineStack align="space-between" blockAlign="center">
+              <BlockStack gap="100">
+                <Text variant="headingMd" as="h2">Create from a template</Text>
+                <Text variant="bodyMd" as="p" tone="subdued">
+                  Open a guided popup with every form type. Merchants choose once, then edit only what they need.
+                </Text>
+              </BlockStack>
+              <Button variant="primary" icon={PlusIcon} onClick={() => setCreateModalOpen(true)} disabled={isCreating}>
+                {isCreating ? "Creating..." : "Choose template"}
+              </Button>
+            </InlineStack>
           </BlockStack>
         </Card>
+
+        <Modal
+          open={createModalOpen}
+          onClose={() => setCreateModalOpen(false)}
+          title="What would you like to create?"
+          size="large"
+          primaryAction={{
+            content: "Close",
+            onAction: () => setCreateModalOpen(false),
+          }}
+        >
+          <Modal.Section>
+            <BlockStack gap="400">
+              <Text variant="bodyMd" as="p" tone="subdued">
+                Select a form type below. PandaForms will create the form with sensible Shopify fields, labels, and submission settings.
+              </Text>
+              <InlineGrid columns={{ xs: 1, sm: 2, md: 3 }} gap="300">
+                {templates.map((tmpl) => (
+                  <button
+                    key={tmpl.id}
+                    type="button"
+                    onClick={() => {
+                      setCreateModalOpen(false);
+                      handleCreateTemplate(tmpl.id);
+                    }}
+                    disabled={isCreating}
+                    style={{
+                      textAlign: "left",
+                      background: creatingTemplateType === tmpl.id ? "#eef2ff" : "#ffffff",
+                      border: "1px solid #dbe3ef",
+                      borderRadius: "14px",
+                      padding: "18px",
+                      minHeight: "148px",
+                      cursor: isCreating ? "not-allowed" : "pointer",
+                      boxShadow: "0 1px 2px rgba(15, 23, 42, 0.06)",
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", marginBottom: "12px" }}>
+                      <span style={{ fontSize: "15px", fontWeight: 700, color: "#111827" }}>{tmpl.title}</span>
+                      <span style={{
+                        fontSize: "11px",
+                        fontWeight: 700,
+                        color: "#4f46e5",
+                        background: "#eef2ff",
+                        borderRadius: "999px",
+                        padding: "2px 8px",
+                        whiteSpace: "nowrap",
+                      }}>
+                        {tmpl.tag}
+                      </span>
+                    </div>
+                    <Text variant="bodySm" as="p" tone="subdued">{tmpl.description}</Text>
+                    <div style={{ marginTop: "14px", fontSize: "12px", fontWeight: 700, color: "#2563eb" }}>
+                      {creatingTemplateType === tmpl.id ? "Creating..." : "Use this template"}
+                    </div>
+                  </button>
+                ))}
+              </InlineGrid>
+            </BlockStack>
+          </Modal.Section>
+        </Modal>
 
       </BlockStack>
     </Page>

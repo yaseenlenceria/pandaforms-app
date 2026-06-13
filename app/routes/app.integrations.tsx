@@ -14,11 +14,9 @@ import {
   Divider,
   Button,
   InlineStack,
-  Box,
   InlineGrid,
   Badge,
 } from "@shopify/polaris";
-import { SettingsIcon, EmailIcon, AlertBubbleIcon, CheckIcon } from "@shopify/polaris-icons";
 import { authenticate } from "../shopify.server";
 import db from "../db.server";
 import { testSMTPConnection } from "../email.server";
@@ -74,10 +72,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     smtpPass,
     smtpFrom,
     smtpSecure,
-    enableReCAPTCHA,
     recaptchaSiteKey,
     recaptchaSecretKey,
-    enableHubSpot,
     hubspotApiKey,
   } = payload;
 

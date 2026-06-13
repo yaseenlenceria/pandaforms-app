@@ -30,8 +30,6 @@ import {
   ChevronDownIcon,
   DuplicateIcon,
   ChevronRightIcon,
-  SettingsIcon,
-  CheckIcon,
   InfoIcon,
 } from "@shopify/polaris-icons";
 import { useAppBridge } from "@shopify/app-bridge-react";
@@ -91,8 +89,6 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
     adminNotificationEmails,
     disableCountryOptions,
     defaultCountryPhoneCode,
-    integrationHubSpot,
-    integrationReCAPTCHA,
     customStyles,
   } = payload;
 
@@ -172,159 +168,10 @@ export default function FormBuilder() {
   const navigation = useNavigation();
   const isSaving = navigation.state === "submitting";
 
-  // Dynamic styles based on theme selection
-  const getThemeStyles = (selectedTheme: string) => {
-    switch (selectedTheme) {
-      case "dark":
-        return {
-          wrapper: { backgroundColor: "#0f172a", color: "#f8fafc" },
-          title: { color: "#f8fafc" },
-          desc: { color: "#94a3b8" },
-          label: { color: "#cbd5e1" },
-          input: {
-            backgroundColor: "#1e293b",
-            border: "1px solid #475569",
-            color: "#f8fafc",
-            borderRadius: "6px",
-          },
-          button: {
-            backgroundColor: "#10b981",
-            color: "#ffffff",
-            boxShadow: "0 4px 6px -1px rgba(16, 185, 129, 0.2)",
-          },
-          step: {
-            color: "#10b981",
-            borderBottom: "2px dashed #10b981",
-            backgroundColor: "rgba(16, 185, 129, 0.1)",
-          },
-          file: {
-            border: "2px dashed #475569",
-            backgroundColor: "#1e293b",
-            textColor: "#10b981",
-          }
-        };
-      case "glassmorphism":
-        return {
-          wrapper: { backgroundColor: "#ffffff", color: "#1e293b" },
-          title: { color: "#0f172a" },
-          desc: { color: "#64748b" },
-          label: { color: "#334155" },
-          input: {
-            backgroundColor: "#ffffff",
-            border: "1px solid #cbd5e1",
-            color: "#1e293b",
-            borderRadius: "6px",
-          },
-          button: {
-            backgroundColor: "#008060",
-            color: "#ffffff",
-            boxShadow: "none",
-          },
-          step: {
-            color: "#008060",
-            borderBottom: "2px dashed #cbd5e1",
-            backgroundColor: "transparent",
-          },
-          file: {
-            border: "2px dashed #cbd5e1",
-            backgroundColor: "#ffffff",
-            textColor: "#008060",
-          }
-        };
-      case "playful":
-        return {
-          wrapper: { backgroundColor: "#ffffff", color: "#1e293b" },
-          title: { color: "#0f172a" },
-          desc: { color: "#64748b" },
-          label: { color: "#334155" },
-          input: {
-            backgroundColor: "#ffffff",
-            border: "1px solid #cbd5e1",
-            color: "#1e293b",
-            borderRadius: "4px",
-          },
-          button: {
-            backgroundColor: "#18181b",
-            color: "#ffffff",
-            borderRadius: "4px",
-          },
-          step: {
-            color: "#18181b",
-            backgroundColor: "transparent",
-            borderBottom: "1px solid #cbd5e1",
-          },
-          file: {
-            border: "1px dashed #cbd5e1",
-            backgroundColor: "#ffffff",
-            textColor: "#18181b",
-          }
-        };
-      case "classic":
-        return {
-          wrapper: { backgroundColor: "#f6f6f7", color: "#202223" },
-          title: { color: "#202223" },
-          desc: { color: "#6d7175" },
-          label: { color: "#202223" },
-          input: {
-            backgroundColor: "#ffffff",
-            border: "1px solid #8c9196",
-            color: "#202223",
-            borderRadius: "4px",
-          },
-          button: {
-            backgroundColor: "#008060",
-            color: "#ffffff",
-            borderRadius: "4px",
-            boxShadow: "none",
-          },
-          step: {
-            color: "#008060",
-            borderBottom: "1px solid #8c9196",
-            backgroundColor: "#f1f2f3",
-          },
-          file: {
-            border: "1px dashed #8c9196",
-            backgroundColor: "#ffffff",
-            textColor: "#008060",
-          }
-        };
-      case "minimal":
-      default:
-        return {
-          wrapper: { backgroundColor: "#ffffff", color: "#1e293b" },
-          title: { color: "#0f172a" },
-          desc: { color: "#64748b" },
-          label: { color: "#334155" },
-          input: {
-            backgroundColor: "#ffffff",
-            border: "none",
-            borderBottom: "2px solid #cbd5e1",
-            color: "#1e293b",
-            borderRadius: "0px",
-          },
-          button: {
-            backgroundColor: "#0f172a",
-            color: "#ffffff",
-            borderRadius: "8px",
-            boxShadow: "0 4px 12px rgba(15, 23, 42, 0.15)",
-          },
-          step: {
-            color: "#64748b",
-            borderBottom: "1px solid #e2e8f0",
-            backgroundColor: "transparent",
-          },
-          file: {
-            border: "2px dashed #cbd5e1",
-            backgroundColor: "#f8fafc",
-            textColor: "#0f172a",
-          }
-        };
-    }
-  };
 
   // Form states
   const [title, setTitle] = useState(form.title);
-  const [description, setDescription] = useState(form.description || "");
+  const [description] = useState(form.description || "");
   const [successMessage, setSuccessMessage] = useState(form.successMessage || "");
   const [redirectUrl, setRedirectUrl] = useState(form.redirectUrl || "");
   const [fields, setFields] = useState<FormFieldItem[]>(
@@ -366,9 +213,7 @@ export default function FormBuilder() {
   const [adminNotificationEmails, setAdminNotificationEmails] = useState(form.adminNotificationEmails || "");
   const [disableCountryOptions, setDisableCountryOptions] = useState(form.disableCountryOptions || false);
   const [defaultCountryPhoneCode, setDefaultCountryPhoneCode] = useState(form.defaultCountryPhoneCode || "+1 for Us");
-  const [integrationHubSpot, setIntegrationHubSpot] = useState(false);
-  const [integrationReCAPTCHA, setIntegrationReCAPTCHA] = useState(false);
-  const [theme, setTheme] = useState(form.theme || "minimal");
+  const [theme] = useState(form.theme || "minimal");
 
   // Default design system values
   const defaultDesignSystem = {
@@ -875,7 +720,6 @@ export default function FormBuilder() {
     ],
   };
 
-  const tStyle = getThemeStyles(theme);
 
   // Derive layout spacing properties dynamically
   const derivedSpacing = parseInt(customStyles.layout.spacing || customStyles.layout.fieldGap || "16");
@@ -907,14 +751,14 @@ export default function FormBuilder() {
               <Card>
                 <BlockStack gap="300">
                   <Text variant="headingMd" as="h2">
-                    Form Name & Header
+                    Form header
                   </Text>
                   <TextField
                     label="Form Title"
                     labelHidden
                     value={title}
                     onChange={setTitle}
-                    placeholder="Enter Form Title (e.g. Wholesale Registration Form)"
+                    placeholder="Example: Wholesale Registration Form"
                     autoComplete="off"
                   />
                 </BlockStack>
@@ -924,15 +768,20 @@ export default function FormBuilder() {
               <Card>
                 <BlockStack gap="400">
                   <InlineStack align="space-between" blockAlign="center">
-                    <Text variant="headingMd" as="h2">
-                      Form Fields
-                    </Text>
+                    <BlockStack gap="050">
+                      <Text variant="headingMd" as="h2">
+                        Form Fields
+                      </Text>
+                      <Text variant="bodySm" tone="subdued">
+                        Keep the form simple first. Open a field only when you need to edit details.
+                      </Text>
+                    </BlockStack>
                     <InlineStack gap="300">
                       <Button onClick={clearFields} variant="plain" tone="critical">
-                        — Clear all fields
+                        Clear fields
                       </Button>
                       <Button onClick={() => setPickerModalOpen(true)} variant="primary" icon={PlusIcon}>
-                        Add Field
+                        Add field
                       </Button>
                     </InlineStack>
                   </InlineStack>
@@ -941,10 +790,10 @@ export default function FormBuilder() {
                     <Box padding="600" textAlign="center" background="bg-surface-active" borderRadius="200">
                       <BlockStack gap="200" align="center">
                         <Text variant="bodyLg" as="p" tone="subdued">
-                          Your form is empty. Click "+ Add Field" to choose fields and customize.
+                          Your form is empty. Add a field to start building.
                         </Text>
                         <Button onClick={() => setPickerModalOpen(true)} variant="secondary">
-                          + Choose Field Template
+                          Choose field template
                         </Button>
                       </BlockStack>
                     </Box>
@@ -985,7 +834,7 @@ export default function FormBuilder() {
                                           {field.required && <Badge tone="critical">Required</Badge>}
                                         </InlineStack>
                                         <Text variant="bodyXs" as="span" tone="subdued">
-                                          Unique key: <code>{field.name}</code> | Width: {field.width === "half" ? "50%" : "100%"}
+                                          {field.type.replace("_", " ")} field · {field.width === "third" ? "One third" : field.width === "half" ? "Half width" : "Full width"}
                                         </Text>
                                       </BlockStack>
                                     </InlineStack>
@@ -1036,7 +885,7 @@ export default function FormBuilder() {
                                       
                                       {/* Basic Settings */}
                                       <BlockStack gap="200">
-                                        <Text variant="headingSm" as="h4">Basic configurations</Text>
+                                        <Text variant="headingSm" as="h4">Basics</Text>
                                         <BlockStack gap="300">
                                           <InlineGrid columns={{ xs: 1, sm: 2 }} gap="300">
                                             <Select
@@ -1062,7 +911,7 @@ export default function FormBuilder() {
                                           </InlineGrid>
                                           <InlineGrid columns={{ xs: 1, sm: 2 }} gap="300">
                                             <TextField
-                                              label="Field Label (Shown to customer)"
+                                              label="Label"
                                               value={field.label}
                                               onChange={(value) => updateFieldProperty(index, "label", value)}
                                               autoComplete="off"
@@ -1070,7 +919,7 @@ export default function FormBuilder() {
                                             <TextField
                                               label={
                                                 <InlineStack gap="100" blockAlign="center">
-                                                  <span>Field Placeholder</span>
+                                                  <span>Placeholder</span>
                                                   <Tooltip content="Hint text shown inside empty input fields before a user enters a value.">
                                                     <span style={{ cursor: "pointer", display: "flex", width: "16px", height: "16px" }}>
                                                       <Icon source={InfoIcon} tone="subdued" />
@@ -1088,28 +937,28 @@ export default function FormBuilder() {
 
                                       {/* Visual Field Layout / Width Selector */}
                                       <BlockStack gap="200">
-                                        <Text variant="headingSm" as="h4">Layout & Sizing</Text>
+                                        <Text variant="headingSm" as="h4">Layout</Text>
                                         <InlineGrid columns={{ xs: 1, sm: 2 }} gap="400">
                                           <BlockStack gap="100">
-                                            <span style={{ fontSize: "13px", color: "#202223" }}>Field Column Width</span>
+                                            <span style={{ fontSize: "13px", color: "#202223" }}>Width</span>
                                             <InlineStack gap="200">
                                               <Button
                                                 pressed={field.width === "third"}
                                                 onClick={() => updateFieldProperty(index, "width", "third")}
                                               >
-                                                33% (1/3 Width)
+                                                33%
                                               </Button>
                                               <Button
                                                 pressed={field.width === "half"}
                                                 onClick={() => updateFieldProperty(index, "width", "half")}
                                               >
-                                                50% (Side-by-Side)
+                                                50%
                                               </Button>
                                               <Button
                                                 pressed={field.width === "full"}
                                                 onClick={() => updateFieldProperty(index, "width", "full")}
                                               >
-                                                100% (Full Width)
+                                                Full
                                               </Button>
                                             </InlineStack>
                                           </BlockStack>
@@ -1117,7 +966,7 @@ export default function FormBuilder() {
                                           <BlockStack gap="200">
                                             <div style={{ paddingTop: "20px" }}>
                                               <Checkbox
-                                                label="Mark as Required field"
+                                                label="Required field"
                                                 checked={field.required}
                                                 onChange={(value) => updateFieldProperty(index, "required", value)}
                                               />
@@ -1135,9 +984,13 @@ export default function FormBuilder() {
                                       </BlockStack>
 
                                       {/* Shopify Customer Sync Mapping */}
+                                      <details style={{ border: "1px solid #e2e8f0", borderRadius: "8px", backgroundColor: "#f8fafc" }}>
+                                        <summary style={{ cursor: "pointer", padding: "12px 14px", fontWeight: 600 }}>
+                                          Advanced: Shopify sync mapping
+                                        </summary>
                                       <Box padding="300" background="bg-surface" borderRadius="100">
                                         <BlockStack gap="200">
-                                          <Text variant="headingSm" as="h4">Shopify Sync & Integration Mapping</Text>
+                                          <Text variant="headingSm" as="h4">Shopify sync</Text>
                                           <Select
                                             label="Map to Shopify Customer field"
                                             options={[
@@ -1156,11 +1009,16 @@ export default function FormBuilder() {
                                           />
                                         </BlockStack>
                                       </Box>
+                                      </details>
 
                                       {/* Simple Conditional Logic Panel */}
+                                      <details style={{ border: "1px solid #e2e8f0", borderRadius: "8px", backgroundColor: "#f8fafc" }}>
+                                        <summary style={{ cursor: "pointer", padding: "12px 14px", fontWeight: 600 }}>
+                                          Advanced: conditional visibility
+                                        </summary>
                                       <Box padding="300" background="bg-surface" borderRadius="100">
                                         <BlockStack gap="200">
-                                          <Text variant="headingSm" as="h4">Conditional Visibility Logic</Text>
+                                          <Text variant="headingSm" as="h4">Conditional visibility</Text>
                                           {(() => {
                                             let logic: any = { enabled: false, dependsOn: "", value: "" };
                                             if (field.logicRules) {
@@ -1207,14 +1065,15 @@ export default function FormBuilder() {
                                           })()}
                                         </BlockStack>
                                       </Box>
+                                      </details>
 
                                       {/* Choice Options Manager */}
                                       {(field.type === "select" || field.type === "radio" || field.type === "checkbox_list") && (
                                         <Box padding="300" background="bg-surface" borderRadius="100">
                                           <BlockStack gap="300">
                                             <InlineStack align="space-between" blockAlign="center">
-                                              <Text variant="headingSm" as="h4">Radio/Dropdown Options</Text>
-                                              <Button onClick={() => addChoiceOption(index)} size="slim" icon={PlusIcon}>Add Option</Button>
+                                              <Text variant="headingSm" as="h4">Options</Text>
+                                              <Button onClick={() => addChoiceOption(index)} size="slim" icon={PlusIcon}>Add option</Button>
                                             </InlineStack>
 
                                             {Array.isArray(field.choices) && (field.choices as ChoiceOption[]).length > 0 && (
@@ -1748,7 +1607,7 @@ export default function FormBuilder() {
               <Card>
                 <BlockStack gap="400">
                   <Text variant="headingMd" as="h2">
-                    Submission Success Page & Redirects
+                    After submission
                   </Text>
                   <TextField
                     label="Success Message"

@@ -430,10 +430,6 @@ export default function FormsList() {
     submit({ formAction: "create", template: templateKey }, { method: "POST" });
   };
 
-  const handleToggleStatus = (formId: string) => {
-    submit({ formAction: "toggleStatus", formId }, { method: "POST" });
-  };
-
   const handlePublish = (formId: string) => {
     submit({ formAction: "publish", formId }, { method: "POST" });
   };

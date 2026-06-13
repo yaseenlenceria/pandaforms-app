@@ -19,11 +19,10 @@ import {
   Divider,
   Select,
   useIndexResourceState,
-  Icon,
   InlineGrid,
 } from "@shopify/polaris";
-import { AlertBubbleIcon, CheckIcon, ExportIcon, RefreshIcon, EmailIcon } from "@shopify/polaris-icons";
-import { authenticate, unauthenticated } from "../shopify.server";
+import { ExportIcon, RefreshIcon, EmailIcon } from "@shopify/polaris-icons";
+import { authenticate } from "../shopify.server";
 import db from "../db.server";
 import { sendEmail } from "../email.server";
 import { escapeHtml, escapeHtmlWithLineBreaks } from "../utils/html";
@@ -467,7 +466,7 @@ export default function SubmissionsList() {
   const [toastVisible, setToastVisible] = useState(false);
 
   // Polaris Index Table Resource State for Checkbox selection
-  const { selectedResources, allResourcesSelected, handleSelectionChange } =
+  const { selectedResources, handleSelectionChange } =
     useIndexResourceState(submissions as any);
 
   // Trigger Bulk actions
