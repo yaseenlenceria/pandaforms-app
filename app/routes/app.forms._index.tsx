@@ -35,6 +35,18 @@ import {
   SearchIcon,
   InfoIcon,
   ChevronLeftIcon,
+  ArrowRightIcon,
+  BankIcon,
+  BlankIcon,
+  CartIcon,
+  ClipboardChecklistIcon,
+  EmailIcon,
+  FormsIcon,
+  OrderIcon,
+  PersonAddIcon,
+  ProductIcon,
+  ProfileIcon,
+  StoreOnlineIcon,
 } from "@shopify/polaris-icons";
 import { authenticate } from "../shopify.server";
 import db from "../db.server";
@@ -463,14 +475,14 @@ export default function FormsList() {
     }
   };
 
-  const INTENTS = [
-    { name: "Lead Generation", desc: "Capture prospective customers and build marketing lists", icon: "📢", badge: "Growth", setupTime: "Ready in 30s" },
-    { name: "Contact Form", desc: "Allow shoppers to reach out for help or order requests", icon: "✉️", badge: "Standard", setupTime: "Ready in 10s" },
-    { name: "Wholesale Form", desc: "Collect B2B business details and auto-tag wholesale accounts", icon: "💼", badge: "B2B Sync", setupTime: "Ready in 10s" },
-    { name: "Customer Registration", desc: "Custom account sign-up forms with sync options", icon: "👤", badge: "Accounts", setupTime: "Ready in 20s" },
-    { name: "Product Enquiry", desc: "Product-specific enquiry forms on your product pages", icon: "🔍", badge: "Sales", setupTime: "Ready in 20s" },
-    { name: "Multi Step Form", desc: "Split detailed questionnaires into cleaner step panels", icon: "📑", badge: "UX Pro", setupTime: "Ready in 30s" },
-    { name: "Blank Form", desc: "Create a custom form from scratch with basic placeholder fields", icon: "📄", badge: "Quick Start", setupTime: "Ready in 5s" },
+  const CREATE_INTENTS = [
+    { name: "Lead Generation", desc: "Capture new prospects with a polished storefront form.", icon: FormsIcon, badge: "Growth", setupTime: "30 sec", accent: "#2563eb" },
+    { name: "Contact Form", desc: "Give shoppers a simple way to ask for help.", icon: EmailIcon, badge: "Standard", setupTime: "10 sec", accent: "#008060" },
+    { name: "Wholesale Form", desc: "Collect B2B details and review wholesale applicants.", icon: BankIcon, badge: "B2B", setupTime: "10 sec", accent: "#7c3aed" },
+    { name: "Customer Registration", desc: "Build richer customer signup forms with extra fields.", icon: PersonAddIcon, badge: "Accounts", setupTime: "20 sec", accent: "#be123c" },
+    { name: "Product Enquiry", desc: "Add product-specific questions for higher intent shoppers.", icon: ProductIcon, badge: "Sales", setupTime: "20 sec", accent: "#b45309" },
+    { name: "Multi Step Form", desc: "Break longer applications into easier sections.", icon: ClipboardChecklistIcon, badge: "Guided", setupTime: "30 sec", accent: "#0f766e" },
+    { name: "Blank Form", desc: "Start with a clean form and build it yourself.", icon: BlankIcon, badge: "Custom", setupTime: "5 sec", accent: "#475569" },
   ];
 
   const FORM_TEMPLATES = [
@@ -572,11 +584,36 @@ export default function FormsList() {
     }
   ];
 
+  const selectedIntentDetails = CREATE_INTENTS.find((intent) => intent.name === selectedIntent);
+
+  const getTemplateIcon = (templateKey: string) => {
+    switch (templateKey) {
+      case "wholesale_reg":
+        return StoreOnlineIcon;
+      case "contact":
+        return EmailIcon;
+      case "product_enquiry":
+        return ProductIcon;
+      case "customer_reg":
+        return PersonAddIcon;
+      case "pos_customer":
+        return CartIcon;
+      case "wholesale_app":
+        return ProfileIcon;
+      case "order_request":
+        return OrderIcon;
+      case "multistep":
+        return ClipboardChecklistIcon;
+      default:
+        return FormsIcon;
+    }
+  };
+
   return (
     <Page
-      title="Forms List"
+      title="Forms"
       primaryAction={{
-        content: "Create New Form",
+        content: "Create form",
         icon: PlusIcon,
         onAction: handleCreateForm,
         disabled: isLoading,
@@ -636,10 +673,11 @@ export default function FormsList() {
                 {/* Search and Filter Row */}
                 <Card padding="300">
                   <BlockStack gap="300">
+                    <Text variant="headingSm" as="h2">Find a form</Text>
                     <TextField
                       label="Search forms"
                       labelHidden
-                      placeholder="Search by Form Title or Description..."
+                      placeholder="Search by title or description"
                       value={searchQuery}
                       onChange={setSearchQuery}
                       prefix={<Icon source={SearchIcon} />}
@@ -801,25 +839,33 @@ export default function FormsList() {
       <Modal
         open={templateModalOpen}
         onClose={() => setTemplateModalOpen(false)}
-        title={wizardStep === "intent" ? "What would you like to create?" : `Select a Template for ${selectedIntent}`}
+        title={wizardStep === "intent" ? "Create a form" : `Choose a ${selectedIntent} template`}
         size="large"
       >
         <Modal.Section>
           {wizardStep === "intent" ? (
             <BlockStack gap="400">
-              <Text variant="bodyMd" as="p">
-                Select a form type below to get started. Choose from specialized templates optimized for Shopify or start custom.
-              </Text>
+              <BlockStack gap="150">
+                <Text variant="headingMd" as="h2">What would you like to create?</Text>
+                <Text variant="bodyMd" as="p" tone="subdued">
+                  Start from a Shopify-ready template, or choose a blank form when you want full control.
+                </Text>
+              </BlockStack>
               <InlineGrid columns={{ xs: 1, sm: 2, md: 3 }} gap="400">
-                {INTENTS.map((intent) => (
-                  <div key={intent.name} style={{ cursor: "pointer", display: "flex", height: "100%" }} onClick={() => {
-                    if (intent.name === "Blank Form") {
-                      handleSelectTemplate("blank");
-                    } else {
-                      setSelectedIntent(intent.name);
-                      setWizardStep("template");
-                    }
-                  }}>
+                {CREATE_INTENTS.map((intent) => (
+                  <button
+                    key={intent.name}
+                    type="button"
+                    style={{ appearance: "none", background: "transparent", border: 0, cursor: "pointer", display: "flex", height: "100%", padding: 0, textAlign: "left", width: "100%" }}
+                    onClick={() => {
+                      if (intent.name === "Blank Form") {
+                        handleSelectTemplate("blank");
+                      } else {
+                        setSelectedIntent(intent.name);
+                        setWizardStep("template");
+                      }
+                    }}
+                  >
                     <Card>
                       <div style={{ display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" }}>
                         <BlockStack gap="300">
@@ -832,9 +878,9 @@ export default function FormsList() {
                               display: "flex",
                               justifyContent: "center",
                               alignItems: "center",
-                              fontSize: "24px"
+                              color: intent.accent
                             }}>
-                              {intent.icon}
+                              <Icon source={intent.icon} />
                             </div>
                             <Badge tone={intent.name === "Blank Form" ? "info" : "attention"}>{intent.badge}</Badge>
                           </InlineStack>
@@ -844,14 +890,17 @@ export default function FormsList() {
                           </BlockStack>
                         </BlockStack>
                         <div style={{ marginTop: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                          <Text variant="bodyXs" tone="subdued">{intent.setupTime}</Text>
-                          <Button variant="plain">
-                            {intent.name === "Blank Form" ? "Start →" : "Browse →"}
-                          </Button>
+                          <Text variant="bodyXs" tone="subdued">Setup: {intent.setupTime}</Text>
+                          <InlineStack gap="100" blockAlign="center">
+                            <Text variant="bodySm" fontWeight="semibold" as="span">
+                              {intent.name === "Blank Form" ? "Start" : "Browse"}
+                            </Text>
+                            <Icon source={ArrowRightIcon} />
+                          </InlineStack>
                         </div>
                       </div>
                     </Card>
-                  </div>
+                  </button>
                 ))}
               </InlineGrid>
             </BlockStack>
@@ -859,7 +908,7 @@ export default function FormsList() {
             <BlockStack gap="400">
               <InlineStack align="space-between" blockAlign="center">
                 <Button onClick={() => setWizardStep("intent")} icon={ChevronLeftIcon} variant="plain">
-                  Back to Intents
+                  Back to form types
                 </Button>
                 <div style={{ width: "300px" }}>
                   <TextField
@@ -874,6 +923,20 @@ export default function FormsList() {
                   />
                 </div>
               </InlineStack>
+
+              {selectedIntentDetails && (
+                <div style={{ backgroundColor: "#f6f6f7", border: "1px solid #e3e5e7", borderRadius: "8px", padding: "12px 14px" }}>
+                  <InlineStack gap="300" blockAlign="center">
+                    <div style={{ alignItems: "center", backgroundColor: "#ffffff", border: "1px solid #dcdfe4", borderRadius: "8px", color: selectedIntentDetails.accent, display: "flex", height: "36px", justifyContent: "center", width: "36px" }}>
+                      <Icon source={selectedIntentDetails.icon} />
+                    </div>
+                    <BlockStack gap="050">
+                      <Text variant="headingSm" as="h3">{selectedIntentDetails.name}</Text>
+                      <Text variant="bodySm" tone="subdued">{selectedIntentDetails.desc}</Text>
+                    </BlockStack>
+                  </InlineStack>
+                </div>
+              )}
 
               <Tabs
                 tabs={[
@@ -920,11 +983,13 @@ export default function FormsList() {
                   <InlineGrid columns={{ xs: 1, sm: 2 }} gap="400">
                     {items.map((tmpl) => (
                       <Card key={tmpl.key}>
-                        <BlockStack gap="300" style={{ height: "100%", justifyContent: "space-between" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "16px", height: "100%", justifyContent: "space-between" }}>
                           <BlockStack gap="200">
                             <InlineStack align="space-between" blockAlign="center">
                               <InlineStack gap="200" blockAlign="center">
-                                <span style={{ fontSize: "20px" }}>{tmpl.icon}</span>
+                                <div style={{ alignItems: "center", backgroundColor: "#f6f6f7", border: "1px solid #e3e5e7", borderRadius: "8px", color: "#008060", display: "flex", height: "36px", justifyContent: "center", width: "36px" }}>
+                                  <Icon source={getTemplateIcon(tmpl.key)} />
+                                </div>
                                 <Text variant="headingMd" as="h3">{tmpl.name}</Text>
                               </InlineStack>
                               {tmpl.badge && <Badge tone={tmpl.badgeTone}>{tmpl.badge}</Badge>}
@@ -956,11 +1021,11 @@ export default function FormsList() {
                           </BlockStack>
 
                           <div style={{ marginTop: "16px", display: "flex", justifyContent: "flex-end" }}>
-                            <Button onClick={() => handleSelectTemplate(tmpl.key)} variant="primary">
+                            <Button onClick={() => handleSelectTemplate(tmpl.key)} variant="primary" icon={ArrowRightIcon}>
                               Use Template
                             </Button>
                           </div>
-                        </BlockStack>
+                        </div>
                       </Card>
                     ))}
                   </InlineGrid>
