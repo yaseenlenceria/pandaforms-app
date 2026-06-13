@@ -53,6 +53,7 @@
   var formId = "{{ block.settings.form_id }}";
   var apiUrl = {{ block.settings.api_url | json }}.replace(/\/$/, "");
   var useAppStyling = {{ block.settings.use_app_styling | default: true | json }};
+  var adoptThemeStyling = {{ block.settings.adopt_theme_styling | default: false | json }};
   var overrideWidth = {{ block.settings.override_width | default: false | json }};
   var blockWidth = parseInt("{{ block.settings.form_width | default: 650 }}") || 650;
 
@@ -153,8 +154,9 @@
       try { savedStyles = JSON.parse(form.customStyles); } catch(e) {}
     }
 
-    // activeStyles = app-saved styles, or fallback preset, or null (theme default)
-    var activeStyles = useAppStyling ? (savedStyles || FALLBACK_PRESET) : null;
+    // activeStyles = app-saved styles, or fallback preset, or null (theme default).
+    // Theme adoption keeps PandaForms layout while using Shopify theme fonts and colours.
+    var activeStyles = (useAppStyling || adoptThemeStyling) ? (savedStyles || FALLBACK_PRESET) : null;
 
     // -------------------------------------------------------------------------
     // Build resolved flat styles from activeStyles
@@ -200,6 +202,18 @@
       s.descSize    = parseInt(t.descSize)   || 14;
       s.labelSize   = parseInt(t.labelSize)  || 13;
       s.inputSize   = parseInt(t.inputSize)  || 14;
+
+      if (adoptThemeStyling) {
+        s.bgColor          = "rgb(var(--color-background, 255, 255, 255))";
+        s.textColor        = "rgb(var(--color-foreground, 18, 18, 18))";
+        s.labelColor       = "rgb(var(--color-foreground, 18, 18, 18))";
+        s.fieldBgColor     = "rgb(var(--color-background, 255, 255, 255))";
+        s.fieldBorderColor = "rgba(var(--color-foreground, 18, 18, 18), 0.22)";
+        s.btnBgColor       = "rgb(var(--color-button, var(--color-foreground, 18, 18, 18)))";
+        s.btnTextColor     = "rgb(var(--color-button-text, var(--color-background, 255, 255, 255)))";
+        s.btnHoverColor    = "";
+        s.fontFamily       = "var(--font-body-family, inherit)";
+      }
 
       // -----------------------------------------------------------------------
       // Apply wrapper styles from saved app design
@@ -523,6 +537,7 @@
     { "type": "text", "id": "api_url", "label": "App URL", "default": "https://p01--pandaforms-app--77wd8gj6rv7k.code.run" },
     { "type": "header", "content": "Styling" },
     { "type": "checkbox", "id": "use_app_styling", "label": "Use PandaForms app styling", "info": "When enabled, all colours and layout come from Widget Styling Settings inside PandaForms. Disable to use your theme defaults.", "default": true },
+    { "type": "checkbox", "id": "adopt_theme_styling", "label": "Adopt theme fonts and colour scheme", "info": "When enabled, this widget uses your Shopify theme colour scheme and font for text, fields, and buttons while keeping PandaForms spacing and layout.", "default": false },
     { "type": "header", "content": "Width (Optional Override)" },
     { "type": "checkbox", "id": "override_width", "label": "Override form width", "default": false },
     { "type": "range", "id": "form_width", "label": "Form Width", "min": 320, "max": 1200, "step": 10, "default": 650, "unit": "px" },
