@@ -21,6 +21,7 @@ import {
   Tooltip,
   Icon,
   Collapsible,
+  Box,
 } from "@shopify/polaris";
 import {
   ViewIcon,

@@ -242,6 +242,8 @@
         
         formWidth: 800,
         borderRadius: parseInt(themeStyles.wrapper.borderRadius) || 8,
+        inputBorderRadius: (themeStyles.input && themeStyles.input.borderRadius) ? parseInt(themeStyles.input.borderRadius) : 0,
+        btnBorderRadius: (themeStyles.button && themeStyles.button.borderRadius) ? parseInt(themeStyles.button.borderRadius) : 0,
         shadow: themeStyles.wrapper.boxShadow ? 'medium' : 'none',
         inputPadding: themeStyles.input.padding || '10px',
         btnPadding: themeStyles.button.padding || '12px',
@@ -273,31 +275,6 @@
         if (preset.btn_text_color) resolvedStyles.btnTextColor = preset.btn_text_color;
         if (preset.btn_hover_bg_color) resolvedStyles.btnHoverBgColor = preset.btn_hover_bg_color;
         if (preset.success_text_color) resolvedStyles.successColor = preset.success_text_color;
-
-        // Custom block settings overrides
-        var blockBgColor = "{{ block.settings.bg_color }}";
-        var blockBtnBgColor = "{{ block.settings.btn_bg_color }}";
-        if (blockBgColor && blockBgColor !== '') resolvedStyles.bgColor = blockBgColor;
-        if (blockBtnBgColor && blockBtnBgColor !== '') resolvedStyles.btnBgColor = blockBtnBgColor;
-
-        // Block range overrides
-        var shouldApplyBlockRangeSettings = presetStyle === 'custom' ? isMinimalTheme : (presetStyle !== 'app_theme');
-        if (shouldApplyBlockRangeSettings) {
-          var blockBorderRadius = "{{ block.settings.border_radius }}";
-          var blockCardPadding = "{{ block.settings.card_padding }}";
-          var blockShowShadow = "{{ block.settings.show_shadow }}";
-          
-          if (blockBorderRadius && blockBorderRadius !== '') resolvedStyles.borderRadius = parseInt(blockBorderRadius);
-          if (blockCardPadding && blockCardPadding !== '') {
-            resolvedStyles.desktopPadding = parseInt(blockCardPadding);
-            resolvedStyles.mobilePadding = parseInt(blockCardPadding);
-          }
-          if (blockShowShadow === 'true') {
-            resolvedStyles.shadow = 'medium';
-          } else if (blockShowShadow === 'false') {
-            resolvedStyles.shadow = 'none';
-          }
-        }
       }
 
       // If custom design system configurations exist, merge/overwrite resolved styles
@@ -316,6 +293,8 @@
         
         resolvedStyles.formWidth = parseInt(customStyles.layout.formWidth) || resolvedStyles.formWidth;
         resolvedStyles.borderRadius = parseInt(customStyles.layout.borderRadius) || resolvedStyles.borderRadius;
+        resolvedStyles.inputBorderRadius = parseInt(customStyles.layout.borderRadius) || resolvedStyles.borderRadius;
+        resolvedStyles.btnBorderRadius = parseInt(customStyles.layout.borderRadius) || resolvedStyles.borderRadius;
         resolvedStyles.shadow = customStyles.layout.shadow || resolvedStyles.shadow;
         
         const inputSizeVal = customStyles.layout.inputSize || 'medium';
@@ -340,6 +319,12 @@
         resolvedStyles.inputSize = parseInt(customStyles.typography.inputSize) || resolvedStyles.inputSize;
         resolvedStyles.btnSize = parseInt(customStyles.typography.btnSize) || resolvedStyles.btnSize;
       }
+
+      // Apply Custom overrides from Theme Editor settings (always take precedence if explicitly set by merchant)
+      var blockBgColor = "{{ block.settings.bg_color }}";
+      var blockBtnBgColor = "{{ block.settings.btn_bg_color }}";
+      if (blockBgColor && blockBgColor !== '') resolvedStyles.bgColor = blockBgColor;
+      if (blockBtnBgColor && blockBtnBgColor !== '') resolvedStyles.btnBgColor = blockBtnBgColor;
 
       // Apply Card wrapper style values
       wrapper.style.backgroundColor = resolvedStyles.bgColor;
@@ -631,7 +616,7 @@
             inputEl.style.boxSizing = 'border-box';
             inputEl.style.backgroundColor = resolvedStyles.fieldBgColor;
             inputEl.style.border = '1px solid ' + resolvedStyles.fieldBorderColor;
-            inputEl.style.borderRadius = resolvedStyles.borderRadius + 'px';
+            inputEl.style.borderRadius = resolvedStyles.inputBorderRadius + 'px';
             inputEl.style.color = resolvedStyles.textColor;
             inputEl.style.outline = 'none';
           }
@@ -649,7 +634,7 @@
       submitBtn.style.padding = resolvedStyles.btnPadding;
       submitBtn.style.fontSize = resolvedStyles.btnSize + 'px';
       submitBtn.style.fontFamily = resolvedStyles.fontFamily;
-      submitBtn.style.borderRadius = resolvedStyles.borderRadius + 'px';
+      submitBtn.style.borderRadius = resolvedStyles.btnBorderRadius + 'px';
       submitBtn.style.backgroundColor = resolvedStyles.btnBgColor;
       submitBtn.style.color = resolvedStyles.btnTextColor;
 
