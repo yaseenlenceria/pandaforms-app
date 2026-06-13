@@ -71,7 +71,7 @@
   
   let redirectUrl = "";
   
-  let configEndpoint = `/apps/pandaforms/form-config?id=${formId}`;
+  let configEndpoint = `/apps/pandaforms/form-config?id=${formId}&t=${Date.now()}`;
   let submitEndpoint = `/apps/pandaforms/submit`;
   
   // Fetch Form Configuration through the Shopify app proxy.
@@ -224,7 +224,8 @@
 
       // Determine if using minimal theme
       const isMinimalTheme = (form.theme || 'minimal') === 'minimal';
-      const isAppTheme = presetStyle === 'app_theme';
+      const validPresets = ['shopify_default', 'minimal', 'modern', 'premium', 'dark', 'custom'];
+      const isAppTheme = !validPresets.includes(presetStyle);
 
       // Setup a unified design system config mapping to apply styles
       var resolvedStyles = {

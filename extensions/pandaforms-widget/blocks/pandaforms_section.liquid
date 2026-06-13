@@ -119,8 +119,9 @@
   }
 
   function loadForm() {
-    var proxyUrl = '/apps/pandaforms/form-config?id=' + encodeURIComponent(formId);
-    var directUrl = apiUrl + '/api/form-config?id=' + encodeURIComponent(formId);
+    var timestamp = Date.now();
+    var proxyUrl = '/apps/pandaforms/form-config?id=' + encodeURIComponent(formId) + '&t=' + timestamp;
+    var directUrl = apiUrl + '/api/form-config?id=' + encodeURIComponent(formId) + '&t=' + timestamp;
     
     fetch(proxyUrl).then(function(res) {
       if (!res.ok) throw new Error('proxy failed');
@@ -222,7 +223,8 @@
       var preset = presets[presetStyle] || {};
 
       var isMinimalTheme = (form.theme || 'minimal') === 'minimal';
-      var isAppTheme = presetStyle === 'app_theme';
+      var validPresets = ['shopify_default', 'minimal', 'modern', 'premium', 'dark', 'custom'];
+      var isAppTheme = !validPresets.includes(presetStyle);
 
       // Setup a unified design system config mapping to apply styles
       var resolvedStyles = {
