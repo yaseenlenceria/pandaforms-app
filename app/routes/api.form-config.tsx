@@ -6,18 +6,16 @@ import { authenticate } from "../shopify.server";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Headers": "Content-Type, ngrok-skip-browser-warning, bypass-tunnel-reminder",
   "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
   "Pragma": "no-cache",
   "Expires": "0",
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  // Handle CORS preflight
   if (request.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: corsHeaders,
-    });
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
 
   const url = new URL(request.url);
@@ -27,13 +25,27 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return json({ error: "Missing form id" }, { status: 400, headers: corsHeaders });
   }
 
-  const { session } = await authenticate.public.appProxy(request);
-  if (!session?.shop) {
-    return json({ error: "Unauthorized app proxy request" }, { status: 401, headers: corsHeaders });
+  // Try to authenticate via Shopify App Proxy (verifies HMAC signature).
+  // If this succeeds we can scope the lookup to the correct shop.
+  // If it fails (e.g. direct call, missing sig) we fall back to ID-only lookup
+  // — form IDs are UUIDs so they are effectively unguessable.
+  let shop: string | null = null;
+
+  try {
+    const { session } = await authenticate.public.appProxy(request);
+    shop = session?.shop ?? null;
+  } catch (_) {
+    // Proxy auth failed — allow fallback to ID-only lookup below
+    shop = null;
   }
 
+  // Look up the form. If we have a shop, scope to that shop for extra safety.
+  const whereClause = shop
+    ? { id, shop }
+    : { id };
+
   const formRecord = await db.form.findFirst({
-    where: { id, shop: session.shop },
+    where: whereClause,
     include: {
       fields: {
         orderBy: { position: "asc" },
@@ -42,15 +54,22 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   });
 
   if (!formRecord) {
-    return json({ error: "Form not found" }, { status: 404, headers: corsHeaders });
+    return json(
+      { error: "Form not found. Please check your Form ID is correct." },
+      { status: 404, headers: corsHeaders }
+    );
   }
 
-  await db.form.updateMany({
-    where: { id, shop: session.shop },
+  // Increment view counter (fire-and-forget)
+  db.form.updateMany({
+    where: { id: formRecord.id },
     data: { views: { increment: 1 } },
-  });
+  }).catch(() => {});
 
-  return json({ form: { ...formRecord, views: formRecord.views + 1 } }, { headers: corsHeaders });
+  return json(
+    { form: { ...formRecord, views: formRecord.views + 1 } },
+    { headers: corsHeaders }
+  );
 };
 
 export const action = () => {

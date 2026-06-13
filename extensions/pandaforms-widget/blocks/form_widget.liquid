@@ -431,8 +431,15 @@
   })
   .catch(function(err) {
     console.error("PandaForms load error:", err);
-    loadingDiv.innerHTML = "<p style='color:#b42318; padding:16px; border:1px solid #fca5a5; border-radius:6px; background:#fef2f2;'>" +
-      "<strong>Could not load form.</strong><br>Please check your Form ID is correct and the PandaForms app is running.</p>";
+    loadingDiv.innerHTML =
+      "<div style='padding:16px;border:1px solid #fca5a5;border-radius:6px;background:#fef2f2;color:#b42318;font-family:sans-serif;font-size:14px;'>" +
+        "<strong style='display:block;margin-bottom:6px;'>⚠️ PandaForms — Could not load form</strong>" +
+        "Form ID used: <code style='background:rgba(0,0,0,0.07);padding:2px 6px;border-radius:4px;font-size:13px;'>" + formId + "</code><br><br>" +
+        "Please verify:<br>" +
+        "1. The Form ID above matches the ID shown inside the PandaForms app.<br>" +
+        "2. The form is not archived or deleted.<br>" +
+        "3. The PandaForms app is installed and running on this store." +
+      "</div>";
   });
 
   // ---------------------------------------------------------------------------
