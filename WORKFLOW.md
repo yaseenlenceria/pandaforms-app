@@ -1,69 +1,81 @@
-# PandaForms Shopify App Development & Deployment Workflow
+# PandaForms Live Development Workflow
 
-This document outlines the workflow for developing, deploying, and monitoring the **PandaForms** Shopify application.
+This repo is the live PandaForms Shopify app. Code is hosted on GitHub, Northflank deploys from GitHub, and final testing happens inside the installed Shopify app and storefront.
 
----
+## Rule For Deploying
 
-## 🚀 The Development & Deployment Loop
+Do not push changes until the user says: `push to github`.
 
-Your application uses a Git-triggered continuous deployment setup:
-1. **Make Changes**: Modify the code in the codebase locally or via the agent.
-2. **Push to GitHub**: Push the commits to the remote repository.
-3. **Automated Build & Deploy**: Northflank detects the new commits on `main` and automatically builds and deploys the app.
-4. **Live Shopify Verification**: Once deployed, the app updates live inside the Shopify merchants' admin stores where it is installed.
+When code is pushed to `main`, Northflank automatically builds and deploys the app. After that, test in Shopify.
 
----
+## Main Links
 
-## 🛠️ Step-by-Step Workflow Guide
+- GitHub repo: https://github.com/yaseenlenceria/pandaforms-app
+- Northflank builds: https://app.northflank.com/t/seenu92s-team/project/pandaform/services/pandaforms-app/builds
+- Shopify API health: https://dev.shopify.com/dashboard/130056835/apps/379465400321/monitoring/api_health
+- Live app URL: https://p01--pandaforms-app--77wd8gj6rv7k.code.run
 
-### 1. Workspace Configuration
-Before beginning any coding work, make sure your IDE has the project root set as the active workspace:
-* **Active Workspace Path**: `C:\Users\Seenu\.gemini\antigravity\scratch\pandaforms-app`
+## Normal Work Loop
 
-### 2. Making and Committing Changes
-When you want to implement a new feature, fix a bug, or resolve health issues:
-1. Make the necessary code edits in the `app/` or `extensions/` directories.
-2. Run standard git checks to review modified files:
-   ```powershell
-   git status
-   git diff
-   ```
-3. Commit your changes:
-   ```powershell
-   git add .
-   git commit -m "Describe the feature or fix here"
-   ```
+1. Pull or clone the GitHub repo.
+2. Make focused code changes.
+3. Run local validation when possible.
+4. Show the changed files and summary.
+5. Wait for the user to say `push to github`.
+6. Push to `main`.
+7. Watch the Northflank build.
+8. Test the live Shopify installed app and storefront.
 
-### 3. Deploying ("Push to GitHub")
-When you are ready to deploy, tell the agent **"push to github"** or run:
+## Shopify Extension Deploy
+
+Some changes under `extensions/` also need a Shopify CLI app deploy so the app extension version is published to Shopify.
+
+Use:
+
 ```powershell
-git push origin main
+pnpm run deploy -- --allow-updates
 ```
-This push acts as the release trigger.
 
-### 4. Monitoring the Deployment
-Once pushed, Northflank immediately starts building your app.
-* **Builds Dashboard**: [Northflank Builds Console](https://app.northflank.com/t/seenu92s-team/project/pandaform/services/pandaforms-app/builds)
-* **Action**: Visit this link to ensure the build completes without errors. If the build fails, check the logs in the console to diagnose issues.
+Only run this when extension files changed and the user wants the Shopify extension published.
 
-### 5. Live Testing on Shopify
-Once the build is marked as successful on Northflank, the live application will run the updated version at:
-* **Live App URL**: [https://p01--pandaforms-app--77wd8gj6rv7k.code.run](https://p01--pandaforms-app--77wd8gj6rv7k.code.run)
-* **Verification**: Open the Shopify admin of the development store/installed test store where PandaForms is installed and test the live features (e.g. check the form embedding, configurations, admin pages, etc.).
+## Widget Styling Rule
 
-### 6. Monitoring API Health & Errors
-To ensure Shopify is communicating correctly with the app (e.g. webhooks, API requests, session validation):
-* **API Health & Webhook Monitoring**: [Shopify Partner Dashboard - API Health](https://dev.shopify.com/dashboard/130056835/apps/379465400321/monitoring/api_health)
-* **Action**: Check this page periodically to:
-  * Detect failed webhook delivery.
-  * Identify API rate limit issues.
-  * Spot deprecated API usage warnings.
+Widget Styling Settings inside PandaForms are the master styling system.
 
----
+Priority:
 
-## 📂 Key Project Resources
+1. Selected preset in PandaForms admin.
+2. Custom color/layout overrides in PandaForms admin.
+3. Storefront widget rendering.
 
-* **GitHub Repository**: [yaseenlenceria/pandaforms-app](https://github.com/yaseenlenceria/pandaforms-app)
-* **Northflank Builds**: [Services Builds](https://app.northflank.com/t/seenu92s-team/project/pandaform/services/pandaforms-app/builds)
-* **Shopify API Health**: [Monitoring Dashboard](https://dev.shopify.com/dashboard/130056835/apps/379465400321/monitoring/api_health)
-* **Shopify App Config**: [shopify.app.toml](file:///C:/Users/Seenu/.gemini/antigravity/scratch/pandaforms-app/shopify.app.toml)
+The Shopify Theme Editor block should stay simple:
+
+- Form ID
+- App URL
+- Use PandaForms app styling
+- Top and bottom spacing
+- Optional width override
+
+Theme Editor color controls should not be added because they create a second styling system.
+
+## Testing Checklist
+
+- Pick each preset: Shopify Default, Minimal, Modern, Premium, Dark Mode.
+- Confirm Live Storefront Form Preview updates immediately.
+- Save the form.
+- Confirm `customStyles` is returned by `/api/form-config?id=<FORM_ID>`.
+- Confirm storefront widget matches the saved preview.
+- Confirm Theme Editor block does not expose conflicting color controls.
+- Confirm submit still posts successfully.
+
+## Common Live Error
+
+`PandaForms: Form could not load. Please check Form ID and app URL.`
+
+Check:
+
+- The Form ID exactly matches a saved form.
+- The live app URL is correct.
+- Northflank deployed successfully.
+- Shopify app proxy routes `/apps/pandaforms/form-config` and `/apps/pandaforms/submit` are working.
+- Direct fallback routes `/api/form-config` and `/api/submit` are reachable from the storefront.

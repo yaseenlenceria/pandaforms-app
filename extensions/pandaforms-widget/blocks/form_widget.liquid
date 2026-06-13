@@ -51,6 +51,7 @@
 (function() {
   var blockId = "{{ block.id }}";
   var formId = "{{ block.settings.form_id }}";
+  var apiUrl = {{ block.settings.api_url | json }}.replace(/\/$/, "");
   var useAppStyling = {{ block.settings.use_app_styling | default: true | json }};
   var overrideWidth = {{ block.settings.override_width | default: false | json }};
   var blockWidth = parseInt("{{ block.settings.form_width | default: 650 }}") || 650;
@@ -69,8 +70,10 @@
   }
 
   var redirectUrl = "";
-  var configEndpoint = "/apps/pandaforms/form-config?id=" + formId + "&t=" + Date.now();
+  var configEndpoint = "/apps/pandaforms/form-config?id=" + encodeURIComponent(formId) + "&t=" + Date.now();
+  var directConfigEndpoint = apiUrl + "/api/form-config?id=" + encodeURIComponent(formId) + "&t=" + Date.now();
   var submitEndpoint = "/apps/pandaforms/submit";
+  var directSubmitEndpoint = apiUrl + "/api/submit";
 
   // ---------------------------------------------------------------------------
   // Default fallback preset (Shopify Default) — only used when no customStyles
@@ -117,8 +120,19 @@
     }
   })
   .then(function(res) {
-    if (!res.ok) throw new Error("Form config fetch failed: " + res.status);
+    if (!res.ok) throw new Error("App proxy config fetch failed: " + res.status);
     return res.json();
+  })
+  .catch(function() {
+    return fetch(directConfigEndpoint, {
+      headers: {
+        "ngrok-skip-browser-warning": "true",
+        "bypass-tunnel-reminder": "true"
+      }
+    }).then(function(res) {
+      if (!res.ok) throw new Error("Direct config fetch failed: " + res.status);
+      return res.json();
+    });
   })
   .then(function(data) {
     var form = data.form;
@@ -155,7 +169,7 @@
       // Colours
       s.bgColor          = c.bgColor          || "#ffffff";
       s.textColor        = c.textColor        || "#1e293b";
-      s.labelColor       = c.textColor        || c.labelColor || "#334155";
+      s.labelColor       = c.labelColor       || c.textColor || "#334155";
       s.fieldBgColor     = c.fieldBgColor     || "#ffffff";
       s.fieldBorderColor = c.fieldBorderColor || "#cbd5e1";
       s.btnBgColor       = c.btnBgColor       || "#008060";
@@ -463,12 +477,25 @@
       if (checked) fieldsData[div.dataset.label] = checked.value;
     });
 
-    fetch(submitEndpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true", "bypass-tunnel-reminder": "true" },
-      body: JSON.stringify({ formId: formId, fields: fieldsData })
+    function postSubmission(url) {
+      return fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true", "bypass-tunnel-reminder": "true" },
+        body: JSON.stringify({ formId: formId, fields: fieldsData })
+      });
+    }
+
+    postSubmission(submitEndpoint)
+    .then(function(res) {
+      if (!res.ok) throw new Error("App proxy submit failed: " + res.status);
+      return res.json();
     })
-    .then(function(res) { return res.json(); })
+    .catch(function() {
+      return postSubmission(directSubmitEndpoint).then(function(res) {
+        if (!res.ok) throw new Error("Direct submit failed: " + res.status);
+        return res.json();
+      });
+    })
     .then(function(res) {
       if (res.success) {
         if (redirectUrl) { window.location.href = redirectUrl; }

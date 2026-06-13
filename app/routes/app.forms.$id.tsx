@@ -399,12 +399,12 @@ export default function FormBuilder() {
       fieldGap: "16"
     },
     typography: {
-      fontFamily: "sans-serif",
+      fontFamily: "Inter, sans-serif",
       titleSize: "24",
       descSize: "14",
       labelSize: "13",
       inputSize: "14",
-      btnSize: "16"
+      btnSize: "15"
     }
   };
 
@@ -669,7 +669,12 @@ export default function FormBuilder() {
   };
 
   const applyPreset = (presetKey: keyof typeof STYLE_PRESETS) => {
-    setCustomStyles(STYLE_PRESETS[presetKey]);
+    setCustomStyles({
+      themePreset: STYLE_PRESETS[presetKey].themePreset,
+      colors: { ...STYLE_PRESETS[presetKey].colors },
+      layout: { ...STYLE_PRESETS[presetKey].layout },
+      typography: { ...STYLE_PRESETS[presetKey].typography },
+    });
   };
 
   const loginPositionOptions = [
@@ -1902,7 +1907,7 @@ export default function FormBuilder() {
 
                   <Divider />
 
-                  <Button onClick={() => setCustomStyles(defaultDesignSystem)} tone="critical" outline fullWidth>
+                  <Button onClick={() => applyPreset("default")} tone="critical" outline fullWidth>
                     Reset to default style
                   </Button>
                 </BlockStack>
