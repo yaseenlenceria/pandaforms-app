@@ -225,78 +225,29 @@
       // Determine if using minimal theme
       const isMinimalTheme = (form.theme || 'minimal') === 'minimal';
       const validPresets = ['shopify_default', 'minimal', 'modern', 'premium', 'dark', 'custom'];
-      const isAppTheme = !validPresets.includes(presetStyle);
+      const isAppTheme = presetStyle !== 'custom';
 
       // Setup a unified design system config mapping to apply styles
-      var resolvedStyles = {
-        bgColor: themeStyles.wrapper.backgroundColor || '#ffffff',
-        textColor: themeStyles.wrapper.color || '#1e293b',
-        fieldBgColor: themeStyles.input.backgroundColor || '#ffffff',
-        fieldBorderColor: themeStyles.input.borderColor || '#cbd5e1',
-        labelColor: themeStyles.label.color || '#334155',
-        btnBgColor: themeStyles.button.backgroundColor || '#0f172a',
-        btnTextColor: themeStyles.button.color || '#ffffff',
-        btnHoverBgColor: '',
-        successColor: '#10b981',
-        successBgColor: '#f0fdf4',
-        errorColor: '#ef4444',
-        
-        formWidth: 800,
-        borderRadius: parseInt(themeStyles.wrapper.borderRadius) || 8,
-        inputBorderRadius: (themeStyles.input && themeStyles.input.borderRadius) ? parseInt(themeStyles.input.borderRadius) : 0,
-        btnBorderRadius: (themeStyles.button && themeStyles.button.borderRadius) ? parseInt(themeStyles.button.borderRadius) : 0,
-        shadow: themeStyles.wrapper.boxShadow ? 'medium' : 'none',
-        inputPadding: themeStyles.input.padding || '10px',
-        btnPadding: themeStyles.button.padding || '12px',
-        labelSpacing: 5,
-        desktopPadding: parseInt(themeStyles.wrapper.padding) || 24,
-        mobilePadding: 16,
-        fieldGap: 16,
-        
-        fontFamily: themeStyles.wrapper.fontFamily || 'sans-serif',
-        titleSize: 24,
-        descSize: 14,
-        labelSize: 13,
-        inputSize: 14,
-        btnSize: 16
-      };
+      var resolvedStyles = {};
 
-      // Apply presets overrides if not using the App Theme
-      if (!isAppTheme) {
-        if (preset.bg_color) resolvedStyles.bgColor = preset.bg_color;
-        if (preset.text_color) {
-          resolvedStyles.textColor = preset.text_color;
-          resolvedStyles.labelColor = preset.text_color;
-        }
-        if (preset.border_color) resolvedStyles.fieldBorderColor = preset.border_color;
-        if (preset.input_bg_color) resolvedStyles.fieldBgColor = preset.input_bg_color;
-        if (preset.input_border_color) resolvedStyles.fieldBorderColor = preset.input_border_color;
-        if (preset.input_text_color) resolvedStyles.textColor = preset.input_text_color;
-        if (preset.btn_bg_color) resolvedStyles.btnBgColor = preset.btn_bg_color;
-        if (preset.btn_text_color) resolvedStyles.btnTextColor = preset.btn_text_color;
-        if (preset.btn_hover_bg_color) resolvedStyles.btnHoverBgColor = preset.btn_hover_bg_color;
-        if (preset.success_text_color) resolvedStyles.successColor = preset.success_text_color;
-      }
-
-      // If custom design system configurations exist, merge/overwrite resolved styles
-      if (customStyles && isAppTheme) {
-        resolvedStyles.bgColor = customStyles.colors.bgColor || resolvedStyles.bgColor;
-        resolvedStyles.textColor = customStyles.colors.textColor || resolvedStyles.textColor;
-        resolvedStyles.fieldBgColor = customStyles.colors.fieldBgColor || resolvedStyles.fieldBgColor;
-        resolvedStyles.fieldBorderColor = customStyles.colors.fieldBorderColor || resolvedStyles.fieldBorderColor;
-        resolvedStyles.labelColor = customStyles.colors.labelColor || resolvedStyles.labelColor;
-        resolvedStyles.btnBgColor = customStyles.colors.btnBgColor || resolvedStyles.btnBgColor;
-        resolvedStyles.btnTextColor = customStyles.colors.btnTextColor || resolvedStyles.btnTextColor;
-        resolvedStyles.btnHoverBgColor = customStyles.colors.btnHoverColor || resolvedStyles.btnHoverBgColor;
-        resolvedStyles.successColor = customStyles.colors.successColor || resolvedStyles.successColor;
-        resolvedStyles.successBgColor = customStyles.colors.successBgColor || resolvedStyles.successBgColor;
-        resolvedStyles.errorColor = customStyles.colors.errorColor || resolvedStyles.errorColor;
+      if (customStyles) {
+        resolvedStyles.bgColor = customStyles.colors.bgColor || '#ffffff';
+        resolvedStyles.textColor = customStyles.colors.textColor || '#1e293b';
+        resolvedStyles.fieldBgColor = customStyles.colors.fieldBgColor || '#ffffff';
+        resolvedStyles.fieldBorderColor = customStyles.colors.fieldBorderColor || '#cbd5e1';
+        resolvedStyles.labelColor = customStyles.colors.labelColor || '#334155';
+        resolvedStyles.btnBgColor = customStyles.colors.btnBgColor || '#008060';
+        resolvedStyles.btnTextColor = customStyles.colors.btnTextColor || '#ffffff';
+        resolvedStyles.btnHoverBgColor = customStyles.colors.btnHoverColor || '';
+        resolvedStyles.successColor = customStyles.colors.successColor || '#10b981';
+        resolvedStyles.successBgColor = customStyles.colors.successBgColor || '#f0fdf4';
+        resolvedStyles.errorColor = customStyles.colors.errorColor || '#ef4444';
         
-        resolvedStyles.formWidth = parseInt(customStyles.layout.formWidth) || resolvedStyles.formWidth;
-        resolvedStyles.borderRadius = parseInt(customStyles.layout.borderRadius) || resolvedStyles.borderRadius;
-        resolvedStyles.inputBorderRadius = parseInt(customStyles.layout.borderRadius) || resolvedStyles.borderRadius;
-        resolvedStyles.btnBorderRadius = parseInt(customStyles.layout.borderRadius) || resolvedStyles.borderRadius;
-        resolvedStyles.shadow = customStyles.layout.shadow || resolvedStyles.shadow;
+        resolvedStyles.formWidth = parseInt(customStyles.layout.formWidth) || 650;
+        resolvedStyles.borderRadius = parseInt(customStyles.layout.borderRadius) || 4;
+        resolvedStyles.inputBorderRadius = parseInt(customStyles.layout.borderRadius) || 4;
+        resolvedStyles.btnBorderRadius = parseInt(customStyles.layout.borderRadius) || 4;
+        resolvedStyles.shadow = customStyles.layout.shadow || 'subtle';
         
         const inputSizeVal = customStyles.layout.inputSize || 'medium';
         resolvedStyles.inputPadding = inputSizeVal === 'small' ? '8px 12px' :
@@ -308,24 +259,74 @@
                                    btnSizeVal === 'large' ? '18px 36px' :
                                    '14px 28px';
                                    
-        resolvedStyles.labelSpacing = parseInt(customStyles.layout.labelSpacing) || resolvedStyles.labelSpacing;
-        resolvedStyles.desktopPadding = parseInt(customStyles.layout.desktopPadding) || resolvedStyles.desktopPadding;
-        resolvedStyles.mobilePadding = parseInt(customStyles.layout.mobilePadding) || resolvedStyles.mobilePadding;
-        resolvedStyles.fieldGap = parseInt(customStyles.layout.fieldGap) || resolvedStyles.fieldGap;
+        resolvedStyles.labelSpacing = parseInt(customStyles.layout.labelSpacing) || 6;
+        resolvedStyles.desktopPadding = parseInt(customStyles.layout.desktopPadding) || 32;
+        resolvedStyles.mobilePadding = parseInt(customStyles.layout.mobilePadding) || 16;
+        resolvedStyles.fieldGap = parseInt(customStyles.layout.fieldGap) || 16;
         
-        resolvedStyles.fontFamily = customStyles.typography.fontFamily || resolvedStyles.fontFamily;
-        resolvedStyles.titleSize = parseInt(customStyles.typography.titleSize) || resolvedStyles.titleSize;
-        resolvedStyles.descSize = parseInt(customStyles.typography.descSize) || resolvedStyles.descSize;
-        resolvedStyles.labelSize = parseInt(customStyles.typography.labelSize) || resolvedStyles.labelSize;
-        resolvedStyles.inputSize = parseInt(customStyles.typography.inputSize) || resolvedStyles.inputSize;
-        resolvedStyles.btnSize = parseInt(customStyles.typography.btnSize) || resolvedStyles.btnSize;
-      }
+        resolvedStyles.fontFamily = customStyles.typography.fontFamily || 'sans-serif';
+        resolvedStyles.titleSize = parseInt(customStyles.typography.titleSize) || 24;
+        resolvedStyles.descSize = parseInt(customStyles.typography.descSize) || 14;
+        resolvedStyles.labelSize = parseInt(customStyles.typography.labelSize) || 13;
+        resolvedStyles.inputSize = parseInt(customStyles.typography.inputSize) || 14;
+        resolvedStyles.btnSize = parseInt(customStyles.typography.btnSize) || 16;
+      } else {
+        resolvedStyles = {
+          bgColor: themeStyles.wrapper.backgroundColor || '#ffffff',
+          textColor: themeStyles.wrapper.color || '#1e293b',
+          fieldBgColor: themeStyles.input.backgroundColor || '#ffffff',
+          fieldBorderColor: themeStyles.input.borderColor || '#cbd5e1',
+          labelColor: themeStyles.label.color || '#334155',
+          btnBgColor: themeStyles.button.backgroundColor || '#0f172a',
+          btnTextColor: themeStyles.button.color || '#ffffff',
+          btnHoverBgColor: '',
+          successColor: '#10b981',
+          successBgColor: '#f0fdf4',
+          errorColor: '#ef4444',
+          
+          formWidth: 800,
+          borderRadius: parseInt(themeStyles.wrapper.borderRadius) || 8,
+          inputBorderRadius: (themeStyles.input && themeStyles.input.borderRadius) ? parseInt(themeStyles.input.borderRadius) : 0,
+          btnBorderRadius: (themeStyles.button && themeStyles.button.borderRadius) ? parseInt(themeStyles.button.borderRadius) : 0,
+          shadow: themeStyles.wrapper.boxShadow ? 'medium' : 'none',
+          inputPadding: themeStyles.input.padding || '10px',
+          btnPadding: themeStyles.button.padding || '12px',
+          labelSpacing: 5,
+          desktopPadding: parseInt(themeStyles.wrapper.padding) || 24,
+          mobilePadding: 16,
+          fieldGap: 16,
+          
+          fontFamily: themeStyles.wrapper.fontFamily || 'sans-serif',
+          titleSize: 24,
+          descSize: 14,
+          labelSize: 13,
+          inputSize: 14,
+          btnSize: 16
+        };
 
-      // Apply Custom overrides from Theme Editor settings (always take precedence if explicitly set by merchant)
-      var blockBgColor = "{{ block.settings.bg_color }}";
-      var blockBtnBgColor = "{{ block.settings.btn_bg_color }}";
-      if (blockBgColor && blockBgColor !== '') resolvedStyles.bgColor = blockBgColor;
-      if (blockBtnBgColor && blockBtnBgColor !== '') resolvedStyles.btnBgColor = blockBtnBgColor;
+        // Apply presets overrides if not using the App Theme
+        if (!isAppTheme) {
+          if (preset.bg_color) resolvedStyles.bgColor = preset.bg_color;
+          if (preset.text_color) {
+            resolvedStyles.textColor = preset.text_color;
+            resolvedStyles.labelColor = preset.text_color;
+          }
+          if (preset.border_color) resolvedStyles.fieldBorderColor = preset.border_color;
+          if (preset.input_bg_color) resolvedStyles.fieldBgColor = preset.input_bg_color;
+          if (preset.input_border_color) resolvedStyles.fieldBorderColor = preset.input_border_color;
+          if (preset.input_text_color) resolvedStyles.textColor = preset.input_text_color;
+          if (preset.btn_bg_color) resolvedStyles.btnBgColor = preset.btn_bg_color;
+          if (preset.btn_text_color) resolvedStyles.btnTextColor = preset.btn_text_color;
+          if (preset.btn_hover_bg_color) resolvedStyles.btnHoverBgColor = preset.btn_hover_bg_color;
+          if (preset.success_text_color) resolvedStyles.successColor = preset.success_text_color;
+        }
+
+        // Apply Custom overrides from Theme Editor settings (always take precedence if explicitly set by merchant)
+        var blockBgColor = "{{ block.settings.bg_color }}";
+        var blockBtnBgColor = "{{ block.settings.btn_bg_color }}";
+        if (blockBgColor && blockBgColor !== '') resolvedStyles.bgColor = blockBgColor;
+        if (blockBtnBgColor && blockBtnBgColor !== '') resolvedStyles.btnBgColor = blockBtnBgColor;
+      }
 
       // Apply Card wrapper style values
       wrapper.style.backgroundColor = resolvedStyles.bgColor;
@@ -333,7 +334,7 @@
       wrapper.style.borderRadius = resolvedStyles.borderRadius + 'px';
       wrapper.style.fontFamily = resolvedStyles.fontFamily;
 
-      if (customStyles && isAppTheme) {
+      if (customStyles) {
         wrapper.style.backgroundImage = 'none';
         wrapper.style.maxWidth = resolvedStyles.formWidth + 'px';
         wrapper.style.border = '1px solid ' + resolvedStyles.fieldBorderColor;
@@ -376,7 +377,7 @@
       window.addEventListener('resize', setResponsivePadding);
 
       // Handle Glassmorphism inner box reset
-      if (customStyles && isAppTheme) {
+      if (customStyles) {
         if (contentDiv) {
           contentDiv.style.backgroundColor = 'transparent';
           contentDiv.style.backdropFilter = 'none';
@@ -638,6 +639,17 @@
       submitBtn.style.borderRadius = resolvedStyles.btnBorderRadius + 'px';
       submitBtn.style.backgroundColor = resolvedStyles.btnBgColor;
       submitBtn.style.color = resolvedStyles.btnTextColor;
+
+      // Apply button box shadow
+      var btnShadowStyle = 'none';
+      if (resolvedStyles.shadow === 'subtle') {
+        btnShadowStyle = '0 1px 3px rgba(0,0,0,0.05)';
+      } else if (resolvedStyles.shadow === 'medium') {
+        btnShadowStyle = '0 4px 6px -1px rgba(0,0,0,0.1)';
+      } else if (resolvedStyles.shadow === 'strong') {
+        btnShadowStyle = '0 10px 15px -3px rgba(0,0,0,0.1)';
+      }
+      submitBtn.style.boxShadow = btnShadowStyle;
 
       // Setup hover transitions and scale animation dynamically
       submitBtn.style.transition = 'background-color 0.2s ease, transform 0.1s ease';

@@ -1767,6 +1767,45 @@ export default function FormBuilder() {
                 </BlockStack>
               </Card>
 
+              {/* Theme Integration Guide Card */}
+              <Card>
+                <BlockStack gap="300">
+                  <Text variant="headingSm" as="h3">
+                    Storefront Theme Setup
+                  </Text>
+                  <Text variant="bodySm" as="p" tone="subdued">
+                    Copy the Form ID above, then add it to your store:
+                  </Text>
+                  
+                  <Divider />
+                  
+                  <BlockStack gap="200">
+                    <Text variant="bodySm" as="strong">
+                      1. Add to Page Section (Recommended)
+                    </Text>
+                    <Text variant="bodyXs" as="p" tone="subdued">
+                      Go to <strong>Online Store → Themes → Customize</strong>. Choose/create a page, click <strong>Add section</strong>, choose <strong>Apps → PandaForms Widget</strong>, paste the Form ID, and Save.
+                    </Text>
+                    
+                    <Text variant="bodySm" as="strong">
+                      2. Add globally via App Embed
+                    </Text>
+                    <Text variant="bodyXs" as="p" tone="subdued">
+                      Click the button below to enable the app embed globally on your theme, and configure your Form ID in settings.
+                    </Text>
+                  </BlockStack>
+
+                  <Button
+                    variant="primary"
+                    url={`https://${shop}/admin/themes/current/editor?context=apps&activateAppId=${apiKey}/form_widget`}
+                    target="_blank"
+                    fullWidth
+                  >
+                    Enable App Embed in Theme
+                  </Button>
+                </BlockStack>
+              </Card>
+
               {/* Design System Editor Card */}
               <Card>
                 <BlockStack gap="400">
@@ -1889,45 +1928,6 @@ export default function FormBuilder() {
 
                   <Button onClick={() => setCustomStyles(defaultDesignSystem)} tone="critical" outline fullWidth>
                     Reset to default style
-                  </Button>
-                </BlockStack>
-              </Card>
-
-              {/* Theme Integration Guide Card */}
-              <Card>
-                <BlockStack gap="300">
-                  <Text variant="headingSm" as="h3">
-                    Storefront Theme Setup
-                  </Text>
-                  <Text variant="bodySm" as="p" tone="subdued">
-                    Copy the Form ID above, then add it to your store:
-                  </Text>
-                  
-                  <Divider />
-                  
-                  <BlockStack gap="200">
-                    <Text variant="bodySm" as="strong">
-                      1. Add to Page Section (Recommended)
-                    </Text>
-                    <Text variant="bodyXs" as="p" tone="subdued">
-                      Go to <strong>Online Store → Themes → Customize</strong>. Choose/create a page, click <strong>Add section</strong>, choose <strong>Apps → PandaForms Widget</strong>, paste the Form ID, and Save.
-                    </Text>
-                    
-                    <Text variant="bodySm" as="strong">
-                      2. Add globally via App Embed
-                    </Text>
-                    <Text variant="bodyXs" as="p" tone="subdued">
-                      Click the button below to enable the app embed globally on your theme, and configure your Form ID in settings.
-                    </Text>
-                  </BlockStack>
-
-                  <Button
-                    variant="primary"
-                    url={`https://${shop}/admin/themes/current/editor?context=apps&activateAppId=${apiKey}/form_widget`}
-                    target="_blank"
-                    fullWidth
-                  >
-                    Enable App Embed in Theme
                   </Button>
                 </BlockStack>
               </Card>

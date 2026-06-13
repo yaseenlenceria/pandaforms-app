@@ -672,7 +672,7 @@ export default function FormsList() {
 
                     return (
                       <Card key={id}>
-                        <BlockStack gap="400">
+                        <BlockStack gap="300">
                           {/* Header Row */}
                           <InlineStack align="space-between" blockAlign="center">
                             <InlineStack gap="300" blockAlign="center">
@@ -696,76 +696,40 @@ export default function FormsList() {
                             {getStatusBadge(status)}
                           </InlineStack>
 
-                          <Divider />
-
-                          {/* Mid Details Row (Embed info & Quick stats) */}
-                          <InlineGrid columns={{ xs: 1, md: 4 }} gap="400">
-                            {/* Copy Embed Tags */}
-                            <BlockStack gap="100">
-                              <Text variant="bodyXs" tone="subdued" fontWeight="bold">Storefront Integration</Text>
-                              <InlineStack gap="100" blockAlign="center">
-                                <code style={{
-                                  fontSize: "11px",
-                                  backgroundColor: "#f1f2f4",
-                                  padding: "3px 6px",
-                                  borderRadius: "4px",
-                                  fontFamily: "monospace"
-                                }}>
-                                  ID: {id.substring(0, 8)}...
-                                </code>
-                                <Tooltip content="Copy Form ID">
-                                  <Button onClick={() => copyToClipboard(id, "Form ID copied!")} icon={ClipboardIcon} size="slim" variant="plain" />
-                                </Tooltip>
-                              </InlineStack>
-                              <InlineStack gap="100" blockAlign="center">
-                                <code style={{
-                                  fontSize: "10px",
-                                  backgroundColor: "#f1f2f4",
-                                  padding: "3px 6px",
-                                  borderRadius: "4px",
-                                  fontFamily: "monospace"
-                                }}>
-                                  Liquid Tag
-                                </code>
-                                <Tooltip content="Copy liquid block tag for themes">
-                                  <Button onClick={() => copyToClipboard(`{% render 'pandaforms-widget', form_id: '${id}' %}`, "Liquid block tag copied!")} icon={ClipboardIcon} size="slim" variant="plain" />
-                                </Tooltip>
-                              </InlineStack>
-                            </BlockStack>
-
-                            {/* Views Stat */}
-                            <BlockStack gap="100">
-                              <Text variant="bodyXs" tone="subdued" fontWeight="bold">Views</Text>
-                              <Text variant="headingSm" as="span">{views} views</Text>
-                            </BlockStack>
-
-                            {/* Submissions Stat */}
-                            <BlockStack gap="100">
-                              <Text variant="bodyXs" tone="subdued" fontWeight="bold">Submissions</Text>
-                              <InlineStack gap="200" blockAlign="center">
-                                <Badge tone={_count.submissions > 0 ? "attention" : "subdued"}>
-                                  {_count.submissions} Submissions
-                                </Badge>
-                              </InlineStack>
-                            </BlockStack>
-
-                            {/* Conversion Rate */}
-                            <BlockStack gap="100">
-                              <Text variant="bodyXs" tone="subdued" fontWeight="bold">Conversion Rate</Text>
-                              <Text variant="headingSm" as="span" tone={parseFloat(convRate) > 10 ? "success" : "subdued"}>
-                                <strong>{convRate}%</strong>
-                              </Text>
-                            </BlockStack>
-                          </InlineGrid>
-
-                          <Divider />
+                          {/* Stats and ID Row */}
+                          <InlineStack align="space-between" blockAlign="center">
+                            <InlineStack gap="200" blockAlign="center">
+                              <Badge tone="info">{views} views</Badge>
+                              <Badge tone={_count.submissions > 0 ? "attention" : "subdued"}>
+                                {_count.submissions} submissions
+                              </Badge>
+                              <Badge tone={parseFloat(convRate) > 10 ? "success" : "subdued"}>
+                                {convRate}% conversion
+                              </Badge>
+                            </InlineStack>
+                            
+                            <InlineStack gap="150" blockAlign="center">
+                              <code style={{
+                                fontSize: "11px",
+                                backgroundColor: "#f1f2f4",
+                                padding: "3px 6px",
+                                borderRadius: "4px",
+                                fontFamily: "monospace"
+                              }}>
+                                ID: {id.substring(0, 8)}...
+                              </code>
+                              <Tooltip content="Copy Form ID">
+                                <Button onClick={() => copyToClipboard(id, "Form ID copied!")} icon={ClipboardIcon} size="slim" variant="plain" />
+                              </Tooltip>
+                            </InlineStack>
+                          </InlineStack>
 
                           {/* Bottom Actions Row */}
                           <InlineStack align="space-between" blockAlign="center">
                             <Text variant="bodyXs" tone="subdued">
                               Created on {new Date(createdAt).toLocaleDateString()}
                             </Text>
-                            <InlineStack gap="200">
+                            <InlineStack gap="150" blockAlign="center">
                               <Button
                                 onClick={() => navigate(`/app/forms/${id}`)}
                                 variant="primary"
@@ -775,43 +739,51 @@ export default function FormsList() {
                               </Button>
                               <Button
                                 onClick={() => navigate(`/app/submissions?formId=${id}`)}
-                                icon={ViewIcon}
                               >
                                 Submissions
                               </Button>
-                              <Tooltip content="Duplicate form and fields">
+                              
+                              <div style={{ borderLeft: "1px solid var(--p-color-border-secondary)", height: "20px", margin: "0 4px" }} />
+
+                              <Tooltip content="Preview Form">
+                                <Button
+                                  onClick={() => {
+                                    setPreviewForm(form);
+                                    setPreviewModalOpen(true);
+                                  }}
+                                  icon={ViewIcon}
+                                />
+                              </Tooltip>
+
+                              <Tooltip content="Duplicate Form">
                                 <Button
                                   onClick={() => handleDuplicate(id)}
                                   icon={DuplicateIcon}
                                 />
                               </Tooltip>
-                              
-                              {/* Preview Action */}
-                              <Button
-                                onClick={() => {
-                                  // Mock preview setup
-                                  setPreviewForm(form);
-                                  setPreviewModalOpen(true);
-                                }}
-                              >
-                                Preview
-                              </Button>
 
-                              {/* Archive/Publish Toggle */}
                               {isArchived ? (
-                                <Button onClick={() => handlePublish(id)} icon={CheckIcon}>Publish</Button>
+                                <Tooltip content="Publish Form">
+                                  <Button onClick={() => handlePublish(id)} icon={CheckIcon} />
+                                </Tooltip>
                               ) : isActive ? (
-                                <Button onClick={() => handleArchive(id)} icon={ArchiveIcon}>Archive</Button>
+                                <Tooltip content="Archive Form">
+                                  <Button onClick={() => handleArchive(id)} icon={ArchiveIcon} />
+                                </Tooltip>
                               ) : (
-                                <Button onClick={() => handlePublish(id)} icon={CheckIcon}>Publish</Button>
+                                <Tooltip content="Publish Form">
+                                  <Button onClick={() => handlePublish(id)} icon={CheckIcon} />
+                                </Tooltip>
                               )}
 
-                              <Button
-                                onClick={() => handleDeleteForm(id)}
-                                icon={DeleteIcon}
-                                tone="critical"
-                                accessibilityLabel="Delete form"
-                              />
+                              <Tooltip content="Delete Form">
+                                <Button
+                                  onClick={() => handleDeleteForm(id)}
+                                  icon={DeleteIcon}
+                                  tone="critical"
+                                  accessibilityLabel="Delete form"
+                                />
+                              </Tooltip>
                             </InlineStack>
                           </InlineStack>
                         </BlockStack>
