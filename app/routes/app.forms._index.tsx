@@ -20,6 +20,7 @@ import {
   Tabs,
   Tooltip,
   Icon,
+  Collapsible,
 } from "@shopify/polaris";
 import {
   ViewIcon,
