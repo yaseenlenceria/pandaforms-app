@@ -214,6 +214,7 @@ export default function FormBuilder() {
   const [disableCountryOptions, setDisableCountryOptions] = useState(form.disableCountryOptions || false);
   const [defaultCountryPhoneCode, setDefaultCountryPhoneCode] = useState(form.defaultCountryPhoneCode || "+1 for Us");
   const [theme] = useState(form.theme || "minimal");
+  const handleDisabledIntegrationChange = () => {};
 
   // Default design system values
   const defaultDesignSystem = {
@@ -1847,13 +1848,13 @@ export default function FormBuilder() {
                     label="HubSpot (planned)"
                     checked={false}
                     disabled
-                    onChange={setIntegrationHubSpot}
+                    onChange={handleDisabledIntegrationChange}
                   />
                   <Checkbox
                     label="Google reCAPTCHA (planned)"
                     checked={false}
                     disabled
-                    onChange={setIntegrationReCAPTCHA}
+                    onChange={handleDisabledIntegrationChange}
                   />
                 </BlockStack>
               </Card>
