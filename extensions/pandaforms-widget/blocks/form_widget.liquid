@@ -4,8 +4,9 @@
 {%- elsif block.settings.card_spacing == 'large' -%}{%- assign spacing_px = '48px' -%}
 {%- elsif block.settings.card_spacing == 'huge' -%}{%- assign spacing_px = '80px' -%}
 {%- endif -%}
+{%- assign widget_color_scheme = block.settings.color_scheme | default: 'scheme-1' -%}
 
-<div style="padding-top: {{ spacing_px }}; padding-bottom: {{ spacing_px }}; width: 100%;">
+<div class="pandaforms-widget-shell color-{{ widget_color_scheme }} gradient" style="padding-top: {{ spacing_px }}; padding-bottom: {{ spacing_px }}; width: 100%;">
 <div class="pandaforms-wrapper" id="pandaforms-{{ block.id }}" style="margin: 0 auto; font-family: sans-serif; box-sizing: border-box;">
 
   <div class="pandaforms-loading" style="text-align: center; padding: 20px;">
@@ -54,6 +55,7 @@
   var apiUrl = {{ block.settings.api_url | json }}.replace(/\/$/, "");
   var useAppStyling = {{ block.settings.use_app_styling | default: true | json }};
   var adoptThemeStyling = {{ block.settings.adopt_theme_styling | default: false | json }};
+  var widgetFontSource = {{ block.settings.widget_font_source | default: "app" | json }};
   var overrideWidth = {{ block.settings.override_width | default: false | json }};
   var blockWidth = parseInt("{{ block.settings.form_width | default: 650 }}") || 650;
 
@@ -154,9 +156,11 @@
       try { savedStyles = JSON.parse(form.customStyles); } catch(e) {}
     }
 
+    var useThemeFont = widgetFontSource === "theme_body" || widgetFontSource === "theme_heading";
+
     // activeStyles = app-saved styles, or fallback preset, or null (theme default).
     // Theme adoption keeps PandaForms layout while using Shopify theme fonts and colours.
-    var activeStyles = (useAppStyling || adoptThemeStyling) ? (savedStyles || FALLBACK_PRESET) : null;
+    var activeStyles = (useAppStyling || adoptThemeStyling || useThemeFont) ? (savedStyles || FALLBACK_PRESET) : null;
 
     // -------------------------------------------------------------------------
     // Build resolved flat styles from activeStyles
@@ -212,7 +216,12 @@
         s.btnBgColor       = "rgb(var(--color-button, var(--color-foreground, 18, 18, 18)))";
         s.btnTextColor     = "rgb(var(--color-button-text, var(--color-background, 255, 255, 255)))";
         s.btnHoverColor    = "";
-        s.fontFamily       = "var(--font-body-family, inherit)";
+      }
+
+      if (widgetFontSource === "theme_body" || adoptThemeStyling) {
+        s.fontFamily = "var(--font-body-family, inherit)";
+      } else if (widgetFontSource === "theme_heading") {
+        s.fontFamily = "var(--font-heading-family, var(--font-body-family, inherit))";
       }
 
       // -----------------------------------------------------------------------
@@ -536,8 +545,32 @@
     { "type": "text", "id": "form_id", "label": "Form ID", "placeholder": "Paste Form ID from PandaForms app" },
     { "type": "text", "id": "api_url", "label": "App URL", "default": "https://p01--pandaforms-app--77wd8gj6rv7k.code.run" },
     { "type": "header", "content": "Styling" },
+    {
+      "type": "select",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1",
+      "options": [
+        { "value": "scheme-1", "label": "Scheme 1" },
+        { "value": "scheme-2", "label": "Scheme 2" },
+        { "value": "scheme-3", "label": "Scheme 3" },
+        { "value": "scheme-4", "label": "Scheme 4" },
+        { "value": "scheme-5", "label": "Scheme 5" }
+      ]
+    },
     { "type": "checkbox", "id": "use_app_styling", "label": "Use PandaForms app styling", "info": "When enabled, all colours and layout come from Widget Styling Settings inside PandaForms. Disable to use your theme defaults.", "default": true },
-    { "type": "checkbox", "id": "adopt_theme_styling", "label": "Adopt theme fonts and colour scheme", "info": "When enabled, this widget uses your Shopify theme colour scheme and font for text, fields, and buttons while keeping PandaForms spacing and layout.", "default": false },
+    { "type": "checkbox", "id": "adopt_theme_styling", "label": "Adopt selected theme colour scheme", "info": "When enabled, this widget uses the selected Shopify colour scheme for text, fields, and buttons while keeping PandaForms spacing and layout.", "default": false },
+    {
+      "type": "select",
+      "id": "widget_font_source",
+      "label": "Font",
+      "default": "app",
+      "options": [
+        { "value": "app", "label": "Use PandaForms app font" },
+        { "value": "theme_body", "label": "Use theme body font" },
+        { "value": "theme_heading", "label": "Use theme heading font" }
+      ]
+    },
     { "type": "header", "content": "Width (Optional Override)" },
     { "type": "checkbox", "id": "override_width", "label": "Override form width", "default": false },
     { "type": "range", "id": "form_width", "label": "Form Width", "min": 320, "max": 1200, "step": 10, "default": 650, "unit": "px" },
