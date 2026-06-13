@@ -1,340 +1,481 @@
-{%- assign spacing_px = '24px' -%}{%- if block.settings.card_spacing == 'none' -%}{%- assign spacing_px = '0px' -%}{%- elsif block.settings.card_spacing == 'small' -%}{%- assign spacing_px = '12px' -%}{%- elsif block.settings.card_spacing == 'large' -%}{%- assign spacing_px = '48px' -%}{%- elsif block.settings.card_spacing == 'huge' -%}{%- assign spacing_px = '80px' -%}{%- endif -%}<div style="padding-top: {{ spacing_px }}; padding-bottom: {{ spacing_px }}; width: 100%;">
-<div class="pandaforms-wrapper" id="pandaforms-{{ block.id }}" style="padding: 20px; border-radius: 8px; max-width: 800px; margin: 0 auto; font-family: sans-serif; border: 1px solid #cbd5e1; background-color: #ffffff; color: #1e293b;">
+{%- assign spacing_px = '24px' -%}
+{%- if block.settings.card_spacing == 'none' -%}{%- assign spacing_px = '0px' -%}
+{%- elsif block.settings.card_spacing == 'small' -%}{%- assign spacing_px = '12px' -%}
+{%- elsif block.settings.card_spacing == 'large' -%}{%- assign spacing_px = '48px' -%}
+{%- elsif block.settings.card_spacing == 'huge' -%}{%- assign spacing_px = '80px' -%}
+{%- endif -%}
+
+<div style="padding-top: {{ spacing_px }}; padding-bottom: {{ spacing_px }}; width: 100%;">
+<div class="pandaforms-wrapper" id="pandaforms-{{ block.id }}" style="margin: 0 auto; font-family: sans-serif; box-sizing: border-box;">
+
   <div class="pandaforms-loading" style="text-align: center; padding: 20px;">
     <p>Loading form...</p>
   </div>
-  
+
   <div class="pandaforms-content" style="display: none;">
-    <h2 class="pandaforms-title" style="margin-bottom: 8px; text-align: center; color: #1e293b;"></h2>
-    <p class="pandaforms-desc" style="margin-bottom: 20px; text-align: center; color: #64748b; opacity: 0.8;"></p>
-    
+    <h2 class="pandaforms-title" style="margin-bottom: 8px; text-align: center;"></h2>
+    <p class="pandaforms-desc" style="margin-bottom: 20px; text-align: center; opacity: 0.8;"></p>
+
     <form class="pandaforms-form" style="display: flex; flex-direction: column; gap: 15px;">
       <!-- Login Link Top Container -->
-      <div class="pandaforms-login-top" style="display: none; text-align: center; margin-bottom: 15px; font-size: 14px; color: #1e293b;">
+      <div class="pandaforms-login-top" style="display: none; text-align: center; margin-bottom: 15px; font-size: 14px;">
         <span class="pandaforms-login-prefix-top"></span>
-        <a class="pandaforms-login-link-top" href="{{ routes.account_login_url }}" style="margin-left: 5px; font-weight: 600; text-decoration: underline; color: #008060;"></a>
+        <a class="pandaforms-login-link-top" href="{{ routes.account_login_url }}" style="margin-left: 5px; font-weight: 600; text-decoration: underline;"></a>
       </div>
 
       <!-- Fields flexbox wrapper -->
       <div class="pandaforms-fields-container" style="display: flex; flex-wrap: wrap; gap: 16px;"></div>
-      
+
       <!-- Submit Button -->
       <div style="width: 100%;">
-        <button type="submit" class="pandaforms-submit-btn" style="
-          background-color: #008060;
-          color: #ffffff;
-          border: none;
-          padding: 12px;
-          border-radius: 4px;
-          font-weight: 600;
-          cursor: pointer;
-          width: 100%;
-          font-size: 16px;
-          margin-top: 10px;
-          transition: opacity 0.2s;
-        ">Submit</button>
+        <button type="submit" class="pandaforms-submit-btn" style="border: none; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px;">Submit</button>
       </div>
 
       <!-- Login Link Bottom Container -->
-      <div class="pandaforms-login-bottom" style="display: none; text-align: center; margin-top: 15px; font-size: 14px; color: #1e293b;">
+      <div class="pandaforms-login-bottom" style="display: none; text-align: center; margin-top: 15px; font-size: 14px;">
         <span class="pandaforms-login-prefix-bottom"></span>
-        <a class="pandaforms-login-link-bottom" href="{{ routes.account_login_url }}" style="margin-left: 5px; font-weight: 600; text-decoration: underline; color: #008060;"></a>
+        <a class="pandaforms-login-link-bottom" href="{{ routes.account_login_url }}" style="margin-left: 5px; font-weight: 600; text-decoration: underline;"></a>
       </div>
     </form>
   </div>
-  
-  <div class="pandaforms-success" style="display: none; text-align: center; padding: 20px; color: #008060;">
+
+  <div class="pandaforms-success" style="display: none; text-align: center; padding: 20px;">
     <h3 style="margin-bottom: 10px; font-size: 20px;">✓ Success</h3>
     <p class="pandaforms-success-msg"></p>
   </div>
+
 </div>
 </div>
 
 <script>
 (function() {
-  const blockId = "{{ block.id }}";
-  const formId = "{{ block.settings.form_id }}";
-  
+  var blockId = "{{ block.id }}";
+  var formId = "{{ block.settings.form_id }}";
+  var useAppStyling = {{ block.settings.use_app_styling | default: true | json }};
+  var overrideWidth = {{ block.settings.override_width | default: false | json }};
+  var blockWidth = parseInt("{{ block.settings.form_width | default: 650 }}") || 650;
+
+  var wrapper = document.getElementById("pandaforms-" + blockId);
+  var loadingDiv = wrapper.querySelector(".pandaforms-loading");
+  var contentDiv = wrapper.querySelector(".pandaforms-content");
+  var successDiv = wrapper.querySelector(".pandaforms-success");
+  var fieldsContainer = wrapper.querySelector(".pandaforms-fields-container");
+  var formEl = wrapper.querySelector(".pandaforms-form");
+  var submitBtn = wrapper.querySelector(".pandaforms-submit-btn");
+
   if (!formId) {
-    document.querySelector(`#pandaforms-${blockId} .pandaforms-loading`).innerHTML = 
-      "<p style='color: red;'>PandaForms Error: Please configure Form ID in Theme Editor.</p>";
+    loadingDiv.innerHTML = "<p style='color:#b42318;'>PandaForms: Please add a Form ID in the Theme Editor.</p>";
     return;
   }
-  
-  const wrapper = document.getElementById(`pandaforms-${blockId}`);
-  const loadingDiv = wrapper.querySelector('.pandaforms-loading');
-  const contentDiv = wrapper.querySelector('.pandaforms-content');
-  const successDiv = wrapper.querySelector('.pandaforms-success');
-  const fieldsContainer = wrapper.querySelector('.pandaforms-fields-container');
-  const formEl = wrapper.querySelector('.pandaforms-form');
-  const submitBtn = wrapper.querySelector('.pandaforms-submit-btn');
-  
-  let redirectUrl = "";
-  
-  let configEndpoint = `/apps/pandaforms/form-config?id=${formId}&t=${Date.now()}`;
-  let submitEndpoint = `/apps/pandaforms/submit`;
-  
-  // Fetch Form Configuration through the Shopify app proxy.
+
+  var redirectUrl = "";
+  var configEndpoint = "/apps/pandaforms/form-config?id=" + formId + "&t=" + Date.now();
+  var submitEndpoint = "/apps/pandaforms/submit";
+
+  // ---------------------------------------------------------------------------
+  // Default fallback preset (Shopify Default) — only used when no customStyles
+  // are saved in the app and Use App Styling is ON.
+  // ---------------------------------------------------------------------------
+  var FALLBACK_PRESET = {
+    colors: {
+      bgColor: "#ffffff",
+      textColor: "#1e293b",
+      fieldBgColor: "#ffffff",
+      fieldBorderColor: "#cbd5e1",
+      btnBgColor: "#008060",
+      btnTextColor: "#ffffff",
+      btnHoverColor: "#005e46",
+      successColor: "#10b981",
+      successBgColor: "#f0fdf4",
+      errorColor: "#ef4444"
+    },
+    layout: {
+      formWidth: "650",
+      borderRadius: "4",
+      spacing: "16",
+      shadow: "subtle",
+      inputSize: "medium",
+      buttonSize: "medium"
+    },
+    typography: {
+      fontFamily: "Inter, sans-serif",
+      titleSize: "24",
+      descSize: "14",
+      labelSize: "13",
+      inputSize: "14",
+      btnSize: "15"
+    }
+  };
+
+  // ---------------------------------------------------------------------------
+  // Fetch form config from the Shopify App Proxy
+  // ---------------------------------------------------------------------------
   fetch(configEndpoint, {
     headers: {
-      'ngrok-skip-browser-warning': 'true',
-      'bypass-tunnel-reminder': 'true'
+      "ngrok-skip-browser-warning": "true",
+      "bypass-tunnel-reminder": "true"
     }
   })
-    .then(res => {
-      if (!res.ok) throw new Error("Proxy configuration fetch failed");
-      return res.json();
-    })
-    .then(data => {
-      const form = data.form;
-      wrapper.querySelector('.pandaforms-title').innerText = form.title || '';
-      wrapper.querySelector('.pandaforms-desc').innerText = form.description || '';
-      wrapper.querySelector('.pandaforms-success-msg').innerText = form.successMessage || 'Thank you!';
-      redirectUrl = form.redirectUrl || '';
-      
-      let customStyles = null;
-      if (form.customStyles) {
-        try { customStyles = JSON.parse(form.customStyles); } catch(e) { console.error("Failed to parse customStyles", e); }
-      }
+  .then(function(res) {
+    if (!res.ok) throw new Error("Form config fetch failed: " + res.status);
+    return res.json();
+  })
+  .then(function(data) {
+    var form = data.form;
+    if (!form) throw new Error("No form data returned");
 
-      const presets = {
-        shopify_default: {
-          colors: { bgColor: "#ffffff", fieldBgColor: "#ffffff", fieldBorderColor: "#cbd5e1", textColor: "#1e293b", btnBgColor: "#008060", btnTextColor: "#ffffff", btnHoverColor: "#005e46", successColor: "#10b981", successBgColor: "#f0fdf4", errorColor: "#ef4444" },
-          layout: { formWidth: "650", borderRadius: "4", spacing: "16", shadow: "subtle", inputSize: "medium", buttonSize: "medium" },
-          typography: { fontFamily: "Inter, sans-serif", titleSize: "24", descSize: "14", labelSize: "13", inputSize: "14", btnSize: "15" }
-        }
+    // Populate static text
+    wrapper.querySelector(".pandaforms-title").innerText = form.title || "";
+    wrapper.querySelector(".pandaforms-desc").innerText = form.description || "";
+    wrapper.querySelector(".pandaforms-success-msg").innerText = form.successMessage || "Thank you!";
+    redirectUrl = form.redirectUrl || "";
+
+    // -------------------------------------------------------------------------
+    // Resolve design: always read from form.customStyles saved in the app.
+    // The Shopify Theme Editor has NO colour controls — it only places the widget.
+    // -------------------------------------------------------------------------
+    var savedStyles = null;
+    if (form.customStyles) {
+      try { savedStyles = JSON.parse(form.customStyles); } catch(e) {}
+    }
+
+    // activeStyles = app-saved styles, or fallback preset, or null (theme default)
+    var activeStyles = useAppStyling ? (savedStyles || FALLBACK_PRESET) : null;
+
+    // -------------------------------------------------------------------------
+    // Build resolved flat styles from activeStyles
+    // -------------------------------------------------------------------------
+    var s = {}; // resolved styles shorthand
+
+    if (activeStyles) {
+      var c  = activeStyles.colors   || {};
+      var l  = activeStyles.layout   || {};
+      var t  = activeStyles.typography || {};
+
+      // Colours
+      s.bgColor          = c.bgColor          || "#ffffff";
+      s.textColor        = c.textColor        || "#1e293b";
+      s.labelColor       = c.textColor        || c.labelColor || "#334155";
+      s.fieldBgColor     = c.fieldBgColor     || "#ffffff";
+      s.fieldBorderColor = c.fieldBorderColor || "#cbd5e1";
+      s.btnBgColor       = c.btnBgColor       || "#008060";
+      s.btnTextColor     = c.btnTextColor     || "#ffffff";
+      s.btnHoverColor    = c.btnHoverColor    || "";
+      s.successColor     = c.successColor     || "#10b981";
+      s.successBgColor   = c.successBgColor   || "#f0fdf4";
+
+      // Layout — single spacing value drives all derived spacing
+      var spacing        = parseInt(l.spacing || l.fieldGap || 16);
+      s.formWidth        = overrideWidth ? blockWidth : (parseInt(l.formWidth) || 650);
+      s.borderRadius     = parseInt(l.borderRadius) || 4;
+      s.shadow           = l.shadow || "subtle";
+      s.fieldGap         = spacing;
+      s.desktopPadding   = spacing * 2;
+      s.mobilePadding    = spacing;
+      s.labelSpacing     = Math.round(spacing / 2.5);
+
+      var inputSz = l.inputSize || "medium";
+      s.inputPadding = inputSz === "small" ? "8px 12px" : inputSz === "large" ? "16px 20px" : "12px 16px";
+      var btnSz = l.buttonSize || "medium";
+      s.btnPadding   = btnSz === "small" ? "10px 20px" : btnSz === "large" ? "18px 36px" : "14px 28px";
+      s.btnSize      = parseInt(t.btnSize) || 16;
+
+      // Typography
+      s.fontFamily  = t.fontFamily  || "sans-serif";
+      s.titleSize   = parseInt(t.titleSize)  || 24;
+      s.descSize    = parseInt(t.descSize)   || 14;
+      s.labelSize   = parseInt(t.labelSize)  || 13;
+      s.inputSize   = parseInt(t.inputSize)  || 14;
+
+      // -----------------------------------------------------------------------
+      // Apply wrapper styles from saved app design
+      // -----------------------------------------------------------------------
+      wrapper.style.backgroundColor = s.bgColor;
+      wrapper.style.color           = s.textColor;
+      wrapper.style.fontFamily      = s.fontFamily;
+      wrapper.style.maxWidth        = s.formWidth + "px";
+      wrapper.style.borderRadius    = s.borderRadius + "px";
+      wrapper.style.border          = "1px solid " + s.fieldBorderColor;
+      wrapper.style.backgroundImage = "none";
+
+      var shadow = "none";
+      if (s.shadow === "subtle") shadow = "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05)";
+      else if (s.shadow === "medium") shadow = "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)";
+      else if (s.shadow === "strong") shadow = "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05)";
+      wrapper.style.boxShadow = shadow;
+
+      var applyPadding = function() {
+        wrapper.style.padding = (window.innerWidth <= 600 ? s.mobilePadding : s.desktopPadding) + "px";
       };
+      applyPadding();
+      window.addEventListener("resize", applyPadding);
 
-      const useAppStyling = {{ block.settings.use_app_styling | default: true | json }};
-      const overrideWidth = {{ block.settings.override_width | default: false | json }};
-      const blockWidth = parseInt({{ block.settings.form_width | default: 650 | json }});
+      // Title & description
+      var titleEl = wrapper.querySelector(".pandaforms-title");
+      var descEl  = wrapper.querySelector(".pandaforms-desc");
+      if (titleEl) { titleEl.style.fontSize = s.titleSize + "px"; titleEl.style.color = s.textColor; titleEl.style.fontFamily = s.fontFamily; }
+      if (descEl)  { descEl.style.fontSize  = s.descSize  + "px"; descEl.style.color  = s.textColor; descEl.style.fontFamily  = s.fontFamily; }
 
-      let activeStyles = null;
-      if (useAppStyling) { activeStyles = customStyles || presets.shopify_default; }
+      // Fields container gap
+      if (fieldsContainer) fieldsContainer.style.gap = s.fieldGap + "px";
 
-      var resolvedStyles = {};
-      if (activeStyles) {
-        const colors = activeStyles.colors || {};
-        const layout = activeStyles.layout || {};
-        const typography = activeStyles.typography || {};
+    } else {
+      // No app styling — just honour the optional width override
+      wrapper.style.maxWidth = blockWidth + "px";
+    }
 
-        resolvedStyles.bgColor = colors.bgColor || '#ffffff';
-        resolvedStyles.textColor = colors.textColor || '#1e293b';
-        resolvedStyles.fieldBgColor = colors.fieldBgColor || '#ffffff';
-        resolvedStyles.fieldBorderColor = colors.fieldBorderColor || '#cbd5e1';
-        resolvedStyles.labelColor = colors.textColor || colors.labelColor || '#334155';
-        resolvedStyles.btnBgColor = colors.btnBgColor || '#008060';
-        resolvedStyles.btnTextColor = colors.btnTextColor || '#ffffff';
-        resolvedStyles.btnHoverBgColor = colors.btnHoverColor || '';
-        resolvedStyles.successColor = colors.successColor || '#10b981';
-        resolvedStyles.successBgColor = colors.successBgColor || '#f0fdf4';
-        
-        resolvedStyles.formWidth = overrideWidth ? blockWidth : (parseInt(layout.formWidth) || 650);
-        resolvedStyles.borderRadius = parseInt(layout.borderRadius) || 4;
-        resolvedStyles.inputBorderRadius = parseInt(layout.borderRadius) || 4;
-        resolvedStyles.btnBorderRadius = parseInt(layout.borderRadius) || 4;
-        resolvedStyles.shadow = layout.shadow || 'subtle';
-        
-        const spacing = parseInt(layout.spacing || layout.fieldGap || 16);
-        resolvedStyles.fieldGap = spacing;
-        resolvedStyles.desktopPadding = spacing * 2;
-        resolvedStyles.mobilePadding = spacing;
-        resolvedStyles.labelSpacing = Math.round(spacing / 2.5);
-        
-        const inputSizeVal = layout.inputSize || 'medium';
-        resolvedStyles.inputPadding = inputSizeVal === 'small' ? '8px 12px' : inputSizeVal === 'large' ? '16px 20px' : '12px 16px';
-        const btnSizeVal = layout.buttonSize || 'medium';
-        resolvedStyles.btnPadding = btnSizeVal === 'small' ? '10px 20px' : btnSizeVal === 'large' ? '18px 36px' : '14px 28px';
-        resolvedStyles.fontFamily = typography.fontFamily || 'sans-serif';
-        resolvedStyles.titleSize = parseInt(typography.titleSize) || 24;
-        resolvedStyles.descSize = parseInt(typography.descSize) || 14;
-        resolvedStyles.labelSize = parseInt(typography.labelSize) || 13;
-        resolvedStyles.inputSize = parseInt(typography.inputSize) || 14;
-        resolvedStyles.btnSize = parseInt(typography.btnSize) || 16;
+    // -------------------------------------------------------------------------
+    // Login link display
+    // -------------------------------------------------------------------------
+    var prefix = form.loginLinkPrefix || "Already have an account?";
+    var linkLabel = form.loginLinkLabel || "Sign In";
+    var linkPos = form.loginLinkPosition || "After Submit Button";
 
-        wrapper.style.backgroundColor = resolvedStyles.bgColor;
-        wrapper.style.color = resolvedStyles.textColor;
-        wrapper.style.borderRadius = resolvedStyles.borderRadius + 'px';
-        wrapper.style.fontFamily = resolvedStyles.fontFamily;
-        wrapper.style.backgroundImage = 'none';
-        wrapper.style.maxWidth = resolvedStyles.formWidth + 'px';
-        wrapper.style.border = '1px solid ' + resolvedStyles.fieldBorderColor;
-        
-        var shadowStyle = 'none';
-        if (resolvedStyles.shadow === 'subtle') shadowStyle = '0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05)';
-        else if (resolvedStyles.shadow === 'medium') shadowStyle = '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)';
-        else if (resolvedStyles.shadow === 'strong') shadowStyle = '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05), 0 20px 25px -5px rgba(0,0,0,0.1)';
-        wrapper.style.boxShadow = shadowStyle;
+    if (linkPos === "Before Submit Button") {
+      var topCont = wrapper.querySelector(".pandaforms-login-top");
+      topCont.style.display = "block";
+      wrapper.querySelector(".pandaforms-login-prefix-top").innerText = prefix;
+      wrapper.querySelector(".pandaforms-login-link-top").innerText = linkLabel;
+      if (activeStyles) topCont.style.color = s.labelColor;
+    } else if (linkPos === "After Submit Button") {
+      var botCont = wrapper.querySelector(".pandaforms-login-bottom");
+      botCont.style.display = "block";
+      wrapper.querySelector(".pandaforms-login-prefix-bottom").innerText = prefix;
+      wrapper.querySelector(".pandaforms-login-link-bottom").innerText = linkLabel;
+      if (activeStyles) botCont.style.color = s.labelColor;
+    }
 
-        var setResponsivePadding = function() {
-          if (window.innerWidth <= 600) wrapper.style.padding = resolvedStyles.mobilePadding + 'px';
-          else wrapper.style.padding = resolvedStyles.desktopPadding + 'px';
-        };
-        setResponsivePadding();
-        window.addEventListener('resize', setResponsivePadding);
+    // -------------------------------------------------------------------------
+    // Render form fields
+    // -------------------------------------------------------------------------
+    var fields = form.fields || [];
+    var gapVal = activeStyles ? s.fieldGap : 16;
+
+    fields.forEach(function(field) {
+      var fw = document.createElement("div");
+      fw.className = "pandaforms-field-wrapper";
+      fw.style.display      = field.type === "hidden" ? "none" : "flex";
+      fw.style.flexDirection = "column";
+      fw.style.boxSizing    = "border-box";
+
+      // Width
+      if (field.width === "third")      { fw.style.flex = "1 1 calc(33.33% - " + (gapVal * 2 / 3) + "px)"; fw.style.minWidth = "180px"; }
+      else if (field.width === "half")  { fw.style.flex = "1 1 calc(50% - " + (gapVal / 2) + "px)";         fw.style.minWidth = "240px"; }
+      else                              { fw.style.flex = "1 1 100%"; }
+
+      // --- Special field types ---
+      if (field.type === "step") {
+        fw.style.width = "100%"; fw.style.flex = "1 1 100%";
+        if (activeStyles) fw.style.borderBottom = "2px dashed " + s.fieldBorderColor;
+        fw.style.paddingBottom = "8px"; fw.style.marginTop = "16px"; fw.style.marginBottom = "8px";
+        var span = document.createElement("span");
+        span.style.fontSize = "12px"; span.style.fontWeight = "700";
+        span.style.textTransform = "uppercase"; span.style.letterSpacing = "0.05em";
+        if (activeStyles) span.style.color = s.textColor;
+        span.innerText = "📍 " + (field.label || "Step Divider");
+        fw.appendChild(span);
+
+      } else if (field.type === "title") {
+        fw.style.width = "100%"; fw.style.flex = "1 1 100%"; fw.style.marginTop = "12px"; fw.style.marginBottom = "4px";
+        var h3 = document.createElement("h3");
+        h3.style.margin = "0"; h3.style.fontSize = "18px"; h3.style.fontWeight = "600";
+        if (activeStyles) h3.style.color = s.textColor;
+        h3.innerText = field.label || "Section Title";
+        fw.appendChild(h3);
+
+      } else if (field.type === "description") {
+        fw.style.width = "100%"; fw.style.flex = "1 1 100%"; fw.style.marginTop = "4px"; fw.style.marginBottom = "8px";
+        var p = document.createElement("p");
+        p.style.margin = "0"; p.style.fontSize = "14px"; p.style.opacity = "0.8"; p.style.lineHeight = "1.4";
+        if (activeStyles) p.style.color = s.textColor;
+        p.innerText = field.label || "";
+        fw.appendChild(p);
+
       } else {
-        wrapper.style.maxWidth = blockWidth + 'px';
-      }
+        // Regular field
+        if (activeStyles) fw.style.gap = s.labelSpacing + "px";
 
-      const titleEl = wrapper.querySelector('.pandaforms-title');
-      const descEl = wrapper.querySelector('.pandaforms-desc');
-      if (activeStyles) {
-        if (titleEl) { titleEl.style.fontSize = resolvedStyles.titleSize + 'px'; titleEl.style.color = resolvedStyles.textColor; titleEl.style.fontFamily = resolvedStyles.fontFamily; }
-        if (descEl) { descEl.style.fontSize = resolvedStyles.descSize + 'px'; descEl.style.color = resolvedStyles.textColor; descEl.style.fontFamily = resolvedStyles.fontFamily; descEl.style.opacity = '0.8'; }
-      }
-      
-      const prefix = form.loginLinkPrefix || 'Already have an account?';
-      const label = form.loginLinkLabel || 'Sign In';
-      const pos = form.loginLinkPosition || 'After Submit Button';
+        var lbl = document.createElement("label");
+        lbl.style.fontWeight = "600";
+        if (activeStyles) { lbl.style.fontSize = s.labelSize + "px"; lbl.style.color = s.labelColor; lbl.style.fontFamily = s.fontFamily; }
+        lbl.innerHTML = field.label + " " + (field.required ? "<span style='color:red'>*</span>" : "");
+        fw.appendChild(lbl);
 
-      if (pos === 'Before Submit Button') {
-        const topCont = wrapper.querySelector('.pandaforms-login-top');
-        topCont.style.display = 'block';
-        wrapper.querySelector('.pandaforms-login-prefix-top').innerText = prefix;
-        wrapper.querySelector('.pandaforms-login-link-top').innerText = label;
-        if (activeStyles) topCont.style.color = resolvedStyles.labelColor;
-      } else if (pos === 'After Submit Button') {
-        const botCont = wrapper.querySelector('.pandaforms-login-bottom');
-        botCont.style.display = 'block';
-        wrapper.querySelector('.pandaforms-login-prefix-bottom').innerText = prefix;
-        wrapper.querySelector('.pandaforms-login-link-bottom').innerText = label;
-        if (activeStyles) botCont.style.color = resolvedStyles.labelColor;
-      }
+        // Parse choices
+        var choices = [];
+        try {
+          if (field.choices && (field.choices.indexOf("[") === 0 || field.choices.indexOf("{") === 0)) {
+            choices = JSON.parse(field.choices);
+          } else if (field.choices) {
+            choices = field.choices.split(",").map(function(c) { return { label: c.trim(), value: c.trim() }; });
+          }
+        } catch(e) { choices = (field.choices || "").split(",").map(function(c) { return { label: c.trim(), value: c.trim() }; }); }
 
-      if (fieldsContainer && activeStyles) fieldsContainer.style.gap = resolvedStyles.fieldGap + 'px';
-      
-      form.fields.forEach(field => {
-        const fieldWrapper = document.createElement('div');
-        fieldWrapper.className = `pandaforms-field-wrapper ${field.width === 'third' ? 'width-third' : field.width === 'half' ? 'width-half' : 'width-full'}`;
-        fieldWrapper.style.display = field.type === 'hidden' ? 'none' : 'flex';
-        fieldWrapper.style.flexDirection = 'column';
-        fieldWrapper.style.boxSizing = 'border-box';
-        
-        const fieldGapVal = activeStyles ? resolvedStyles.fieldGap : 16;
-        if (field.width === 'third') { fieldWrapper.style.flex = `1 1 calc(33.33% - ${(fieldGapVal * 2 / 3)}px)`; fieldWrapper.style.minWidth = '180px'; }
-        else if (field.width === 'half') { fieldWrapper.style.flex = `1 1 calc(50% - ${(fieldGapVal / 2)}px)`; fieldWrapper.style.minWidth = '240px'; }
-        else { fieldWrapper.style.flex = '1 1 100%'; }
-        
-        if (field.type === 'step') {
-          fieldWrapper.style.width = '100%'; fieldWrapper.style.flex = '1 1 100%';
-          if (activeStyles) fieldWrapper.style.borderBottom = `2px dashed ${resolvedStyles.fieldBorderColor}`;
-          fieldWrapper.style.paddingBottom = '8px'; fieldWrapper.style.marginTop = '16px'; fieldWrapper.style.marginBottom = '8px';
-          const spanEl = document.createElement('span');
-          spanEl.style.fontSize = '12px'; spanEl.style.fontWeight = '700'; spanEl.style.textTransform = 'uppercase'; spanEl.style.letterSpacing = '0.05em';
-          if (activeStyles) spanEl.style.color = resolvedStyles.textColor;
-          spanEl.innerText = `📍 ${field.label || 'Step Divider'}`;
-          fieldWrapper.appendChild(spanEl);
-        } else if (field.type === 'title') {
-          fieldWrapper.style.width = '100%'; fieldWrapper.style.flex = '1 1 100%'; fieldWrapper.style.marginTop = '12px'; fieldWrapper.style.marginBottom = '4px';
-          const h3El = document.createElement('h3');
-          h3El.style.margin = '0'; h3El.style.fontSize = '18px'; h3El.style.fontWeight = '600';
-          if (activeStyles) h3El.style.color = resolvedStyles.textColor;
-          h3El.innerText = field.label || 'Section Title';
-          fieldWrapper.appendChild(h3El);
-        } else if (field.type === 'description') {
-          fieldWrapper.style.width = '100%'; fieldWrapper.style.flex = '1 1 100%'; fieldWrapper.style.marginTop = '4px'; fieldWrapper.style.marginBottom = '8px';
-          const pEl = document.createElement('p');
-          pEl.style.margin = '0'; pEl.style.fontSize = '14px';
-          if (activeStyles) pEl.style.color = resolvedStyles.textColor;
-          pEl.style.opacity = '0.8'; pEl.style.lineHeight = '1.4'; pEl.innerText = field.label || 'Description text';
-          fieldWrapper.appendChild(pEl);
+        var input = null;
+
+        if (field.type === "textarea") {
+          input = document.createElement("textarea");
+          input.style.minHeight = "80px";
+          input.placeholder = field.placeholder || "";
+
+        } else if (field.type === "select") {
+          input = document.createElement("select");
+          choices.forEach(function(ch) {
+            var opt = document.createElement("option");
+            opt.value = ch.value || ch.label; opt.innerText = ch.label;
+            input.appendChild(opt);
+          });
+
+        } else if (field.type === "radio") {
+          input = document.createElement("div");
+          input.style.display = "flex"; input.style.flexDirection = "column"; input.style.gap = "5px";
+          choices.forEach(function(ch, i) {
+            var row = document.createElement("label");
+            row.style.display = "flex"; row.style.gap = "8px";
+            if (activeStyles) { row.style.fontSize = s.inputSize + "px"; row.style.color = s.textColor; row.style.fontFamily = s.fontFamily; }
+            var r = document.createElement("input"); r.type = "radio"; r.name = "field_" + field.id; r.value = ch.value || ch.label;
+            if (ch.defaultChecked || (field.required && i === 0)) r.checked = true;
+            row.appendChild(r); row.appendChild(document.createTextNode(ch.label)); input.appendChild(row);
+          });
+
+        } else if (field.type === "checkbox_list") {
+          input = document.createElement("div");
+          input.style.display = "flex"; input.style.flexDirection = "column"; input.style.gap = "5px";
+          choices.forEach(function(ch) {
+            var row = document.createElement("label");
+            row.style.display = "flex"; row.style.gap = "8px";
+            if (activeStyles) { row.style.fontSize = s.inputSize + "px"; row.style.color = s.textColor; row.style.fontFamily = s.fontFamily; }
+            var ck = document.createElement("input"); ck.type = "checkbox"; ck.name = "field_" + field.id; ck.value = ch.value || ch.label;
+            if (ch.defaultChecked) ck.checked = true;
+            row.appendChild(ck); row.appendChild(document.createTextNode(ch.label)); input.appendChild(row);
+          });
+
+        } else if (field.type === "checkbox") {
+          input = document.createElement("label");
+          input.style.display = "flex"; input.style.gap = "8px";
+          if (activeStyles) { input.style.fontSize = s.inputSize + "px"; input.style.color = s.textColor; input.style.fontFamily = s.fontFamily; }
+          var ck2 = document.createElement("input"); ck2.type = "checkbox"; ck2.name = "field_" + field.id; ck2.required = field.required;
+          input.appendChild(ck2); input.appendChild(document.createTextNode(field.placeholder || "Confirm / Agree"));
+
         } else {
-          if (activeStyles) fieldWrapper.style.gap = resolvedStyles.labelSpacing + 'px';
-          const labelEl = document.createElement('label');
-          labelEl.style.fontWeight = '600';
-          if (activeStyles) { labelEl.style.fontSize = resolvedStyles.labelSize + 'px'; labelEl.style.color = resolvedStyles.labelColor; labelEl.style.fontFamily = resolvedStyles.fontFamily; }
-          labelEl.innerHTML = `${field.label} ${field.required ? '<span style="color: red;">*</span>' : ''}`;
-          fieldWrapper.appendChild(labelEl);
-          
-          let inputEl;
-          let parsedChoices = [];
-          try {
-             if (field.choices && (field.choices.startsWith('[') || field.choices.startsWith('{'))) parsedChoices = JSON.parse(field.choices);
-             else if (field.choices) parsedChoices = field.choices.split(',').map(c => ({ label: c.trim(), value: c.trim() }));
-          } catch (e) { parsedChoices = (field.choices || '').split(',').map(c => ({ label: c.trim(), value: c.trim() })); }
-
-          if (field.type === 'textarea') { inputEl = document.createElement('textarea'); inputEl.style.minHeight = '80px'; inputEl.placeholder = field.placeholder || ''; }
-          else if (field.type === 'select') { inputEl = document.createElement('select'); parsedChoices.forEach(choice => { const opt = document.createElement('option'); opt.value = choice.value || choice.label; opt.innerText = choice.label; inputEl.appendChild(opt); }); }
-          else if (field.type === 'radio') {
-            inputEl = document.createElement('div'); inputEl.style.display = 'flex'; inputEl.style.flexDirection = 'column'; inputEl.style.gap = '5px';
-            parsedChoices.forEach((choice, i) => {
-              const lbl = document.createElement('label');
-              if (activeStyles) { lbl.style.fontSize = resolvedStyles.inputSize + 'px'; lbl.style.fontFamily = resolvedStyles.fontFamily; lbl.style.color = resolvedStyles.textColor; }
-              lbl.style.display = 'flex'; lbl.style.gap = '8px';
-              const rad = document.createElement('input'); rad.type = 'radio'; rad.name = `field_${field.id}`; rad.value = choice.value || choice.label; if (choice.defaultChecked || (field.required && i === 0)) rad.checked = true;
-              lbl.appendChild(rad); lbl.appendChild(document.createTextNode(choice.label)); inputEl.appendChild(lbl);
-            });
-          } else if (field.type === 'checkbox_list') {
-            inputEl = document.createElement('div'); inputEl.style.display = 'flex'; inputEl.style.flexDirection = 'column'; inputEl.style.gap = '5px';
-            parsedChoices.forEach((choice) => {
-              const lbl = document.createElement('label');
-              if (activeStyles) { lbl.style.fontSize = resolvedStyles.inputSize + 'px'; lbl.style.fontFamily = resolvedStyles.fontFamily; lbl.style.color = resolvedStyles.textColor; }
-              lbl.style.display = 'flex'; lbl.style.gap = '8px';
-              const chk = document.createElement('input'); chk.type = 'checkbox'; chk.name = `field_${field.id}`; chk.value = choice.value || choice.label; if (choice.defaultChecked) chk.checked = true;
-              lbl.appendChild(chk); lbl.appendChild(document.createTextNode(choice.label)); inputEl.appendChild(lbl);
-            });
-          } else if (field.type === 'checkbox') {
-            inputEl = document.createElement('label');
-            if (activeStyles) { inputEl.style.fontSize = resolvedStyles.inputSize + 'px'; inputEl.style.fontFamily = resolvedStyles.fontFamily; inputEl.style.color = resolvedStyles.textColor; }
-            inputEl.style.display = 'flex'; inputEl.style.gap = '8px';
-            const chk = document.createElement('input'); chk.type = 'checkbox'; chk.name = `field_${field.id}`; chk.required = field.required;
-            inputEl.appendChild(chk); inputEl.appendChild(document.createTextNode(field.placeholder || "Confirm / Agree"));
-          } else {
-            inputEl = document.createElement('input'); inputEl.type = field.type;
-            if (field.type === 'phone' && form.defaultCountryPhoneCode) inputEl.value = form.defaultCountryPhoneCode.split(' ')[0] || '';
-            if (field.type !== 'hidden') inputEl.placeholder = field.placeholder || '';
-          }
-          
-          if (inputEl && field.type !== 'radio' && field.type !== 'checkbox' && field.type !== 'checkbox_list') {
-            inputEl.name = `field_${field.id}`; inputEl.required = field.required; inputEl.style.width = '100%'; inputEl.style.boxSizing = 'border-box'; inputEl.style.outline = 'none';
-            if (activeStyles) { inputEl.style.padding = resolvedStyles.inputPadding; inputEl.style.fontSize = resolvedStyles.inputSize + 'px'; inputEl.style.backgroundColor = resolvedStyles.fieldBgColor; inputEl.style.border = '1px solid ' + resolvedStyles.fieldBorderColor; inputEl.style.borderRadius = resolvedStyles.inputBorderRadius + 'px'; inputEl.style.color = resolvedStyles.textColor; }
-          }
-          if (inputEl) { inputEl.dataset.label = field.label; inputEl.dataset.type = field.type; fieldWrapper.appendChild(inputEl); }
+          input = document.createElement("input"); input.type = field.type;
+          if (field.type === "phone" && form.defaultCountryPhoneCode) input.value = form.defaultCountryPhoneCode.split(" ")[0] || "";
+          if (field.type !== "hidden") input.placeholder = field.placeholder || "";
         }
-        fieldsContainer.appendChild(fieldWrapper);
-      });
 
-      if (submitBtn && activeStyles) {
-        submitBtn.style.padding = resolvedStyles.btnPadding; submitBtn.style.fontSize = resolvedStyles.btnSize + 'px'; submitBtn.style.fontFamily = resolvedStyles.fontFamily; submitBtn.style.borderRadius = resolvedStyles.btnBorderRadius + 'px'; submitBtn.style.backgroundColor = resolvedStyles.btnBgColor; submitBtn.style.color = resolvedStyles.btnTextColor;
-        var btnShadowStyle = 'none';
-        if (resolvedStyles.shadow === 'subtle') btnShadowStyle = '0 1px 3px rgba(0,0,0,0.05)';
-        else if (resolvedStyles.shadow === 'medium') btnShadowStyle = '0 4px 6px -1px rgba(0,0,0,0.1)';
-        else if (resolvedStyles.shadow === 'strong') btnShadowStyle = '0 10px 15px -3px rgba(0,0,0,0.1)';
-        submitBtn.style.boxShadow = btnShadowStyle;
+        // Apply common styles to single-element inputs
+        if (input && field.type !== "radio" && field.type !== "checkbox" && field.type !== "checkbox_list") {
+          input.name = "field_" + field.id;
+          input.required = field.required;
+          input.style.width = "100%";
+          input.style.boxSizing = "border-box";
+          input.style.outline = "none";
+          if (activeStyles) {
+            input.style.padding         = s.inputPadding;
+            input.style.fontSize        = s.inputSize + "px";
+            input.style.backgroundColor = s.fieldBgColor;
+            input.style.border          = "1px solid " + s.fieldBorderColor;
+            input.style.borderRadius    = s.borderRadius + "px";
+            input.style.color           = s.textColor;
+            input.style.fontFamily      = s.fontFamily;
+          }
+        }
+
+        if (input) { input.dataset.label = field.label; input.dataset.type = field.type; fw.appendChild(input); }
       }
-      if (submitBtn) {
-        submitBtn.style.transition = 'background-color 0.2s ease, transform 0.1s ease';
-        const originalBtnBg = submitBtn.style.backgroundColor;
-        submitBtn.addEventListener('mouseenter', () => { if (activeStyles && resolvedStyles.btnHoverBgColor && resolvedStyles.btnHoverBgColor !== '') submitBtn.style.backgroundColor = resolvedStyles.btnHoverBgColor; else submitBtn.style.opacity = '0.9'; });
-        submitBtn.addEventListener('mouseleave', () => { if (activeStyles && resolvedStyles.btnHoverBgColor && resolvedStyles.btnHoverBgColor !== '') submitBtn.style.backgroundColor = originalBtnBg; else submitBtn.style.opacity = '1'; });
-        submitBtn.addEventListener('mousedown', () => submitBtn.style.transform = 'scale(0.98)');
-        submitBtn.addEventListener('mouseup', () => submitBtn.style.transform = 'scale(1)');
-      }
-      if (successDiv && activeStyles) {
-        successDiv.style.color = resolvedStyles.successColor; successDiv.style.backgroundColor = resolvedStyles.successBgColor; successDiv.style.borderRadius = resolvedStyles.borderRadius + 'px'; successDiv.style.border = '1px solid ' + resolvedStyles.successColor;
-      }
-      loadingDiv.style.display = 'none'; contentDiv.style.display = 'block';
-    })
-    .catch(err => {
-       console.error('PandaForms fetch error:', err);
-       loadingDiv.innerHTML = `<p style='color: red;'>Could not load form. Please check your Form ID.</p>`;
+
+      fieldsContainer.appendChild(fw);
     });
-    
-  formEl.addEventListener('submit', function(e) {
-    e.preventDefault();
-    submitBtn.disabled = true; submitBtn.style.opacity = '0.5'; submitBtn.innerText = 'Submitting...';
-    const fieldsData = {};
-    formEl.querySelectorAll('[name^="field_"]').forEach(el => { const label = el.dataset.label || el.name; if (el.type === 'checkbox') fieldsData[label] = el.checked ? 'Yes' : 'No'; else if (el.type === 'radio') { if (el.checked) fieldsData[label] = el.value; } else fieldsData[label] = el.value; });
-    formEl.querySelectorAll('div[name^="field_"]').forEach(div => { const checked = div.querySelector('input:checked'); if (checked) fieldsData[div.dataset.label] = checked.value; });
-    fetch(submitEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true', 'bypass-tunnel-reminder': 'true' }, body: JSON.stringify({ formId: formId, fields: fieldsData }) })
-      .then(res => res.json())
-      .then(resData => {
-        if (resData.success) { if (redirectUrl) window.location.href = redirectUrl; else { contentDiv.style.display = 'none'; successDiv.style.display = 'block'; } }
-        else { alert('Submission error: ' + (resData.error || 'Unknown error')); resetSubmitBtn(); }
-      })
-      .catch(err => { alert('Failed to submit form.'); resetSubmitBtn(); });
-    const resetSubmitBtn = () => { submitBtn.disabled = false; submitBtn.style.opacity = '1'; submitBtn.innerText = 'Submit'; };
+
+    // -------------------------------------------------------------------------
+    // Submit button — styled from app design only
+    // -------------------------------------------------------------------------
+    if (submitBtn && activeStyles) {
+      submitBtn.style.padding         = s.btnPadding;
+      submitBtn.style.fontSize        = s.btnSize + "px";
+      submitBtn.style.fontFamily      = s.fontFamily;
+      submitBtn.style.borderRadius    = s.borderRadius + "px";
+      submitBtn.style.backgroundColor = s.btnBgColor;
+      submitBtn.style.color           = s.btnTextColor;
+      var btnShadow = "none";
+      if (s.shadow === "subtle") btnShadow = "0 1px 3px rgba(0,0,0,0.05)";
+      else if (s.shadow === "medium") btnShadow = "0 4px 6px -1px rgba(0,0,0,0.1)";
+      else if (s.shadow === "strong") btnShadow = "0 10px 15px -3px rgba(0,0,0,0.1)";
+      submitBtn.style.boxShadow = btnShadow;
+    }
+    if (submitBtn) {
+      submitBtn.style.transition = "background-color 0.2s ease, transform 0.1s ease";
+      var origBg = submitBtn.style.backgroundColor;
+      submitBtn.addEventListener("mouseenter", function() {
+        if (activeStyles && s.btnHoverColor) submitBtn.style.backgroundColor = s.btnHoverColor;
+        else submitBtn.style.opacity = "0.85";
+      });
+      submitBtn.addEventListener("mouseleave", function() {
+        if (activeStyles && s.btnHoverColor) submitBtn.style.backgroundColor = origBg;
+        else submitBtn.style.opacity = "1";
+      });
+      submitBtn.addEventListener("mousedown", function() { submitBtn.style.transform = "scale(0.98)"; });
+      submitBtn.addEventListener("mouseup",   function() { submitBtn.style.transform = "scale(1)"; });
+    }
+
+    // Success banner
+    if (successDiv && activeStyles) {
+      successDiv.style.color           = s.successColor;
+      successDiv.style.backgroundColor = s.successBgColor;
+      successDiv.style.borderRadius    = s.borderRadius + "px";
+      successDiv.style.border          = "1px solid " + s.successColor;
+    }
+
+    loadingDiv.style.display = "none";
+    contentDiv.style.display = "block";
+  })
+  .catch(function(err) {
+    console.error("PandaForms load error:", err);
+    loadingDiv.innerHTML = "<p style='color:#b42318; padding:16px; border:1px solid #fca5a5; border-radius:6px; background:#fef2f2;'>" +
+      "<strong>Could not load form.</strong><br>Please check your Form ID is correct and the PandaForms app is running.</p>";
   });
+
+  // ---------------------------------------------------------------------------
+  // Form submission
+  // ---------------------------------------------------------------------------
+  formEl.addEventListener("submit", function(e) {
+    e.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = "0.5";
+    submitBtn.innerText = "Submitting...";
+
+    var fieldsData = {};
+    formEl.querySelectorAll("[name^='field_']").forEach(function(el) {
+      var label = el.dataset.label || el.name;
+      if (el.type === "checkbox") { fieldsData[label] = el.checked ? "Yes" : "No"; }
+      else if (el.type === "radio") { if (el.checked) fieldsData[label] = el.value; }
+      else { fieldsData[label] = el.value; }
+    });
+    formEl.querySelectorAll("div[name^='field_']").forEach(function(div) {
+      var checked = div.querySelector("input:checked");
+      if (checked) fieldsData[div.dataset.label] = checked.value;
+    });
+
+    fetch(submitEndpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true", "bypass-tunnel-reminder": "true" },
+      body: JSON.stringify({ formId: formId, fields: fieldsData })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(res) {
+      if (res.success) {
+        if (redirectUrl) { window.location.href = redirectUrl; }
+        else { contentDiv.style.display = "none"; successDiv.style.display = "block"; }
+      } else {
+        alert("Submission error: " + (res.error || "Unknown error"));
+        resetBtn();
+      }
+    })
+    .catch(function() { alert("Failed to submit. Please try again."); resetBtn(); });
+
+    function resetBtn() { submitBtn.disabled = false; submitBtn.style.opacity = "1"; submitBtn.innerText = "Submit"; }
+  });
+
 })();
 </script>
 
@@ -344,12 +485,13 @@
   "target": "body",
   "settings": [
     { "type": "header", "content": "Form Setup" },
-    { "type": "text", "id": "form_id", "label": "Form ID", "placeholder": "Enter Form UUID" },
+    { "type": "text", "id": "form_id", "label": "Form ID", "placeholder": "Paste Form ID from PandaForms app" },
     { "type": "text", "id": "api_url", "label": "App URL", "default": "https://p01--pandaforms-app--77wd8gj6rv7k.code.run" },
-    { "type": "header", "content": "Styling Source" },
-    { "type": "checkbox", "id": "use_app_styling", "label": "Use PandaForms app styling", "default": true },
-    { "type": "checkbox", "id": "override_width", "label": "Override width with setting below", "default": false },
-    { "type": "range", "id": "form_width", "label": "Form Width Override", "min": 320, "max": 1200, "step": 10, "default": 650 },
+    { "type": "header", "content": "Styling" },
+    { "type": "checkbox", "id": "use_app_styling", "label": "Use PandaForms app styling", "info": "When enabled, all colours and layout come from Widget Styling Settings inside PandaForms. Disable to use your theme defaults.", "default": true },
+    { "type": "header", "content": "Width (Optional Override)" },
+    { "type": "checkbox", "id": "override_width", "label": "Override form width", "default": false },
+    { "type": "range", "id": "form_width", "label": "Form Width", "min": 320, "max": 1200, "step": 10, "default": 650, "unit": "px" },
     { "type": "header", "content": "Section Spacing" },
     {
       "type": "select",
@@ -357,11 +499,11 @@
       "label": "Top & Bottom Spacing",
       "default": "medium",
       "options": [
-        { "value": "none", "label": "None (0px)" },
-        { "value": "small", "label": "Small (12px)" },
+        { "value": "none",   "label": "None" },
+        { "value": "small",  "label": "Small (12px)" },
         { "value": "medium", "label": "Medium (24px)" },
-        { "value": "large", "label": "Large (48px)" },
-        { "value": "huge", "label": "Extra Large (80px)" }
+        { "value": "large",  "label": "Large (48px)" },
+        { "value": "huge",   "label": "Extra Large (80px)" }
       ]
     }
   ]
