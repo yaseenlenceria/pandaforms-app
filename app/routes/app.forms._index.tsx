@@ -31,6 +31,8 @@ import {
   ArchiveIcon,
   ClipboardIcon,
   SearchIcon,
+  InfoIcon,
+  ChevronLeftIcon,
 } from "@shopify/polaris-icons";
 import { authenticate } from "../shopify.server";
 import db from "../db.server";
@@ -158,118 +160,168 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   let initialFields: any[] = [];
 
   switch (template) {
-    case "wholesale":
+    case "wholesale_reg":
       title = "Wholesale Registration Form";
       description = "Apply for a wholesale account. Once approved, you will be tagged as a wholesale customer.";
       initialFields = [
-        { type: "text", label: "Customer First Name", required: true, width: "half", position: 1, name: "customer_first_name" },
-        { type: "text", label: "Customer Last Name", required: true, width: "half", position: 2, name: "customer_last_name" },
-        { type: "email", label: "Customer Email", required: true, width: "full", position: 3, name: "customer_email" },
-        { type: "phone", label: "Customer Phone Number", required: false, width: "half", position: 4, name: "customer_phone" },
-        { type: "text", label: "Company Name", required: false, width: "half", position: 5, name: "company_name" },
-        { type: "text", label: "Business Tax ID", required: false, width: "half", position: 6, name: "tax_id" },
+        { type: "text", label: "Business Name", required: true, width: "full", name: "business_name", placeholder: "Enter legal business name" },
+        { type: "text", label: "Contact Name", required: true, width: "full", name: "contact_name", placeholder: "First and last name" },
+        { type: "email", label: "Email Address", required: true, width: "full", name: "customer_email", placeholder: "name@company.com" },
+        { type: "phone", label: "Phone Number", required: false, width: "half", name: "customer_phone", placeholder: "+1 (555) 000-0000" },
+        { type: "text", label: "Company Website", required: false, width: "half", name: "company_website", placeholder: "https://example.com" },
+        { type: "text", label: "VAT / Tax Number", required: false, width: "half", name: "tax_id", placeholder: "Tax Registration ID" },
+        { type: "textarea", label: "Message / Application Details", required: false, width: "full", name: "message", placeholder: "Tell us more about your business..." },
+      ];
+      break;
+    case "contact":
+      title = "Contact Form";
+      description = "For general enquiries and non specific requests.";
+      initialFields = [
+        { type: "text", label: "Name", required: true, width: "half", name: "full_name", placeholder: "Your name" },
+        { type: "email", label: "Email Address", required: true, width: "half", name: "email", placeholder: "name@example.com" },
+        { type: "text", label: "Subject", required: false, width: "full", name: "subject", placeholder: "How can we help?" },
+        { type: "textarea", label: "Message", required: true, width: "full", name: "message", placeholder: "Write your message here..." },
+      ];
+      break;
+    case "product_enquiry":
+      title = "Product Enquiry Form";
+      description = "For customers asking about specifications, features or technical product details.";
+      initialFields = [
+        { type: "text", label: "Name", required: true, width: "half", name: "full_name", placeholder: "Your name" },
+        { type: "email", label: "Email Address", required: true, width: "half", name: "email", placeholder: "name@example.com" },
+        { type: "text", label: "Product Name or URL", required: true, width: "full", name: "product_details", placeholder: "e.g., Cozy Wool Sweater / url" },
         { 
           type: "select", 
-          label: "Country and State", 
-          required: false, 
-          width: "half", 
-          position: 7, 
-          name: "country_state",
+          label: "Enquiry Type", 
+          required: true, 
+          width: "full", 
+          name: "enquiry_type",
           choices: JSON.stringify([
-            { label: "United States", value: "US", desc: "", defaultChecked: true },
-            { label: "Canada", value: "CA", desc: "", defaultChecked: false },
-            { label: "United Kingdom", value: "UK", desc: "", defaultChecked: false },
-            { label: "Australia", value: "AU", desc: "", defaultChecked: false },
+            { label: "Sizing / Fit inquiry", value: "sizing", desc: "", defaultChecked: true },
+            { label: "Stock availability", value: "stock", desc: "", defaultChecked: false },
+            { label: "Technical specifications", value: "technical", desc: "", defaultChecked: false },
+            { label: "Bulk order pricing", value: "bulk", desc: "", defaultChecked: false },
           ])
         },
-        { type: "checkbox", label: "Subscribe to Wholesale Newsletter", required: false, width: "full", position: 8, name: "subscribe_marketing" },
+        { type: "textarea", label: "Message", required: true, width: "full", name: "message", placeholder: "What would you like to know?" },
       ];
       break;
     case "customer_reg":
       title = "Customer Registration Form";
-      description = "Create a standard shopper store account.";
+      description = "For individuals who want to sign up for the store.";
       initialFields = [
-        { type: "text", label: "Customer First Name", required: true, width: "half", position: 1, name: "customer_first_name" },
-        { type: "text", label: "Customer Last Name", required: true, width: "half", position: 2, name: "customer_last_name" },
-        { type: "email", label: "Customer Email", required: true, width: "full", position: 3, name: "customer_email" },
-        { type: "checkbox", label: "Subscribe to newsletter", required: false, width: "full", position: 4, name: "subscribe_marketing" },
+        { type: "text", label: "First Name", required: true, width: "half", name: "customer_first_name", placeholder: "First name" },
+        { type: "text", label: "Last Name", required: true, width: "half", name: "customer_last_name", placeholder: "Last name" },
+        { type: "email", label: "Email Address", required: true, width: "full", name: "customer_email", placeholder: "name@example.com" },
+        { type: "phone", label: "Phone Number", required: false, width: "full", name: "customer_phone", placeholder: "Optional phone number" },
+        { type: "textarea", label: "Optional Message / Notes", required: false, width: "full", name: "notes", placeholder: "Any preferences or requests?" },
       ];
       break;
-    case "enquiry":
-      title = "Product Enquiry Form";
-      description = "Ask questions or request details about a specific product.";
+    case "pos_customer":
+      title = "POS Customer Form";
+      description = "For customer applications through Shopify POS.";
       initialFields = [
-        { type: "text", label: "Full Name", required: true, width: "half", position: 1, name: "full_name" },
-        { type: "email", label: "Email Address", required: true, width: "half", position: 2, name: "email" },
-        { type: "text", label: "Product Name / SKU", required: true, width: "full", position: 3, name: "product_sku" },
-        { type: "textarea", label: "Enquiry Details", required: true, width: "full", position: 4, name: "details" },
+        { type: "text", label: "Customer Name", required: true, width: "full", name: "full_name", placeholder: "Enter customer full name" },
+        { type: "email", label: "Email Address", required: true, width: "full", name: "email", placeholder: "customer@example.com" },
+        { type: "phone", label: "Phone Number", required: false, width: "full", name: "phone", placeholder: "+1 (555) 000-0000" },
+        { type: "textarea", label: "Customer Notes / Preferences", required: false, width: "full", name: "notes", placeholder: "Wholesale tier, styling notes, sizes, etc." },
       ];
       break;
-    case "contact":
-      title = "Contact Us Form";
-      description = "Let store visitors reach out with general inquiries.";
+    case "wholesale_app":
+      title = "Wholesale Application";
+      description = "After logging in, users can apply for wholesale access.";
       initialFields = [
-        { type: "text", label: "Full Name", required: true, width: "half", position: 1, name: "full_name" },
-        { type: "email", label: "Email Address", required: true, width: "half", position: 2, name: "email" },
-        { type: "text", label: "Subject", required: false, width: "full", position: 3, name: "subject" },
-        { type: "textarea", label: "Message Details", required: true, width: "full", position: 4, name: "message" },
+        { type: "text", label: "Business Name", required: true, width: "full", name: "business_name", placeholder: "Registered company name" },
+        { type: "email", label: "Email Address", required: true, width: "full", name: "email", placeholder: "wholesale@company.com" },
+        { type: "text", label: "Contact Person", required: true, width: "half", name: "contact_name", placeholder: "Contact name" },
+        { type: "phone", label: "Phone Number", required: true, width: "half", name: "phone", placeholder: "+1 (555) 000-0000" },
+        { type: "text", label: "Tax ID / VAT", required: true, width: "full", name: "tax_id", placeholder: "VAT/Tax ID" },
+        { type: "textarea", label: "Comments", required: false, width: "full", name: "comments", placeholder: "Tell us more about your wholesale requirements..." },
       ];
       break;
-    case "appointment":
-      title = "Book an Appointment";
-      description = "Schedule consultations, fittings, or product demos.";
+    case "order_request":
+      title = "Order Request Form";
+      description = "After placing an order, users can submit additional order requests.";
       initialFields = [
-        { type: "text", label: "Full Name", required: true, width: "half", position: 1, name: "full_name" },
-        { type: "email", label: "Email Address", required: true, width: "half", position: 2, name: "email" },
-        { type: "date", label: "Preferred Appointment Date", required: true, width: "half", position: 3, name: "appointment_date" },
+        { type: "text", label: "Order Number", required: true, width: "half", name: "order_number", placeholder: "e.g., #1001" },
+        { type: "email", label: "Email Address", required: true, width: "half", name: "email", placeholder: "name@example.com" },
         { 
           type: "select", 
-          label: "Appointment Type", 
+          label: "Reason for Request", 
           required: true, 
-          width: "half", 
-          position: 4, 
-          name: "appointment_type",
+          width: "full", 
+          name: "request_reason",
           choices: JSON.stringify([
-            { label: "Consultation Call", value: "consultation", desc: "", defaultChecked: true },
-            { label: "Sizing / Fitting Session", value: "fitting", desc: "", defaultChecked: false },
-            { label: "In-Store Tour & Demo", value: "tour", desc: "", defaultChecked: false },
+            { label: "Change shipping address", value: "address_change", desc: "", defaultChecked: true },
+            { label: "Add gift note / packaging", value: "gift_note", desc: "", defaultChecked: false },
+            { label: "Cancel order request", value: "cancel_request", desc: "", defaultChecked: false },
+            { label: "Other special request", value: "other", desc: "", defaultChecked: false },
           ])
         },
-        { type: "textarea", label: "Additional Requirements", required: false, width: "full", position: 5, name: "notes" },
+        { type: "textarea", label: "Detailed Description", required: true, width: "full", name: "description", placeholder: "Describe your request in detail..." },
       ];
       break;
-    case "return":
-      title = "Return Request Form";
-      description = "Request a product return, exchange, or refund.";
+    case "multistep":
+      title = "Multi Step Form";
+      description = "Uses a step divider field to create a multi step form.";
       initialFields = [
-        { type: "text", label: "Full Name", required: true, width: "half", position: 1, name: "full_name" },
-        { type: "email", label: "Email Address", required: true, width: "half", position: 2, name: "email" },
-        { type: "number", label: "Order Number", required: true, width: "half", position: 3, name: "order_number" },
-        { 
-          type: "select", 
-          label: "Reason for Return", 
-          required: true, 
-          width: "half", 
-          position: 4, 
-          name: "return_reason",
-          choices: JSON.stringify([
-            { label: "Defective / Damaged product", value: "defective", desc: "", defaultChecked: true },
-            { label: "Incorrect size shipped", value: "wrong_size", desc: "", defaultChecked: false },
-            { label: "Item different from pictures", value: "not_matching", desc: "", defaultChecked: false },
-            { label: "Changed my mind", value: "changed_mind", desc: "", defaultChecked: false },
-          ])
-        },
-        { type: "textarea", label: "Details / Explanation", required: false, width: "full", position: 5, name: "notes" },
+        { type: "step", label: "Step 1: Contact Information", required: false, width: "full" },
+        { type: "text", label: "Full Name", required: true, width: "half", name: "full_name", placeholder: "Your name" },
+        { type: "email", label: "Email Address", required: true, width: "half", name: "email", placeholder: "name@example.com" },
+        { type: "step", label: "Step 2: Business Profile", required: false, width: "full" },
+        { type: "text", label: "Company Name", required: true, width: "half", name: "company_name", placeholder: "Your company" },
+        { type: "text", label: "Website", required: false, width: "half", name: "website", placeholder: "https://example.com" },
+        { type: "step", label: "Step 3: Submit Application", required: false, width: "full" },
+        { type: "textarea", label: "Additional Comments", required: false, width: "full", name: "comments", placeholder: "Any extra notes..." },
       ];
       break;
+    case "blank":
     default:
-      title = "Untitled Form";
-      description = "Customize this form template";
+      title = "Blank Custom Form";
+      description = "Fill out the fields below or customize them in the editor.";
       initialFields = [
-        { type: "text", label: "Full Name", required: true, position: 1 },
-        { type: "email", label: "Email", required: true, position: 2 },
+        { type: "text", label: "Name", required: true, width: "full", name: "full_name", placeholder: "Your name" },
+        { type: "email", label: "Email", required: true, width: "full", name: "email", placeholder: "name@example.com" },
+        { type: "textarea", label: "Message", required: true, width: "full", name: "message", placeholder: "Write your message here..." },
       ];
+      break;
   }
+
+  const defaultStyles = JSON.stringify({
+    themePreset: "default",
+    colors: {
+      bgColor: "#ffffff",
+      fieldBgColor: "#ffffff",
+      fieldBorderColor: "#cbd5e1",
+      textColor: "#1e293b",
+      labelColor: "#334155",
+      btnBgColor: "#008060",
+      btnTextColor: "#ffffff",
+      btnHoverColor: "#005e46",
+      errorColor: "#ef4444",
+      successColor: "#10b981",
+      successBgColor: "#f0fdf4"
+    },
+    layout: {
+      formWidth: "650",
+      borderRadius: "4",
+      shadow: "subtle",
+      inputSize: "medium",
+      buttonSize: "medium",
+      labelSpacing: "6",
+      desktopPadding: "32",
+      mobilePadding: "16",
+      fieldGap: "16"
+    },
+    typography: {
+      fontFamily: "sans-serif",
+      titleSize: "24",
+      descSize: "14",
+      labelSize: "13",
+      inputSize: "14",
+      btnSize: "16"
+    }
+  });
 
   const form = await db.form.create({
     data: {
@@ -277,6 +329,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       description,
       shop,
       status: "ACTIVE",
+      customStyles: defaultStyles,
       fields: {
         create: initialFields.map((f, idx) => ({
           type: f.type,
@@ -286,6 +339,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
           width: f.width || "full",
           name: f.name || `field_${idx + 1}`,
           choices: f.choices || "",
+          placeholder: f.placeholder || "",
         })),
       },
     },
@@ -306,6 +360,13 @@ export default function FormsList() {
   const [bannerVisible, setBannerVisible] = useState(false);
   const [bannerMessage, setBannerMessage] = useState("");
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
+
+  // New Wizard States
+  const [wizardStep, setWizardStep] = useState<"intent" | "template">("intent");
+  const [selectedIntent, setSelectedIntent] = useState("");
+  const [templateSearch, setTemplateSearch] = useState("");
+  const [activeTemplateTab, setActiveTemplateTab] = useState(0);
+  const [expandedInfoKey, setExpandedInfoKey] = useState<string | null>(null);
 
   // Preview Form State
   const [previewForm, setPreviewForm] = useState<any>(null);
@@ -342,6 +403,11 @@ export default function FormsList() {
   const totalSubmissions = forms.reduce((sum, f) => sum + f._count.submissions, 0);
 
   const handleCreateForm = () => {
+    setWizardStep("intent");
+    setSelectedIntent("");
+    setTemplateSearch("");
+    setActiveTemplateTab(0);
+    setExpandedInfoKey(null);
     setTemplateModalOpen(true);
   };
 
@@ -395,13 +461,113 @@ export default function FormsList() {
     }
   };
 
-  const templatesList = [
-    { key: "wholesale", title: "Wholesale registration form", desc: "Connects to Shopify Customer API. Auto-tags approved accounts.", badge: "Customer Sync" },
-    { key: "customer_reg", title: "Customer registration form", desc: "Standard shopper registration request with customer sync.", badge: "Customer Sync" },
-    { key: "enquiry", title: "Product enquiry form", desc: "Allows shoppers to ask questions about product specs directly.", badge: "Theme Page" },
-    { key: "contact", title: "Contact form", desc: "Generic contact enquiry form to capture general queries.", badge: "General" },
-    { key: "appointment", title: "Book an appointment", desc: "Fittings, consultation requests, or appointment bookings.", badge: "Contact Form" },
-    { key: "return", title: "Return request", desc: "Processes return requests with order number and customer notes.", badge: "Service" },
+  const INTENTS = [
+    { name: "Lead Generation", desc: "Capture prospective customers and build marketing lists", icon: "📢", badge: "Growth", setupTime: "Ready in 30s" },
+    { name: "Contact Form", desc: "Allow shoppers to reach out for help or order requests", icon: "✉️", badge: "Standard", setupTime: "Ready in 10s" },
+    { name: "Wholesale Form", desc: "Collect B2B business details and auto-tag wholesale accounts", icon: "💼", badge: "B2B Sync", setupTime: "Ready in 10s" },
+    { name: "Customer Registration", desc: "Custom account sign-up forms with sync options", icon: "👤", badge: "Accounts", setupTime: "Ready in 20s" },
+    { name: "Product Enquiry", desc: "Product-specific enquiry forms on your product pages", icon: "🔍", badge: "Sales", setupTime: "Ready in 20s" },
+    { name: "Multi Step Form", desc: "Split detailed questionnaires into cleaner step panels", icon: "📑", badge: "UX Pro", setupTime: "Ready in 30s" },
+    { name: "Blank Form", desc: "Create a custom form from scratch with basic placeholder fields", icon: "📄", badge: "Quick Start", setupTime: "Ready in 5s" },
+  ];
+
+  const FORM_TEMPLATES = [
+    {
+      key: "wholesale_reg",
+      name: "Wholesale Registration Form",
+      category: "Online Store",
+      desc: "For businesses applying for wholesale privileges.",
+      info: "Collect business details, tax IDs, and contact info. When submitted, you can review and auto-tag them as wholesale customers in Shopify.",
+      setupTime: "Ready in 10 seconds",
+      icon: "🏢",
+      badge: "Most Popular",
+      badgeTone: "success" as const,
+      intents: ["Wholesale Form", "Lead Generation"]
+    },
+    {
+      key: "contact",
+      name: "Contact Form",
+      category: "Online Store",
+      desc: "For general enquiries and non specific requests.",
+      info: "A clean, basic contact form that allows customers to reach out to you directly from any page on your online store.",
+      setupTime: "Ready in 10 seconds",
+      icon: "✉️",
+      badge: "Recommended",
+      badgeTone: "info" as const,
+      intents: ["Contact Form", "Lead Generation"]
+    },
+    {
+      key: "product_enquiry",
+      name: "Product Enquiry Form",
+      category: "Online Store",
+      desc: "For customers asking about specifications, features or technical product details.",
+      info: "Perfect for high-value items or custom products. Let customers ask questions directly from the product page.",
+      setupTime: "Ready in 20 seconds",
+      icon: "🔍",
+      badge: "",
+      badgeTone: "info" as const,
+      intents: ["Product Enquiry", "Lead Generation"]
+    },
+    {
+      key: "customer_reg",
+      name: "Customer Registration Form",
+      category: "Online Store",
+      desc: "For individuals who want to sign up for the store.",
+      info: "An alternative registration form that allows collecting extra customer data like birthday, sizing, or phone number during signup.",
+      setupTime: "Ready in 20 seconds",
+      icon: "👤",
+      badge: "Recommended",
+      badgeTone: "info" as const,
+      intents: ["Customer Registration"]
+    },
+    {
+      key: "pos_customer",
+      name: "POS Customer Form",
+      category: "Shopify POS",
+      desc: "For customer applications through Shopify POS.",
+      info: "Designed for retail staff to quickly capture customer details and notes on the shop floor or checkouts.",
+      setupTime: "Ready in 30 seconds",
+      icon: "🛒",
+      badge: "",
+      badgeTone: "info" as const,
+      intents: ["Lead Generation", "Customer Registration"]
+    },
+    {
+      key: "wholesale_app",
+      name: "Wholesale Application",
+      category: "Customer Accounts",
+      desc: "After logging in, users can apply for wholesale access.",
+      info: "For stores using Shopify's New Customer Accounts. Logged-in customers can submit this application to request upgraded wholesale pricing status.",
+      setupTime: "Ready in 30 seconds",
+      icon: "💼",
+      badge: "",
+      badgeTone: "info" as const,
+      intents: ["Wholesale Form"]
+    },
+    {
+      key: "order_request",
+      name: "Order Request Form",
+      category: "Customer Accounts",
+      desc: "After placing an order, users can submit additional order requests.",
+      info: "Allows customers to request modifications, delivery instructions, or special requests for their order directly from their account page.",
+      setupTime: "Ready in 20 seconds",
+      icon: "📦",
+      badge: "",
+      badgeTone: "info" as const,
+      intents: ["Contact Form"]
+    },
+    {
+      key: "multistep",
+      name: "Multi Step Form",
+      category: "Online Store",
+      desc: "Uses a step divider field to create a multi step form.",
+      info: "Split long forms into user-friendly steps to improve completion rates. Perfect for wholesale onboarding or detailed questionnaires.",
+      setupTime: "Ready in 30 seconds",
+      icon: "📑",
+      badge: "B2B Choice",
+      badgeTone: "attention" as const,
+      intents: ["Multi Step Form", "Wholesale Form", "Lead Generation"]
+    }
   ];
 
   return (
@@ -661,33 +827,173 @@ export default function FormsList() {
       <Modal
         open={templateModalOpen}
         onClose={() => setTemplateModalOpen(false)}
-        title="Create a new storefront form"
+        title={wizardStep === "intent" ? "What would you like to create?" : `Select a Template for ${selectedIntent}`}
         size="large"
       >
         <Modal.Section>
-          <BlockStack gap="400">
-            <Text variant="bodyMd" as="p">
-              Select a pre-configured template below to launch instantly. You can fully customize fields, styling, and settings in the builder.
-            </Text>
-            <InlineGrid columns={{ xs: 1, sm: 2, md: 3 }} gap="400">
-              {templatesList.map((tmpl) => (
-                <Card key={tmpl.key}>
-                  <BlockStack gap="300" style={{ height: "100%", justifyContent: "space-between" }}>
-                    <BlockStack gap="100">
-                      <Badge tone="info">{tmpl.badge}</Badge>
-                      <Text variant="headingMd" as="h3">{tmpl.title}</Text>
-                      <Text variant="bodySm" tone="subdued">{tmpl.desc}</Text>
-                    </BlockStack>
-                    <div style={{ marginTop: "12px" }}>
-                      <Button onClick={() => handleSelectTemplate(tmpl.key)} variant="primary">
-                        Use Template
-                      </Button>
-                    </div>
-                  </BlockStack>
-                </Card>
-              ))}
-            </InlineGrid>
-          </BlockStack>
+          {wizardStep === "intent" ? (
+            <BlockStack gap="400">
+              <Text variant="bodyMd" as="p">
+                Select a form type below to get started. Choose from specialized templates optimized for Shopify or start custom.
+              </Text>
+              <InlineGrid columns={{ xs: 1, sm: 2, md: 3 }} gap="400">
+                {INTENTS.map((intent) => (
+                  <div key={intent.name} style={{ cursor: "pointer", display: "flex", height: "100%" }} onClick={() => {
+                    if (intent.name === "Blank Form") {
+                      handleSelectTemplate("blank");
+                    } else {
+                      setSelectedIntent(intent.name);
+                      setWizardStep("template");
+                    }
+                  }}>
+                    <Card>
+                      <div style={{ display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between" }}>
+                        <BlockStack gap="300">
+                          <InlineStack align="space-between" blockAlign="center">
+                            <div style={{
+                              width: "48px",
+                              height: "48px",
+                              borderRadius: "50%",
+                              backgroundColor: "#f1f5f9",
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              fontSize: "24px"
+                            }}>
+                              {intent.icon}
+                            </div>
+                            <Badge tone={intent.name === "Blank Form" ? "info" : "attention"}>{intent.badge}</Badge>
+                          </InlineStack>
+                          <BlockStack gap="100">
+                            <Text variant="headingMd" as="h3">{intent.name}</Text>
+                            <Text variant="bodySm" tone="subdued">{intent.desc}</Text>
+                          </BlockStack>
+                        </BlockStack>
+                        <div style={{ marginTop: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <Text variant="bodyXs" tone="subdued">{intent.setupTime}</Text>
+                          <Button variant="plain">
+                            {intent.name === "Blank Form" ? "Start →" : "Browse →"}
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+                ))}
+              </InlineGrid>
+            </BlockStack>
+          ) : (
+            <BlockStack gap="400">
+              <InlineStack align="space-between" blockAlign="center">
+                <Button onClick={() => setWizardStep("intent")} icon={ChevronLeftIcon} variant="plain">
+                  Back to Intents
+                </Button>
+                <div style={{ width: "300px" }}>
+                  <TextField
+                    label="Search templates"
+                    labelHidden
+                    placeholder="Search templates..."
+                    value={templateSearch}
+                    onChange={setTemplateSearch}
+                    prefix={<Icon source={SearchIcon} />}
+                    autoComplete="off"
+                    size="slim"
+                  />
+                </div>
+              </InlineStack>
+
+              <Tabs
+                tabs={[
+                  { id: "all", content: "Featured Templates" },
+                  { id: "online_store", content: "Online Store" },
+                  { id: "customer_accounts", content: "Customer Accounts" },
+                  { id: "shopify_pos", content: "Shopify POS" },
+                ]}
+                selected={activeTemplateTab}
+                onSelect={(idx) => setActiveTemplateTab(idx)}
+              />
+
+              {(() => {
+                // Filter matching intent
+                let items = FORM_TEMPLATES.filter(t => t.intents.includes(selectedIntent));
+
+                // Filter by tab
+                if (activeTemplateTab === 1) {
+                  items = items.filter(t => t.category === "Online Store");
+                } else if (activeTemplateTab === 2) {
+                  items = items.filter(t => t.category === "Customer Accounts");
+                } else if (activeTemplateTab === 3) {
+                  items = items.filter(t => t.category === "Shopify POS");
+                }
+
+                // Filter by search
+                if (templateSearch) {
+                  items = items.filter(
+                    t =>
+                      t.name.toLowerCase().includes(templateSearch.toLowerCase()) ||
+                      t.desc.toLowerCase().includes(templateSearch.toLowerCase())
+                  );
+                }
+
+                if (items.length === 0) {
+                  return (
+                    <Box padding="600" textAlign="center">
+                      <Text variant="bodyMd" tone="subdued">No templates found. Try resetting the search or category tabs.</Text>
+                    </Box>
+                  );
+                }
+
+                return (
+                  <InlineGrid columns={{ xs: 1, sm: 2 }} gap="400">
+                    {items.map((tmpl) => (
+                      <Card key={tmpl.key}>
+                        <BlockStack gap="300" style={{ height: "100%", justifyContent: "space-between" }}>
+                          <BlockStack gap="200">
+                            <InlineStack align="space-between" blockAlign="center">
+                              <InlineStack gap="200" blockAlign="center">
+                                <span style={{ fontSize: "20px" }}>{tmpl.icon}</span>
+                                <Text variant="headingMd" as="h3">{tmpl.name}</Text>
+                              </InlineStack>
+                              {tmpl.badge && <Badge tone={tmpl.badgeTone}>{tmpl.badge}</Badge>}
+                            </InlineStack>
+
+                            <InlineStack gap="200">
+                              <Badge size="small">{tmpl.category}</Badge>
+                              <Text variant="bodyXs" tone="subdued">{tmpl.setupTime}</Text>
+                            </InlineStack>
+
+                            <Text variant="bodySm" tone="subdued">{tmpl.desc}</Text>
+
+                            <div style={{ marginTop: "4px" }}>
+                              <Button
+                                onClick={() => setExpandedInfoKey(expandedInfoKey === tmpl.key ? null : tmpl.key)}
+                                variant="plain"
+                                icon={InfoIcon}
+                              >
+                                {expandedInfoKey === tmpl.key ? "Hide Details" : "Show Details"}
+                              </Button>
+                              <Collapsible open={expandedInfoKey === tmpl.key} id={`info-${tmpl.key}`}>
+                                <Box paddingBlockStart="200">
+                                  <div style={{ backgroundColor: "#f8fafc", padding: "12px", borderRadius: "6px", border: "1px solid #e2e8f0" }}>
+                                    <Text variant="bodySm" tone="subdued">{tmpl.info}</Text>
+                                  </div>
+                                </Box>
+                              </Collapsible>
+                            </div>
+                          </BlockStack>
+
+                          <div style={{ marginTop: "16px", display: "flex", justifyContent: "flex-end" }}>
+                            <Button onClick={() => handleSelectTemplate(tmpl.key)} variant="primary">
+                              Use Template
+                            </Button>
+                          </div>
+                        </BlockStack>
+                      </Card>
+                    ))}
+                  </InlineGrid>
+                );
+              })()}
+            </BlockStack>
+          )}
         </Modal.Section>
       </Modal>
 

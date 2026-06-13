@@ -57,6 +57,7 @@ model Form {
   defaultCountryPhoneCode String?      @default("+1")
   integrationHubSpot      Boolean      @default(false)
   integrationReCAPTCHA    Boolean      @default(false)
+  customStyles            String?
 }
 
 model FormField {

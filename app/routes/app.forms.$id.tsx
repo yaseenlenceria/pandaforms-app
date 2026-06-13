@@ -93,6 +93,7 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
     defaultCountryPhoneCode,
     integrationHubSpot,
     integrationReCAPTCHA,
+    customStyles,
   } = payload;
 
   await db.$transaction([
@@ -113,6 +114,7 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
         defaultCountryPhoneCode,
         integrationHubSpot: false,
         integrationReCAPTCHA: false,
+        customStyles,
       },
     }),
     db.formField.deleteMany({
@@ -203,74 +205,58 @@ export default function FormBuilder() {
         };
       case "glassmorphism":
         return {
-          wrapper: {
-            backgroundImage: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            color: "#ffffff",
-          },
-          innerWrapper: {
-            backgroundColor: "rgba(255, 255, 255, 0.15)",
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            borderRadius: "16px",
-            border: "1px solid rgba(255, 255, 255, 0.2)",
-            boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.37)",
-            padding: "24px",
-          },
-          title: { color: "#ffffff" },
-          desc: { color: "rgba(255, 255, 255, 0.8)" },
-          label: { color: "#ffffff" },
+          wrapper: { backgroundColor: "#ffffff", color: "#1e293b" },
+          title: { color: "#0f172a" },
+          desc: { color: "#64748b" },
+          label: { color: "#334155" },
           input: {
-            backgroundColor: "rgba(255, 255, 255, 0.2)",
-            border: "1px solid rgba(255, 255, 255, 0.3)",
-            color: "#ffffff",
-            borderRadius: "10px",
+            backgroundColor: "#ffffff",
+            border: "1px solid #cbd5e1",
+            color: "#1e293b",
+            borderRadius: "6px",
           },
           button: {
-            backgroundColor: "#ffffff",
-            color: "#764ba2",
-            boxShadow: "0 8px 16px rgba(0, 0, 0, 0.1)",
+            backgroundColor: "#008060",
+            color: "#ffffff",
+            boxShadow: "none",
           },
           step: {
-            color: "#ffffff",
-            borderBottom: "2px dashed rgba(255, 255, 255, 0.5)",
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
+            color: "#008060",
+            borderBottom: "2px dashed #cbd5e1",
+            backgroundColor: "transparent",
           },
           file: {
-            border: "2px dashed rgba(255, 255, 255, 0.3)",
-            backgroundColor: "rgba(255, 255, 255, 0.1)",
-            textColor: "#ffffff",
+            border: "2px dashed #cbd5e1",
+            backgroundColor: "#ffffff",
+            textColor: "#008060",
           }
         };
       case "playful":
         return {
-          wrapper: { backgroundColor: "#fef08a", color: "#1c1917" },
-          title: { color: "#1c1917" },
-          desc: { color: "#44403c" },
-          label: { color: "#1c1917" },
+          wrapper: { backgroundColor: "#ffffff", color: "#1e293b" },
+          title: { color: "#0f172a" },
+          desc: { color: "#64748b" },
+          label: { color: "#334155" },
           input: {
             backgroundColor: "#ffffff",
-            border: "3px solid #1c1917",
-            color: "#1c1917",
-            borderRadius: "0px",
-            boxShadow: "4px 4px 0px #1c1917",
+            border: "1px solid #cbd5e1",
+            color: "#1e293b",
+            borderRadius: "4px",
           },
           button: {
-            backgroundColor: "#f43f5e",
+            backgroundColor: "#18181b",
             color: "#ffffff",
-            border: "3px solid #1c1917",
-            borderRadius: "0px",
-            boxShadow: "4px 4px 0px #1c1917",
+            borderRadius: "4px",
           },
           step: {
-            color: "#1c1917",
-            backgroundColor: "#ffffff",
-            border: "3px solid #1c1917",
-            boxShadow: "4px 4px 0px #1c1917",
+            color: "#18181b",
+            backgroundColor: "transparent",
+            borderBottom: "1px solid #cbd5e1",
           },
           file: {
-            border: "3px dashed #1c1917",
+            border: "1px dashed #cbd5e1",
             backgroundColor: "#ffffff",
-            textColor: "#f43f5e",
+            textColor: "#18181b",
           }
         };
       case "classic":
@@ -384,9 +370,295 @@ export default function FormBuilder() {
   const [integrationReCAPTCHA, setIntegrationReCAPTCHA] = useState(false);
   const [theme, setTheme] = useState(form.theme || "minimal");
 
+  // Default design system values
+  const defaultDesignSystem = {
+    themePreset: "default",
+    colors: {
+      bgColor: "#ffffff",
+      fieldBgColor: "#ffffff",
+      fieldBorderColor: "#cbd5e1",
+      textColor: "#1e293b",
+      labelColor: "#334155",
+      btnBgColor: "#008060",
+      btnTextColor: "#ffffff",
+      btnHoverColor: "#005e46",
+      errorColor: "#ef4444",
+      successColor: "#10b981",
+      successBgColor: "#f0fdf4"
+    },
+    layout: {
+      formWidth: "650",
+      borderRadius: "4",
+      shadow: "subtle",
+      inputSize: "medium",
+      buttonSize: "medium",
+      labelSpacing: "6",
+      desktopPadding: "32",
+      mobilePadding: "16",
+      fieldGap: "16"
+    },
+    typography: {
+      fontFamily: "sans-serif",
+      titleSize: "24",
+      descSize: "14",
+      labelSize: "13",
+      inputSize: "14",
+      btnSize: "16"
+    }
+  };
+
+  const STYLE_PRESETS = {
+    default: {
+      themePreset: "default",
+      colors: {
+        bgColor: "#ffffff",
+        fieldBgColor: "#ffffff",
+        fieldBorderColor: "#cbd5e1",
+        textColor: "#1e293b",
+        labelColor: "#334155",
+        btnBgColor: "#008060",
+        btnTextColor: "#ffffff",
+        btnHoverColor: "#005e46",
+        errorColor: "#ef4444",
+        successColor: "#10b981",
+        successBgColor: "#f0fdf4"
+      },
+      layout: {
+        formWidth: "650",
+        borderRadius: "4",
+        shadow: "subtle",
+        inputSize: "medium",
+        buttonSize: "medium",
+        labelSpacing: "6",
+        desktopPadding: "32",
+        mobilePadding: "16",
+        fieldGap: "16"
+      },
+      typography: {
+        fontFamily: "Inter, sans-serif",
+        titleSize: "24",
+        descSize: "14",
+        labelSize: "13",
+        inputSize: "14",
+        btnSize: "15"
+      }
+    },
+    minimal: {
+      themePreset: "minimal",
+      colors: {
+        bgColor: "#ffffff",
+        fieldBgColor: "#ffffff",
+        fieldBorderColor: "#e2e8f0",
+        textColor: "#27272a",
+        labelColor: "#52525b",
+        btnBgColor: "#18181b",
+        btnTextColor: "#ffffff",
+        btnHoverColor: "#3f3f46",
+        errorColor: "#dc2626",
+        successColor: "#16a34a",
+        successBgColor: "#f0fdf4"
+      },
+      layout: {
+        formWidth: "600",
+        borderRadius: "0",
+        shadow: "none",
+        inputSize: "small",
+        buttonSize: "small",
+        labelSpacing: "4",
+        desktopPadding: "24",
+        mobilePadding: "12",
+        fieldGap: "12"
+      },
+      typography: {
+        fontFamily: "monospace",
+        titleSize: "22",
+        descSize: "13",
+        labelSize: "12",
+        inputSize: "13",
+        btnSize: "14"
+      }
+    },
+    modern: {
+      themePreset: "modern",
+      colors: {
+        bgColor: "#ffffff",
+        fieldBgColor: "#f4f4f5",
+        fieldBorderColor: "#e2e8f0",
+        textColor: "#09090b",
+        labelColor: "#18181b",
+        btnBgColor: "#0f172a",
+        btnTextColor: "#ffffff",
+        btnHoverColor: "#1e293b",
+        errorColor: "#f43f5e",
+        successColor: "#10b981",
+        successBgColor: "#f0fdf4"
+      },
+      layout: {
+        formWidth: "650",
+        borderRadius: "12",
+        shadow: "medium",
+        inputSize: "large",
+        buttonSize: "large",
+        labelSpacing: "8",
+        desktopPadding: "36",
+        mobilePadding: "20",
+        fieldGap: "20"
+      },
+      typography: {
+        fontFamily: "system-ui, sans-serif",
+        titleSize: "26",
+        descSize: "15",
+        labelSize: "14",
+        inputSize: "15",
+        btnSize: "16"
+      }
+    },
+    premium: {
+      themePreset: "premium",
+      colors: {
+        bgColor: "#ffffff",
+        fieldBgColor: "#fafaf9",
+        fieldBorderColor: "#cbd5e1",
+        textColor: "#1c1917",
+        labelColor: "#44403c",
+        btnBgColor: "#1c1917",
+        btnTextColor: "#ffffff",
+        btnHoverColor: "#292524",
+        errorColor: "#f87171",
+        successColor: "#34d399",
+        successBgColor: "#fafaf9"
+      },
+      layout: {
+        formWidth: "700",
+        borderRadius: "6",
+        shadow: "strong",
+        inputSize: "medium",
+        buttonSize: "medium",
+        labelSpacing: "6",
+        desktopPadding: "40",
+        mobilePadding: "24",
+        fieldGap: "18"
+      },
+      typography: {
+        fontFamily: "Georgia, serif",
+        titleSize: "28",
+        descSize: "15",
+        labelSize: "13",
+        inputSize: "14",
+        btnSize: "15"
+      }
+    },
+    dark: {
+      themePreset: "dark",
+      colors: {
+        bgColor: "#09090b",
+        fieldBgColor: "#18181b",
+        fieldBorderColor: "#27272a",
+        textColor: "#f4f4f5",
+        labelColor: "#a1a1aa",
+        btnBgColor: "#ffffff",
+        btnTextColor: "#09090b",
+        btnHoverColor: "#e4e4e7",
+        errorColor: "#ef4444",
+        successColor: "#10b981",
+        successBgColor: "#18181b"
+      },
+      layout: {
+        formWidth: "650",
+        borderRadius: "8",
+        shadow: "medium",
+        inputSize: "medium",
+        buttonSize: "medium",
+        labelSpacing: "6",
+        desktopPadding: "32",
+        mobilePadding: "16",
+        fieldGap: "16"
+      },
+      typography: {
+        fontFamily: "sans-serif",
+        titleSize: "24",
+        descSize: "14",
+        labelSize: "13",
+        inputSize: "14",
+        btnSize: "16"
+      }
+    }
+  };
+
+  const initialStyles = (() => {
+    if (form.customStyles) {
+      try {
+        const parsed = JSON.parse(form.customStyles);
+        return {
+          themePreset: parsed.themePreset || "default",
+          colors: { ...defaultDesignSystem.colors, ...parsed.colors },
+          layout: { ...defaultDesignSystem.layout, ...parsed.layout },
+          typography: { ...defaultDesignSystem.typography, ...parsed.typography },
+        };
+      } catch (e) {
+        // Fallback
+      }
+    }
+    return defaultDesignSystem;
+  })();
+
+  const [customStyles, setCustomStyles] = useState(initialStyles);
+  const [previewState, setPreviewState] = useState<"interactive" | "success" | "error">("interactive");
   const [toastVisible, setToastVisible] = useState(false);
   const [pickerModalOpen, setPickerModalOpen] = useState(false);
   const [previewViewport, setPreviewViewport] = useState<"desktop" | "mobile">("desktop");
+
+  const renderColorField = (label: string, section: "colors", key: keyof typeof defaultDesignSystem.colors) => {
+    const value = customStyles.colors[key];
+    const onChange = (newVal: string) => {
+      setCustomStyles((prev) => ({
+        ...prev,
+        colors: {
+          ...prev.colors,
+          [key]: newVal,
+        },
+      }));
+    };
+    return (
+      <TextField
+        label={label}
+        value={value}
+        onChange={onChange}
+        prefix={
+          <div style={{
+            width: "20px",
+            height: "20px",
+            borderRadius: "4px",
+            border: "1px solid #cbd5e1",
+            backgroundColor: value || "#ffffff",
+            cursor: "pointer",
+            position: "relative",
+            overflow: "hidden"
+          }}>
+            <input
+              type="color"
+              value={value || "#ffffff"}
+              onChange={(e) => onChange(e.target.value)}
+              style={{
+                position: "absolute",
+                top: -5,
+                left: -5,
+                width: "30px",
+                height: "30px",
+                opacity: 0,
+                cursor: "pointer"
+              }}
+            />
+          </div>
+        }
+        autoComplete="off"
+      />
+    );
+  };
+
+  const applyPreset = (presetKey: keyof typeof STYLE_PRESETS) => {
+    setCustomStyles(STYLE_PRESETS[presetKey]);
+  };
 
   const loginPositionOptions = [
     { label: "After Submit Button", value: "After Submit Button" },
@@ -543,6 +815,7 @@ export default function FormBuilder() {
           defaultCountryPhoneCode,
           integrationHubSpot: false,
           integrationReCAPTCHA: false,
+          customStyles: JSON.stringify(customStyles),
         }),
       },
       {
@@ -993,7 +1266,7 @@ export default function FormBuilder() {
 
                {/* Live Storefront Form Preview */}
                 <Card>
-                  <BlockStack gap="300">
+                  <BlockStack gap="400">
                     <InlineStack align="space-between" blockAlign="center">
                       <InlineStack gap="200" blockAlign="center">
                         <span style={{
@@ -1008,42 +1281,40 @@ export default function FormBuilder() {
                           Live Storefront Form Preview
                         </Text>
                       </InlineStack>
-                      <InlineStack gap="200" blockAlign="center">
-                        <div style={{ minWidth: "180px" }}>
-                          <Select
-                            label="Form Style Theme"
-                            labelHidden
-                            options={[
-                              { label: "Minimalist (Clean)", value: "minimal" },
-                              { label: "Glassmorphism (Frosted)", value: "glassmorphism" },
-                              { label: "Modern Dark (Vibrant Dark)", value: "dark" },
-                              { label: "Playful / Bold (Neon Brutalism)", value: "playful" },
-                              { label: "Classic Shopify Theme (Polaris Match)", value: "classic" },
-                            ]}
-                            value={theme}
-                            onChange={setTheme}
-                          />
-                        </div>
-                        <Button pressed={previewViewport === "desktop"} onClick={() => setPreviewViewport("desktop")} size="slim">Desktop Preview</Button>
-                        <Button pressed={previewViewport === "mobile"} onClick={() => setPreviewViewport("mobile")} size="slim">Mobile Preview</Button>
-                        <Badge tone="success">Storefront Theme Match</Badge>
+                      <InlineStack gap="300" blockAlign="center">
+                        {/* Preview State Toggle */}
+                        <InlineStack gap="100">
+                          <Button pressed={previewState === "interactive"} onClick={() => setPreviewState("interactive")} size="slim">Form View</Button>
+                          <Button pressed={previewState === "success"} onClick={() => setPreviewState("success")} size="slim">Success View</Button>
+                          <Button pressed={previewState === "error"} onClick={() => setPreviewState("error")} size="slim">Error View</Button>
+                        </InlineStack>
+                        <Divider type="vertical" />
+                        {/* Viewport Toggle */}
+                        <InlineStack gap="100">
+                          <Button pressed={previewViewport === "desktop"} onClick={() => setPreviewViewport("desktop")} size="slim">Desktop</Button>
+                          <Button pressed={previewViewport === "mobile"} onClick={() => setPreviewViewport("mobile")} size="slim">Mobile</Button>
+                        </InlineStack>
                       </InlineStack>
                     </InlineStack>
+                    
                     <Text variant="bodySm" tone="subdued">
-                      Fill out fields, select choices, or click submit to test the storefront experience. To edit form fields, use the <strong>Form Fields</strong> section above.
+                      Customize styling settings in the right sidebar. Changes will reflect instantly in this simulated Shopify storefront container.
                     </Text>
-                     <Divider />
+                    
+                    <Divider />
+                    
                     {/* Mock Browser UI Window */}
                     <div style={{
                       borderRadius: "8px",
                       overflow: "hidden",
                       border: "1px solid #cbd5e1",
-                      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)",
-                      backgroundColor: "#ffffff",
+                      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.05)",
+                      backgroundColor: "#f4f4f5",
                       marginTop: "12px",
                       width: previewViewport === "mobile" ? "375px" : "100%",
                       margin: previewViewport === "mobile" ? "12px auto 0 auto" : "12px 0 0 0",
-                      transition: "all 0.3s ease"
+                      transition: "all 0.3s ease",
+                      position: "relative"
                     }}>
                       {/* Browser Header Bar */}
                       <div style={{
@@ -1077,212 +1348,377 @@ export default function FormBuilder() {
                         }}>
                           yourstore.myshopify.com/apps/pandaforms
                         </div>
-                      </div>                      {/* Storefront Page Content */}
-                      <div style={{ padding: "32px", ...tStyle.wrapper }}>
-                        <div style={tStyle.innerWrapper || {}}>
-                          <BlockStack gap="500">
-                            {/* Title and Description */}
-                            <div style={{ textAlign: "center", borderBottom: `1px solid ${theme === "dark" ? "#334155" : theme === "glassmorphism" ? "rgba(255,255,255,0.2)" : "#f1f5f9"}`, paddingBottom: "20px" }}>
-                              <h2 style={{ fontSize: "24px", fontWeight: "700", ...tStyle.title, marginBottom: "8px" }}>
-                                {title || "Register Your Account"}
-                              </h2>
-                              {description && (
-                                <p style={{ fontSize: "14px", lineHeight: "1.5", maxWidth: "600px", margin: "0 auto", ...tStyle.desc }}>
-                                  {description}
-                                </p>
-                              )}
-                            </div>
+                      </div>
 
-                            {/* Fields Grid */}
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
-                              {fields
-                                .filter((f) => f.type !== "hidden")
-                                .map((f, idx) => {
-                                  const widthStyle = (() => {
-                                    if (f.width === "third") {
-                                      return {
-                                        flex: "1 1 calc(33.33% - 14px)",
-                                        minWidth: "180px",
-                                      };
-                                    }
-                                    if (f.width === "half") {
-                                      return {
-                                        flex: "1 1 calc(50% - 10px)",
-                                        minWidth: "240px",
-                                      };
-                                    }
-                                    return {
-                                      flex: "1 1 100%",
-                                      minWidth: "100%",
-                                    };
-                                  })();
-                                  return (
-                                    <div
-                                      key={idx}
-                                      style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        gap: "8px",
-                                        ...widthStyle,
-                                        boxSizing: "border-box",
-                                      }}
-                                    >
-                                      {f.type === "step" ? (
-                                        <div style={{ padding: "16px 0", width: "100%", margin: "12px 0", ...tStyle.step }}>
-                                          <span style={{ fontSize: "12px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.05em", padding: "4px 8px", borderRadius: "4px" }}>
-                                            📍 {f.label || "Step Divider"}
-                                          </span>
-                                        </div>
-                                      ) : f.type === "title" ? (
-                                        <div style={{ margin: "12px 0 4px 0" }}>
-                                          <h3 style={{ fontSize: "18px", fontWeight: "600", ...tStyle.title }}>
-                                            {f.label || "Section Title"}
-                                          </h3>
-                                        </div>
-                                      ) : f.type === "description" ? (
-                                        <div style={{ margin: "4px 0 8px 0" }}>
-                                          <p style={{ fontSize: "14px", lineHeight: "1.5", ...tStyle.desc }}>
-                                            {f.label || "Richtext Description"}
-                                          </p>
-                                        </div>
-                                      ) : (
-                                        <>
-                                          <label style={{ fontSize: "13px", fontWeight: "600", display: "block", ...tStyle.label }}>
-                                            {f.label || "Field Label"}
-                                            {f.required && <span style={{ color: "#ef4444", marginLeft: "4px" }}>*</span>}
-                                          </label>
-
-                                          {f.type === "textarea" ? (
-                                            <textarea
-                                              style={{
-                                                width: "100%",
-                                                padding: "12px",
-                                                minHeight: "100px",
-                                                fontSize: "14px",
-                                                outline: "none",
-                                                boxSizing: "border-box",
-                                                fontFamily: "inherit",
-                                                ...tStyle.input
-                                              }}
-                                              placeholder={f.placeholder}
-                                            />
-                                          ) : f.type === "select" || f.type === "country_state" ? (
-                                            <select
-                                              style={{
-                                                width: "100%",
-                                                padding: "12px",
-                                                fontSize: "14px",
-                                                outline: "none",
-                                                boxSizing: "border-box",
-                                                height: "46px",
-                                                ...tStyle.input
-                                              }}
-                                            >
-                                              {Array.isArray(f.choices) ? (
-                                                (f.choices as ChoiceOption[]).map((c, i) => (
-                                                  <option key={i} value={c.value}>{c.label}</option>
-                                                ))
-                                              ) : (
-                                                <option>Select Option</option>
-                                              )}
-                                            </select>
-                                          ) : f.type === "radio" ? (
-                                            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "4px" }}>
-                                              {Array.isArray(f.choices) &&
-                                                (f.choices as ChoiceOption[]).map((c, i) => (
-                                                  <label key={i} style={{ fontSize: "14px", display: "inline-flex", gap: "10px", alignItems: "center", cursor: "pointer", ...tStyle.label }}>
-                                                    <input type="radio" name={`preview_radio_${idx}`} defaultChecked={c.defaultChecked} style={{ width: "16px", height: "16px", accentColor: "#008060" }} />
-                                                    <span>{c.label}</span>
-                                                  </label>
-                                                ))}
-                                            </div>
-                                          ) : f.type === "checkbox" || f.type === "checkbox_list" ? (
-                                            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "4px" }}>
-                                              {f.type === "checkbox" ? (
-                                                <label style={{ fontSize: "14px", display: "inline-flex", gap: "10px", alignItems: "center", cursor: "pointer", ...tStyle.label }}>
-                                                  <input type="checkbox" style={{ width: "16px", height: "16px", accentColor: "#008060" }} />
-                                                  <span>{f.label || "Confirm / Agree"}</span>
-                                                </label>
-                                              ) : (
-                                                Array.isArray(f.choices) &&
-                                                (f.choices as ChoiceOption[]).map((c, i) => (
-                                                  <label key={i} style={{ fontSize: "14px", display: "inline-flex", gap: "10px", alignItems: "center", cursor: "pointer", ...tStyle.label }}>
-                                                    <input type="checkbox" defaultChecked={c.defaultChecked} style={{ width: "16px", height: "16px", accentColor: "#008060" }} />
-                                                    <span>{c.label}</span>
-                                                  </label>
-                                                ))
-                                              )}
-                                            </div>
-                                          ) : f.type === "file" ? (
-                                            <div style={{
-                                              padding: "20px",
-                                              borderRadius: "6px",
-                                              textAlign: "center",
-                                              cursor: "pointer",
-                                              ...tStyle.file
-                                            }}
-                                              onClick={() => {
-                                                const fileInput = document.getElementById(`preview_file_${idx}`);
-                                                if (fileInput) fileInput.click();
-                                              }}
-                                            >
-                                              <input type="file" id={`preview_file_${idx}`} style={{ display: "none" }} onChange={(e) => {
-                                                const fileName = e.target.files?.[0]?.name || "No file chosen";
-                                                const lbl = document.getElementById(`file_label_${idx}`);
-                                                if (lbl) lbl.innerText = fileName;
-                                              }} />
-                                              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-                                                <span style={{ fontSize: "14px", color: tStyle.file.textColor, fontWeight: "600" }}>Upload a file</span>
-                                                <span id={`file_label_${idx}`} style={{ fontSize: "12px", opacity: 0.8 }}>PDF, PNG, JPG (Max 10MB)</span>
-                                              </div>
-                                            </div>
-                                          ) : (
-                                            <input
-                                              type={f.type === "password" ? "password" : f.type === "date" ? "date" : "text"}
-                                              style={{
-                                                width: "100%",
-                                                padding: "12px",
-                                                fontSize: "14px",
-                                                outline: "none",
-                                                boxSizing: "border-box",
-                                                height: "46px",
-                                                ...tStyle.input
-                                              }}
-                                              placeholder={f.placeholder}
-                                            />
-                                          )}
-                                        </>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                            </div>
-
-                            {/* Submit Button */}
-                            <div style={{ marginTop: "12px" }}>
-                              <button
-                                type="button"
-                                onClick={() => shopify.toast.show("Form submitted successfully (Preview mode)")}
-                                style={{
-                                  border: "none",
-                                  padding: "14px 28px",
-                                  fontWeight: "600",
-                                  fontSize: "16px",
-                                  width: "100%",
-                                  cursor: "pointer",
-                                  transition: "background-color 0.2s",
-                                  ...tStyle.button
-                                }}
-                              >
-                                Submit Form
-                              </button>
-                            </div>
-                          </BlockStack>
+                      {/* Storefront Wrapper - Header */}
+                      <div style={{
+                        backgroundColor: "#ffffff",
+                        padding: "16px 24px",
+                        borderBottom: "1px solid #e2e8f0",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        fontSize: "14px",
+                        fontFamily: customStyles.typography.fontFamily || "sans-serif"
+                      }}>
+                        <Text variant="headingSm" as="span" fontWeight="bold">👖 MY STOREFRONT</Text>
+                        <div style={{ display: "flex", gap: "16px", color: "#64748b" }}>
+                          <span>Home</span>
+                          <span>Shop</span>
+                          <span>About</span>
+                          <span>Contact</span>
                         </div>
+                      </div>
+
+                      {/* Storefront Section Content */}
+                      <div style={{
+                        padding: previewViewport === "mobile" ? `${customStyles.layout.mobilePadding || 16}px` : `${customStyles.layout.desktopPadding || 32}px`,
+                        backgroundColor: "#f8fafc",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        minHeight: "400px",
+                        boxSizing: "border-box"
+                      }}>
+                        {/* Form Card Container */}
+                        <div style={{
+                          width: "100%",
+                          maxWidth: previewViewport === "mobile" ? "100%" : `${customStyles.layout.formWidth || 650}px`,
+                          backgroundColor: customStyles.colors.bgColor || "#ffffff",
+                          color: customStyles.colors.textColor || "#1e293b",
+                          borderRadius: `${customStyles.layout.borderRadius || 8}px`,
+                          padding: previewViewport === "mobile" ? `${customStyles.layout.mobilePadding || 16}px` : `${customStyles.layout.desktopPadding || 32}px`,
+                          fontFamily: customStyles.typography.fontFamily || "sans-serif",
+                          boxShadow: customStyles.layout.shadow === "none" ? "none" :
+                                     customStyles.layout.shadow === "subtle" ? "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05)" :
+                                     customStyles.layout.shadow === "medium" ? "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)" :
+                                     "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05), 0 20px 25px -5px rgba(0,0,0,0.1)",
+                          border: `1px solid ${customStyles.colors.fieldBorderColor || "#e2e8f0"}`,
+                          boxSizing: "border-box"
+                        }}>
+                          {previewState === "success" ? (
+                            <div style={{
+                              textAlign: "center",
+                              padding: "20px 0",
+                              backgroundColor: customStyles.colors.successBgColor || "#f0fdf4",
+                              borderRadius: "6px",
+                              border: `1px solid ${customStyles.colors.successColor || "#10b981"}`
+                            }}>
+                              <h3 style={{
+                                fontSize: "20px",
+                                fontWeight: "bold",
+                                color: customStyles.colors.successColor || "#10b981",
+                                marginBottom: "8px"
+                              }}>
+                                ✓ Success
+                              </h3>
+                              <p style={{
+                                fontSize: "14px",
+                                color: customStyles.colors.textColor || "#1e293b"
+                              }}>
+                                {successMessage || "Thank you for your submission!"}
+                              </p>
+                            </div>
+                          ) : (
+                            <BlockStack gap="400">
+                              {/* Title & Description */}
+                              <div style={{
+                                textAlign: "center",
+                                borderBottom: `1px solid ${customStyles.colors.fieldBorderColor || "#e2e8f0"}`,
+                                paddingBottom: "16px"
+                              }}>
+                                <h2 style={{
+                                  fontSize: `${customStyles.typography.titleSize || 24}px`,
+                                  fontWeight: "700",
+                                  color: customStyles.colors.textColor || "#1e293b",
+                                  marginBottom: "8px"
+                                }}>
+                                  {title || "Custom Form"}
+                                </h2>
+                                {description && (
+                                  <p style={{
+                                    fontSize: `${customStyles.typography.descSize || 14}px`,
+                                    color: customStyles.colors.textColor || "#1e293b",
+                                    opacity: 0.8,
+                                    margin: "0 auto",
+                                    lineHeight: "1.4"
+                                  }}>
+                                    {description}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Fields Grid Layout */}
+                              <div style={{
+                                display: "flex",
+                                flexWrap: "wrap",
+                                gap: `${customStyles.layout.fieldGap || 16}px`
+                              }}>
+                                {fields
+                                  .filter(f => f.type !== "hidden")
+                                  .map((f, idx) => {
+                                    const widthStyle = (() => {
+                                      if (f.width === "third") {
+                                        return {
+                                          flex: `1 1 calc(33.33% - ${(customStyles.layout.fieldGap || 16) * (2/3)}px)`,
+                                          minWidth: "160px"
+                                        };
+                                      }
+                                      if (f.width === "half") {
+                                        return {
+                                          flex: `1 1 calc(50% - ${(customStyles.layout.fieldGap || 16) / 2}px)`,
+                                          minWidth: "220px"
+                                        };
+                                      }
+                                      return {
+                                        flex: "1 1 100%",
+                                        minWidth: "100%"
+                                      };
+                                    })();
+
+                                    // Check if this field should show validation error mock
+                                    const isFirstRequired = f.required && fields.filter(x => x.required)[0]?.name === f.name;
+                                    const hasError = previewState === "error" && isFirstRequired;
+
+                                    // Padding configuration based on input size
+                                    const inputPadding = customStyles.layout.inputSize === "small" ? "8px 12px" :
+                                                           customStyles.layout.inputSize === "large" ? "16px 20px" :
+                                                           "12px 16px";
+                                    const inputFontSize = customStyles.layout.inputSize === "small" ? "13px" :
+                                                          customStyles.layout.inputSize === "large" ? "15px" :
+                                                          "14px";
+                                    const inputHeight = customStyles.layout.inputSize === "small" ? "36px" :
+                                                        customStyles.layout.inputSize === "large" ? "52px" :
+                                                        "44px";
+
+                                    return (
+                                      <div
+                                        key={idx}
+                                        style={{
+                                          display: "flex",
+                                          flexDirection: "column",
+                                          gap: `${customStyles.layout.labelSpacing || 6}px`,
+                                          ...widthStyle,
+                                          boxSizing: "border-box"
+                                        }}
+                                      >
+                                        {f.type === "step" ? (
+                                          <div style={{
+                                            width: "100%",
+                                            borderBottom: `2px dashed ${customStyles.colors.fieldBorderColor || "#e2e8f0"}`,
+                                            paddingBottom: "8px",
+                                            marginTop: "16px",
+                                            marginBottom: "8px"
+                                          }}>
+                                            <span style={{
+                                              fontSize: "12px",
+                                              fontWeight: "700",
+                                              textTransform: "uppercase",
+                                              letterSpacing: "0.05em",
+                                              color: customStyles.colors.textColor || "#1e293b"
+                                            }}>
+                                              📍 {f.label || "Step Divider"}
+                                            </span>
+                                          </div>
+                                        ) : f.type === "title" ? (
+                                          <div style={{ marginTop: "12px", marginBottom: "4px" }}>
+                                            <h3 style={{
+                                              fontSize: "18px",
+                                              fontWeight: "600",
+                                              color: customStyles.colors.textColor || "#1e293b"
+                                            }}>
+                                              {f.label || "Section Title"}
+                                            </h3>
+                                          </div>
+                                        ) : f.type === "description" ? (
+                                          <div style={{ marginTop: "4px", marginBottom: "8px" }}>
+                                            <p style={{
+                                              fontSize: "14px",
+                                              color: customStyles.colors.textColor || "#1e293b",
+                                              opacity: 0.8,
+                                              lineHeight: "1.4"
+                                            }}>
+                                              {f.label || "Description text"}
+                                            </p>
+                                          </div>
+                                        ) : (
+                                          <>
+                                            <label style={{
+                                              fontSize: `${customStyles.typography.labelSize || 13}px`,
+                                              fontWeight: "600",
+                                              color: customStyles.colors.labelColor || "#334155"
+                                            }}>
+                                              {f.label || "Field Label"}
+                                              {f.required && <span style={{ color: customStyles.colors.errorColor || "#ef4444", marginLeft: "4px" }}>*</span>}
+                                            </label>
+
+                                            {f.type === "textarea" ? (
+                                              <textarea
+                                                style={{
+                                                  width: "100%",
+                                                  padding: inputPadding,
+                                                  minHeight: "100px",
+                                                  fontSize: inputFontSize,
+                                                  boxSizing: "border-box",
+                                                  fontFamily: "inherit",
+                                                  backgroundColor: customStyles.colors.fieldBgColor || "#ffffff",
+                                                  border: `1px solid ${hasError ? (customStyles.colors.errorColor || "#ef4444") : (customStyles.colors.fieldBorderColor || "#cbd5e1")}`,
+                                                  borderRadius: `${customStyles.layout.borderRadius || 8}px`,
+                                                  color: customStyles.colors.textColor || "#1e293b",
+                                                  outline: "none"
+                                                }}
+                                                placeholder={f.placeholder}
+                                                disabled
+                                              />
+                                            ) : f.type === "select" || f.type === "country_state" ? (
+                                              <select
+                                                style={{
+                                                  width: "100%",
+                                                  padding: inputPadding,
+                                                  fontSize: inputFontSize,
+                                                  height: inputHeight,
+                                                  boxSizing: "border-box",
+                                                  backgroundColor: customStyles.colors.fieldBgColor || "#ffffff",
+                                                  border: `1px solid ${hasError ? (customStyles.colors.errorColor || "#ef4444") : (customStyles.colors.fieldBorderColor || "#cbd5e1")}`,
+                                                  borderRadius: `${customStyles.layout.borderRadius || 8}px`,
+                                                  color: customStyles.colors.textColor || "#1e293b",
+                                                  outline: "none"
+                                                }}
+                                                disabled
+                                              >
+                                                {Array.isArray(f.choices) ? (
+                                                  (f.choices as ChoiceOption[]).map((c, i) => (
+                                                    <option key={i} value={c.value}>{c.label}</option>
+                                                  ))
+                                                ) : (
+                                                  <option>Select Option</option>
+                                                )}
+                                              </select>
+                                            ) : f.type === "radio" ? (
+                                              <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
+                                                {Array.isArray(f.choices) &&
+                                                  (f.choices as ChoiceOption[]).map((c, i) => (
+                                                    <label key={i} style={{ fontSize: "14px", display: "inline-flex", gap: "8px", alignItems: "center", cursor: "pointer", color: customStyles.colors.textColor || "#1e293b" }}>
+                                                      <input type="radio" name={`preview_radio_${idx}`} defaultChecked={c.defaultChecked} style={{ width: "16px", height: "16px" }} disabled />
+                                                      <span>{c.label}</span>
+                                                    </label>
+                                                  ))}
+                                              </div>
+                                            ) : f.type === "checkbox" || f.type === "checkbox_list" ? (
+                                              <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
+                                                {f.type === "checkbox" ? (
+                                                  <label style={{ fontSize: "14px", display: "inline-flex", gap: "8px", alignItems: "center", cursor: "pointer", color: customStyles.colors.textColor || "#1e293b" }}>
+                                                    <input type="checkbox" style={{ width: "16px", height: "16px" }} disabled />
+                                                    <span>{f.label || "Confirm / Agree"}</span>
+                                                  </label>
+                                                ) : (
+                                                  Array.isArray(f.choices) &&
+                                                  (f.choices as ChoiceOption[]).map((c, i) => (
+                                                    <label key={i} style={{ fontSize: "14px", display: "inline-flex", gap: "8px", alignItems: "center", cursor: "pointer", color: customStyles.colors.textColor || "#1e293b" }}>
+                                                      <input type="checkbox" defaultChecked={c.defaultChecked} style={{ width: "16px", height: "16px" }} disabled />
+                                                      <span>{c.label}</span>
+                                                    </label>
+                                                  ))
+                                                )}
+                                              </div>
+                                            ) : f.type === "file" ? (
+                                              <div style={{
+                                                padding: "20px",
+                                                borderRadius: `${customStyles.layout.borderRadius || 8}px`,
+                                                textAlign: "center",
+                                                cursor: "pointer",
+                                                border: `2px dashed ${hasError ? (customStyles.colors.errorColor || "#ef4444") : (customStyles.colors.fieldBorderColor || "#cbd5e1")}`,
+                                                backgroundColor: customStyles.colors.fieldBgColor || "#ffffff"
+                                              }}
+                                              >
+                                                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+                                                  <span style={{ fontSize: "14px", color: customStyles.colors.btnBgColor || "#0f172a", fontWeight: "600" }}>Upload a file</span>
+                                                  <span style={{ fontSize: "12px", opacity: 0.8 }}>PDF, PNG, JPG (Max 10MB)</span>
+                                                </div>
+                                              </div>
+                                            ) : (
+                                              <input
+                                                type={f.type === "password" ? "password" : f.type === "date" ? "date" : "text"}
+                                                style={{
+                                                  width: "100%",
+                                                  padding: inputPadding,
+                                                  height: inputHeight,
+                                                  fontSize: inputFontSize,
+                                                  boxSizing: "border-box",
+                                                  backgroundColor: customStyles.colors.fieldBgColor || "#ffffff",
+                                                  border: `1px solid ${hasError ? (customStyles.colors.errorColor || "#ef4444") : (customStyles.colors.fieldBorderColor || "#cbd5e1")}`,
+                                                  borderRadius: `${customStyles.layout.borderRadius || 8}px`,
+                                                  color: customStyles.colors.textColor || "#1e293b",
+                                                  outline: "none"
+                                                }}
+                                                placeholder={f.placeholder}
+                                                disabled
+                                              />
+                                            )}
+
+                                            {hasError && (
+                                              <span style={{
+                                                fontSize: "12px",
+                                                color: customStyles.colors.errorColor || "#ef4444",
+                                                marginTop: "2px",
+                                                fontWeight: "500"
+                                              }}>
+                                                {f.requiredMessage || "This field is required"}
+                                              </span>
+                                            )}
+                                          </>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                              </div>
+
+                              {/* Submit Button */}
+                              <div style={{ marginTop: "12px" }}>
+                                <button
+                                  type="button"
+                                  style={{
+                                    border: "none",
+                                    padding: customStyles.layout.buttonSize === "small" ? "10px 20px" :
+                                             customStyles.layout.buttonSize === "large" ? "18px 36px" :
+                                             "14px 28px",
+                                    fontWeight: "600",
+                                    fontSize: customStyles.layout.buttonSize === "small" ? "13px" :
+                                              customStyles.layout.buttonSize === "large" ? "17px" :
+                                              "15px",
+                                    width: "100%",
+                                    cursor: "pointer",
+                                    borderRadius: `${customStyles.layout.borderRadius || 8}px`,
+                                    backgroundColor: customStyles.colors.btnBgColor || "#0f172a",
+                                    color: customStyles.colors.btnTextColor || "#ffffff",
+                                    boxShadow: customStyles.layout.shadow === "none" ? "none" : "0 4px 12px rgba(0,0,0,0.05)",
+                                    transition: "background-color 0.2s"
+                                  }}
+                                  disabled
+                                >
+                                  Submit Form
+                                </button>
+                              </div>
+                            </BlockStack>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Storefront Footer */}
+                      <div style={{
+                        backgroundColor: "#ffffff",
+                        padding: "24px",
+                        borderTop: "1px solid #e2e8f0",
+                        textAlign: "center",
+                        fontSize: "12px",
+                        color: "#94a3b8",
+                        fontFamily: customStyles.typography.fontFamily || "sans-serif"
+                      }}>
+                        © 2026 My Storefront. Powered by Shopify.
                       </div>
                     </div>
                   </BlockStack>
-              </Card>
+                </Card>
 
               {/* Form Submission Messages Card */}
               <Card>
@@ -1328,6 +1764,132 @@ export default function FormBuilder() {
                   <Text variant="bodySm" as="p" tone="subdued">
                     Use this ID to show the form in the theme widget.
                   </Text>
+                </BlockStack>
+              </Card>
+
+              {/* Design System Editor Card */}
+              <Card>
+                <BlockStack gap="400">
+                  <Text variant="headingMd" as="h2">Widget Styling Settings</Text>
+                  
+                  {/* One-Click Presets */}
+                  <BlockStack gap="150">
+                    <Text variant="bodySm" fontWeight="bold">One-Click Presets</Text>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                      <Button size="slim" pressed={customStyles.themePreset === "default"} onClick={() => applyPreset("default")}>Shopify Default</Button>
+                      <Button size="slim" pressed={customStyles.themePreset === "minimal"} onClick={() => applyPreset("minimal")}>Minimal</Button>
+                      <Button size="slim" pressed={customStyles.themePreset === "modern"} onClick={() => applyPreset("modern")}>Modern</Button>
+                      <Button size="slim" pressed={customStyles.themePreset === "premium"} onClick={() => applyPreset("premium")}>Premium</Button>
+                      <Button size="slim" pressed={customStyles.themePreset === "dark"} onClick={() => applyPreset("dark")}>Dark Mode</Button>
+                    </div>
+                  </BlockStack>
+
+                  <Divider />
+
+                  {/* Manual Colors Group */}
+                  <BlockStack gap="200">
+                    <Text variant="bodySm" fontWeight="bold">Colors</Text>
+                    <InlineGrid columns={2} gap="300">
+                      {renderColorField("Background", "colors", "bgColor")}
+                      {renderColorField("Text", "colors", "textColor")}
+                      {renderColorField("Field BG", "colors", "fieldBgColor")}
+                      {renderColorField("Field Border", "colors", "fieldBorderColor")}
+                      {renderColorField("Label Text", "colors", "labelColor")}
+                      {renderColorField("Button BG", "colors", "btnBgColor")}
+                      {renderColorField("Button Text", "colors", "btnTextColor")}
+                      {renderColorField("Button Hover", "colors", "btnHoverColor")}
+                      {renderColorField("Error State", "colors", "errorColor")}
+                      {renderColorField("Success State", "colors", "successColor")}
+                    </InlineGrid>
+                  </BlockStack>
+
+                  <Divider />
+
+                  {/* Layout & Sizing Group */}
+                  <BlockStack gap="200">
+                    <Text variant="bodySm" fontWeight="bold">Layout & Sizing</Text>
+                    <InlineGrid columns={2} gap="300">
+                      <TextField
+                        type="number"
+                        label="Form Width (px)"
+                        value={customStyles.layout.formWidth}
+                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, formWidth: val } }))}
+                        autoComplete="off"
+                      />
+                      <TextField
+                        type="number"
+                        label="Border Radius (px)"
+                        value={customStyles.layout.borderRadius}
+                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, borderRadius: val } }))}
+                        autoComplete="off"
+                      />
+                      <Select
+                        label="Container Shadow"
+                        options={[
+                          { label: "None", value: "none" },
+                          { label: "Subtle", value: "subtle" },
+                          { label: "Medium", value: "medium" },
+                          { label: "Strong", value: "strong" },
+                        ]}
+                        value={customStyles.layout.shadow}
+                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, shadow: val } }))}
+                      />
+                      <Select
+                        label="Input Size"
+                        options={[
+                          { label: "Small", value: "small" },
+                          { label: "Medium", value: "medium" },
+                          { label: "Large", value: "large" },
+                        ]}
+                        value={customStyles.layout.inputSize}
+                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, inputSize: val } }))}
+                      />
+                      <Select
+                        label="Button Size"
+                        options={[
+                          { label: "Small", value: "small" },
+                          { label: "Medium", value: "medium" },
+                          { label: "Large", value: "large" },
+                        ]}
+                        value={customStyles.layout.buttonSize}
+                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, buttonSize: val } }))}
+                      />
+                      <TextField
+                        type="number"
+                        label="Label Spacing (px)"
+                        value={customStyles.layout.labelSpacing}
+                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, labelSpacing: val } }))}
+                        autoComplete="off"
+                      />
+                      <TextField
+                        type="number"
+                        label="Desktop Padding (px)"
+                        value={customStyles.layout.desktopPadding}
+                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, desktopPadding: val } }))}
+                        autoComplete="off"
+                      />
+                      <TextField
+                        type="number"
+                        label="Mobile Padding (px)"
+                        value={customStyles.layout.mobilePadding}
+                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, mobilePadding: val } }))}
+                        autoComplete="off"
+                      />
+                      <TextField
+                        type="number"
+                        label="Field Gap (px)"
+                        value={customStyles.layout.fieldGap}
+                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, fieldGap: val } }))}
+                        autoComplete="off"
+                      />
+                    </InlineGrid>
+                  </BlockStack>
+
+                  <Divider />
+
+                  <Button onClick={() => setCustomStyles(defaultDesignSystem)} tone="critical" outline fullWidth>
+                    Reset to default style
+                  </Button>
                 </BlockStack>
               </Card>
 

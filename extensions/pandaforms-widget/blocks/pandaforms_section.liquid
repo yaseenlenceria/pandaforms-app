@@ -80,22 +80,21 @@
         };
       case 'glassmorphism':
         return {
-          wrapper: { backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: '#ffffff', padding: '0', border: 'none' },
-          innerWrapper: { backgroundColor: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.2)', boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)', padding: '32px' },
-          title: { color: '#ffffff' },
-          desc: { color: 'rgba(255, 255, 255, 0.8)' },
-          label: { color: '#ffffff' },
-          input: { backgroundColor: 'rgba(255, 255, 255, 0.2)', border: '1px solid rgba(255, 255, 255, 0.3)', color: '#ffffff', borderRadius: '10px' },
-          button: { backgroundColor: '#ffffff', color: '#764ba2', border: 'none', borderRadius: '10px' }
+          wrapper: { backgroundColor: '#ffffff', color: '#1e293b', padding: '32px', borderRadius: '12px' },
+          title: { color: '#0f172a' },
+          desc: { color: '#64748b' },
+          label: { color: '#334155' },
+          input: { backgroundColor: '#ffffff', border: '1px solid #cbd5e1', color: '#1e293b', borderRadius: '6px' },
+          button: { backgroundColor: '#008060', color: '#ffffff', border: 'none', borderRadius: '6px' }
         };
       case 'playful':
         return {
-          wrapper: { backgroundColor: '#fef08a', color: '#1c1917', padding: '32px', borderRadius: '0px', border: '3px solid #1c1917', boxShadow: '8px 8px 0px #1c1917' },
-          title: { color: '#1c1917' },
-          desc: { color: '#44403c' },
-          label: { color: '#1c1917' },
-          input: { backgroundColor: '#ffffff', border: '3px solid #1c1917', color: '#1c1917', borderRadius: '0px', boxShadow: '4px 4px 0px #1c1917' },
-          button: { backgroundColor: '#f43f5e', color: '#ffffff', border: '3px solid #1c1917', borderRadius: '0px', boxShadow: '4px 4px 0px #1c1917' }
+          wrapper: { backgroundColor: '#ffffff', color: '#1e293b', padding: '32px', borderRadius: '8px' },
+          title: { color: '#0f172a' },
+          desc: { color: '#64748b' },
+          label: { color: '#334155' },
+          input: { backgroundColor: '#ffffff', border: '1px solid #cbd5e1', color: '#1e293b', borderRadius: '4px' },
+          button: { backgroundColor: '#18181b', color: '#ffffff', border: 'none', borderRadius: '4px' }
         };
       case 'classic':
         return {
@@ -119,42 +118,10 @@
     }
   }
 
-  function fieldInput(field) {
-    var label = field.label || field.name || 'Field';
-    var key = field.key || field.id || label.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-    var type = field.type || 'text';
-    var required = field.required ? 'required' : '';
-    var placeholder = field.placeholder || '';
-    
-    // Determine flex width percentage
-    var pct = '100';
-    var minW = '100%';
-    if (field.width === 'half') {
-      pct = '50';
-      minW = '240px';
-    } else if (field.width === 'third') {
-      pct = '33.33';
-      minW = '180px';
-    }
-    
-    var labelStyle = toStyleString(themeStyles.label || {});
-    var inputStyle = toStyleString(themeStyles.input || {});
-    
-    var html = '<div style="flex: 1 1 calc(' + pct + '% - 16px); min-width: ' + minW + '; box-sizing: border-box; display: flex; flex-direction: column; gap: 6px;">';
-    html += '<label style="display:block; margin:0 0 6px; font-weight:600;' + labelStyle + '">' + label + (field.required ? ' <span style="color:#d72c0d;">*</span>' : '') + '</label>';
-    if (type === 'textarea') {
-      html += '<textarea name="' + key + '" placeholder="' + placeholder + '" ' + required + ' style="width:100%; min-height:110px; padding:11px 12px; box-sizing:border-box;' + inputStyle + '"></textarea>';
-    } else {
-      var inputType = type === 'email' ? 'email' : type === 'phone' ? 'tel' : type === 'date' ? 'date' : 'text';
-      html += '<input type="' + inputType + '" name="' + key + '" placeholder="' + placeholder + '" ' + required + ' style="width:100%; padding:11px 12px; box-sizing:border-box;' + inputStyle + '" />';
-    }
-    html += '</div>';
-    return html;
-  }
-
   function loadForm() {
     var proxyUrl = '/apps/pandaforms/form-config?id=' + encodeURIComponent(formId);
     var directUrl = apiUrl + '/api/form-config?id=' + encodeURIComponent(formId);
+    
     fetch(proxyUrl).then(function(res) {
       if (!res.ok) throw new Error('proxy failed');
       return res.json();
@@ -166,43 +133,517 @@
     }).then(function(data) {
       var form = data.form || data;
       
-      // Initialize theme styles
-      var theme = form.theme || 'minimal';
-      themeStyles = getThemeStyles(theme);
-      
-      // Apply theme styles to Card
       var cardEl = root.querySelector('.pandaforms-card');
+      var titleEl = root.querySelector('.pandaforms-title');
+      var descEl = root.querySelector('.pandaforms-desc');
+      
+      if (titleEl) titleEl.innerText = form.title || '';
+      if (descEl) descEl.innerText = form.description || '';
+      root.querySelector('.pandaforms-success-msg').innerText = form.successMessage || 'Thank you!';
+      redirectUrl = form.redirectUrl || '';
+
+      // Parse customStyles if configured
+      var customStyles = null;
+      if (form.customStyles) {
+        try {
+          customStyles = JSON.parse(form.customStyles);
+        } catch(e) {
+          console.error("Failed to parse customStyles", e);
+        }
+      }
+
+      var themeStyles = getThemeStyles(form.theme || 'minimal');
+
+      // Ready-made Color Scheme Presets
+      var presets = {
+        shopify_default: {
+          bg_color: '#ffffff',
+          text_color: '#1e293b',
+          border_color: '#cbd5e1',
+          input_bg_color: '#ffffff',
+          input_border_color: '#cbd5e1',
+          input_text_color: '#1e293b',
+          btn_bg_color: '#008060',
+          btn_text_color: '#ffffff',
+          btn_hover_bg_color: '#005e46',
+          success_text_color: '#10b981'
+        },
+        minimal: {
+          bg_color: '#ffffff',
+          text_color: '#27272a',
+          border_color: '#e2e8f0',
+          input_bg_color: '#ffffff',
+          input_border_color: '#e2e8f0',
+          input_text_color: '#27272a',
+          btn_bg_color: '#18181b',
+          btn_text_color: '#ffffff',
+          btn_hover_bg_color: '#3f3f46',
+          success_text_color: '#16a34a'
+        },
+        modern: {
+          bg_color: '#ffffff',
+          text_color: '#09090b',
+          border_color: '#e2e8f0',
+          input_bg_color: '#f4f4f5',
+          input_border_color: '#e2e8f0',
+          input_text_color: '#09090b',
+          btn_bg_color: '#0f172a',
+          btn_text_color: '#ffffff',
+          btn_hover_bg_color: '#1e293b',
+          success_text_color: '#10b981'
+        },
+        premium: {
+          bg_color: '#ffffff',
+          text_color: '#1c1917',
+          border_color: '#cbd5e1',
+          input_bg_color: '#fafaf9',
+          input_border_color: '#cbd5e1',
+          input_text_color: '#1c1917',
+          btn_bg_color: '#1c1917',
+          btn_text_color: '#ffffff',
+          btn_hover_bg_color: '#292524',
+          success_text_color: '#10b981'
+        },
+        dark: {
+          bg_color: '#09090b',
+          text_color: '#f4f4f5',
+          border_color: '#27272a',
+          input_bg_color: '#18181b',
+          input_border_color: '#27272a',
+          input_text_color: '#f4f4f5',
+          btn_bg_color: '#ffffff',
+          btn_text_color: '#09090b',
+          btn_hover_bg_color: '#e4e4e7',
+          success_text_color: '#10b981'
+        }
+      };
+
+      var presetStyle = "{{ block.settings.preset_style | default: 'app_theme' }}";
+      var preset = presets[presetStyle] || {};
+
+      var isMinimalTheme = (form.theme || 'minimal') === 'minimal';
+      var isAppTheme = presetStyle === 'app_theme';
+
+      // Setup a unified design system config mapping to apply styles
+      var resolvedStyles = {
+        bgColor: themeStyles.wrapper.backgroundColor || '#ffffff',
+        textColor: themeStyles.wrapper.color || '#1e293b',
+        fieldBgColor: themeStyles.input.backgroundColor || '#ffffff',
+        fieldBorderColor: themeStyles.input.borderColor || '#cbd5e1',
+        labelColor: themeStyles.label.color || '#334155',
+        btnBgColor: themeStyles.button.backgroundColor || '#0f172a',
+        btnTextColor: themeStyles.button.color || '#ffffff',
+        btnHoverBgColor: '',
+        successColor: '#10b981',
+        successBgColor: '#f0fdf4',
+        errorColor: '#ef4444',
+        
+        formWidth: 800,
+        borderRadius: parseInt(themeStyles.wrapper.borderRadius) || 8,
+        shadow: themeStyles.wrapper.boxShadow ? 'medium' : 'none',
+        inputPadding: themeStyles.input.padding || '10px',
+        btnPadding: themeStyles.button.padding || '12px',
+        labelSpacing: 5,
+        desktopPadding: parseInt(themeStyles.wrapper.padding) || 24,
+        mobilePadding: 16,
+        fieldGap: 16,
+        
+        fontFamily: themeStyles.wrapper.fontFamily || 'sans-serif',
+        titleSize: 24,
+        descSize: 14,
+        labelSize: 13,
+        inputSize: 14,
+        btnSize: 16
+      };
+
+      // Apply presets overrides if not using the App Theme
+      if (!isAppTheme) {
+        if (preset.bg_color) resolvedStyles.bgColor = preset.bg_color;
+        if (preset.text_color) {
+          resolvedStyles.textColor = preset.text_color;
+          resolvedStyles.labelColor = preset.text_color;
+        }
+        if (preset.border_color) resolvedStyles.fieldBorderColor = preset.border_color;
+        if (preset.input_bg_color) resolvedStyles.fieldBgColor = preset.input_bg_color;
+        if (preset.input_border_color) resolvedStyles.fieldBorderColor = preset.input_border_color;
+        if (preset.input_text_color) resolvedStyles.textColor = preset.input_text_color;
+        if (preset.btn_bg_color) resolvedStyles.btnBgColor = preset.btn_bg_color;
+        if (preset.btn_text_color) resolvedStyles.btnTextColor = preset.btn_text_color;
+        if (preset.btn_hover_bg_color) resolvedStyles.btnHoverBgColor = preset.btn_hover_bg_color;
+        if (preset.success_text_color) resolvedStyles.successColor = preset.success_text_color;
+
+        // Custom block settings overrides
+        var blockBgColor = "{{ block.settings.bg_color }}";
+        var blockBtnBgColor = "{{ block.settings.button_bg_color }}";
+        if (blockBgColor && blockBgColor !== '') resolvedStyles.bgColor = blockBgColor;
+        if (blockBtnBgColor && blockBtnBgColor !== '') resolvedStyles.btnBgColor = blockBtnBgColor;
+
+        // Block range overrides
+        var blockBorderRadius = "{{ block.settings.border_radius }}";
+        if (blockBorderRadius && blockBorderRadius !== '') resolvedStyles.borderRadius = parseInt(blockBorderRadius);
+      }
+
+      // If custom design system configurations exist, merge/overwrite resolved styles
+      if (customStyles && isAppTheme) {
+        resolvedStyles.bgColor = customStyles.colors.bgColor || resolvedStyles.bgColor;
+        resolvedStyles.textColor = customStyles.colors.textColor || resolvedStyles.textColor;
+        resolvedStyles.fieldBgColor = customStyles.colors.fieldBgColor || resolvedStyles.fieldBgColor;
+        resolvedStyles.fieldBorderColor = customStyles.colors.fieldBorderColor || resolvedStyles.fieldBorderColor;
+        resolvedStyles.labelColor = customStyles.colors.labelColor || resolvedStyles.labelColor;
+        resolvedStyles.btnBgColor = customStyles.colors.btnBgColor || resolvedStyles.btnBgColor;
+        resolvedStyles.btnTextColor = customStyles.colors.btnTextColor || resolvedStyles.btnTextColor;
+        resolvedStyles.btnHoverBgColor = customStyles.colors.btnHoverColor || resolvedStyles.btnHoverBgColor;
+        resolvedStyles.successColor = customStyles.colors.successColor || resolvedStyles.successColor;
+        resolvedStyles.successBgColor = customStyles.colors.successBgColor || resolvedStyles.successBgColor;
+        resolvedStyles.errorColor = customStyles.colors.errorColor || resolvedStyles.errorColor;
+        
+        resolvedStyles.formWidth = parseInt(customStyles.layout.formWidth) || resolvedStyles.formWidth;
+        resolvedStyles.borderRadius = parseInt(customStyles.layout.borderRadius) || resolvedStyles.borderRadius;
+        resolvedStyles.shadow = customStyles.layout.shadow || resolvedStyles.shadow;
+        
+        var inputSizeVal = customStyles.layout.inputSize || 'medium';
+        resolvedStyles.inputPadding = inputSizeVal === 'small' ? '8px 12px' :
+                                     inputSizeVal === 'large' ? '16px 20px' :
+                                     '12px 16px';
+                                     
+        var btnSizeVal = customStyles.layout.buttonSize || 'medium';
+        resolvedStyles.btnPadding = btnSizeVal === 'small' ? '10px 20px' :
+                                   btnSizeVal === 'large' ? '18px 36px' :
+                                   '14px 28px';
+                                   
+        resolvedStyles.labelSpacing = parseInt(customStyles.layout.labelSpacing) || resolvedStyles.labelSpacing;
+        resolvedStyles.desktopPadding = parseInt(customStyles.layout.desktopPadding) || resolvedStyles.desktopPadding;
+        resolvedStyles.mobilePadding = parseInt(customStyles.layout.mobilePadding) || resolvedStyles.mobilePadding;
+        resolvedStyles.fieldGap = parseInt(customStyles.layout.fieldGap) || resolvedStyles.fieldGap;
+        
+        resolvedStyles.fontFamily = customStyles.typography.fontFamily || resolvedStyles.fontFamily;
+        resolvedStyles.titleSize = parseInt(customStyles.typography.titleSize) || resolvedStyles.titleSize;
+        resolvedStyles.descSize = parseInt(customStyles.typography.descSize) || resolvedStyles.descSize;
+        resolvedStyles.labelSize = parseInt(customStyles.typography.labelSize) || resolvedStyles.labelSize;
+        resolvedStyles.inputSize = parseInt(customStyles.typography.inputSize) || resolvedStyles.inputSize;
+        resolvedStyles.btnSize = parseInt(customStyles.typography.btnSize) || resolvedStyles.btnSize;
+      }
+
+      // Apply Card style values
       if (cardEl) {
-        Object.assign(cardEl.style, themeStyles.wrapper);
-        if (themeStyles.innerWrapper) {
+        cardEl.style.backgroundColor = resolvedStyles.bgColor;
+        cardEl.style.color = resolvedStyles.textColor;
+        cardEl.style.borderRadius = resolvedStyles.borderRadius + 'px';
+        cardEl.style.fontFamily = resolvedStyles.fontFamily;
+
+        if (customStyles && isAppTheme) {
+          cardEl.style.backgroundImage = 'none';
+          cardEl.style.maxWidth = resolvedStyles.formWidth + 'px';
+          cardEl.style.border = '1px solid ' + resolvedStyles.fieldBorderColor;
+        } else {
+          if (themeStyles.wrapper.backgroundImage) {
+            cardEl.style.backgroundImage = themeStyles.wrapper.backgroundImage;
+          }
+          var blockBorderColor = !isAppTheme ? (preset.border_color || "{{ block.settings.border_color }}") : "";
+          if (blockBorderColor && blockBorderColor !== '') {
+            cardEl.style.borderColor = blockBorderColor;
+            cardEl.style.borderStyle = 'solid';
+          }
+        }
+
+        // Card shadow
+        var shadowStyle = 'none';
+        if (resolvedStyles.shadow === 'subtle') {
+          shadowStyle = '0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05)';
+        } else if (resolvedStyles.shadow === 'medium') {
+          shadowStyle = '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)';
+        } else if (resolvedStyles.shadow === 'strong') {
+          shadowStyle = '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05), 0 20px 25px -5px rgba(0,0,0,0.1)';
+        }
+        cardEl.style.boxShadow = shadowStyle;
+
+        // Card responsive padding
+        var setResponsivePadding = function() {
+          if (window.innerWidth <= 600) {
+            cardEl.style.padding = resolvedStyles.mobilePadding + 'px';
+          } else {
+            cardEl.style.padding = resolvedStyles.desktopPadding + 'px';
+          }
+        };
+        setResponsivePadding();
+        window.addEventListener('resize', setResponsivePadding);
+
+        // Handle Glassmorphism inner box reset
+        if (customStyles && isAppTheme) {
+          cardEl.style.backgroundColor = resolvedStyles.bgColor;
+          cardEl.style.backdropFilter = 'none';
+          cardEl.style.webkitBackdropFilter = 'none';
+        } else if (themeStyles.innerWrapper) {
           Object.assign(cardEl.style, themeStyles.innerWrapper);
           var sectEl = root.querySelector('.pandaforms-section') || root;
           sectEl.style.backgroundImage = themeStyles.wrapper.backgroundImage;
           sectEl.style.color = themeStyles.wrapper.color;
         }
       }
-      
-      var titleEl = root.querySelector('.pandaforms-title');
+
+      // Titles/Desc styles
       if (titleEl) {
-        titleEl.textContent = form.title || form.name || 'PandaForms';
-        Object.assign(titleEl.style, themeStyles.title || {});
+        titleEl.style.fontSize = resolvedStyles.titleSize + 'px';
+        titleEl.style.color = resolvedStyles.textColor;
+        titleEl.style.fontFamily = resolvedStyles.fontFamily;
       }
-      
-      var descEl = root.querySelector('.pandaforms-desc');
       if (descEl) {
-        descEl.textContent = form.description || '';
-        Object.assign(descEl.style, themeStyles.desc || {});
+        descEl.style.fontSize = resolvedStyles.descSize + 'px';
+        descEl.style.color = resolvedStyles.textColor;
+        descEl.style.fontFamily = resolvedStyles.fontFamily;
+        descEl.style.opacity = '0.8';
+      }
+
+      // Set fields container gap
+      if (fieldsWrap) {
+        fieldsWrap.style.gap = resolvedStyles.fieldGap + 'px';
       }
       
-      var submitBtnEl = root.querySelector('.pandaforms-submit');
-      if (submitBtnEl) {
-        Object.assign(submitBtnEl.style, themeStyles.button || {});
-      }
-      
-      root.querySelector('.pandaforms-success-msg').textContent = form.successMessage || 'Thank you. Your form has been submitted.';
-      redirectUrl = form.redirectUrl || '';
+      // Render Fields
+      fieldsWrap.innerHTML = '';
       var fields = form.fields || [];
-      fieldsWrap.innerHTML = fields.map(fieldInput).join('');
+      fields.forEach(function(field) {
+        var fieldWrapper = document.createElement('div');
+        fieldWrapper.className = 'pandaforms-field-wrapper ' + (field.width === 'third' ? 'width-third' : field.width === 'half' ? 'width-half' : 'width-full');
+        fieldWrapper.style.display = field.type === 'hidden' ? 'none' : 'flex';
+        fieldWrapper.style.flexDirection = 'column';
+        fieldWrapper.style.boxSizing = 'border-box';
+        
+        // Dynamic styling for responsive width
+        if (field.width === 'third') {
+          fieldWrapper.style.flex = '1 1 calc(33.33% - ' + (resolvedStyles.fieldGap * 2 / 3) + 'px)';
+          fieldWrapper.style.minWidth = '180px';
+        } else if (field.width === 'half') {
+          fieldWrapper.style.flex = '1 1 calc(50% - ' + (resolvedStyles.fieldGap / 2) + 'px)';
+          fieldWrapper.style.minWidth = '240px';
+        } else {
+          fieldWrapper.style.flex = '1 1 100%';
+        }
+        
+        if (field.type === 'step') {
+          fieldWrapper.style.width = '100%';
+          fieldWrapper.style.flex = '1 1 100%';
+          fieldWrapper.style.borderBottom = '2px dashed ' + resolvedStyles.fieldBorderColor;
+          fieldWrapper.style.paddingBottom = '8px';
+          fieldWrapper.style.marginTop = '16px';
+          fieldWrapper.style.marginBottom = '8px';
+          
+          var spanEl = document.createElement('span');
+          spanEl.style.fontSize = '12px';
+          spanEl.style.fontWeight = '700';
+          spanEl.style.textTransform = 'uppercase';
+          spanEl.style.letterSpacing = '0.05em';
+          spanEl.style.color = resolvedStyles.textColor;
+          spanEl.innerText = '📍 ' + (field.label || 'Step Divider');
+          
+          fieldWrapper.appendChild(spanEl);
+        } else if (field.type === 'title') {
+          fieldWrapper.style.width = '100%';
+          fieldWrapper.style.flex = '1 1 100%';
+          fieldWrapper.style.marginTop = '12px';
+          fieldWrapper.style.marginBottom = '4px';
+          
+          var h3El = document.createElement('h3');
+          h3El.style.margin = '0';
+          h3El.style.fontSize = '18px';
+          h3El.style.fontWeight = '600';
+          h3El.style.color = resolvedStyles.textColor;
+          h3El.innerText = field.label || 'Section Title';
+          
+          fieldWrapper.appendChild(h3El);
+        } else if (field.type === 'description') {
+          fieldWrapper.style.width = '100%';
+          fieldWrapper.style.flex = '1 1 100%';
+          fieldWrapper.style.marginTop = '4px';
+          fieldWrapper.style.marginBottom = '8px';
+          
+          var pEl = document.createElement('p');
+          pEl.style.margin = '0';
+          pEl.style.fontSize = '14px';
+          pEl.style.color = resolvedStyles.textColor;
+          pEl.style.opacity = '0.8';
+          pEl.style.lineHeight = '1.4';
+          pEl.innerText = field.label || 'Description text';
+          
+          fieldWrapper.appendChild(pEl);
+        } else {
+          // Regular form fields
+          fieldWrapper.style.gap = resolvedStyles.labelSpacing + 'px';
+
+          var labelEl = document.createElement('label');
+          labelEl.style.fontWeight = '600';
+          labelEl.style.fontSize = resolvedStyles.labelSize + 'px';
+          labelEl.style.color = resolvedStyles.labelColor;
+          labelEl.style.fontFamily = resolvedStyles.fontFamily;
+          labelEl.innerHTML = field.label + ' ' + (field.required ? '<span style="color: red;">*</span>' : '');
+          fieldWrapper.appendChild(labelEl);
+          
+          var inputEl;
+          
+          // Safely parse options array from choices column
+          var parsedChoices = [];
+          try {
+            if (field.choices && (field.choices.indexOf('[') === 0 || field.choices.indexOf('{') === 0)) {
+              parsedChoices = JSON.parse(field.choices);
+            } else if (field.choices) {
+              parsedChoices = field.choices.split(',').map(function(c) { return { label: c.trim(), value: c.trim() }; });
+            }
+          } catch (e) {
+            parsedChoices = (field.choices || '').split(',').map(function(c) { return { label: c.trim(), value: c.trim() }; });
+          }
+
+          if (field.type === 'textarea') {
+            inputEl = document.createElement('textarea');
+            inputEl.style.minHeight = '80px';
+            inputEl.placeholder = field.placeholder || '';
+          } else if (field.type === 'select') {
+            inputEl = document.createElement('select');
+            parsedChoices.forEach(function(choice) {
+              var opt = document.createElement('option');
+              opt.value = choice.value || choice.label;
+              opt.innerText = choice.label;
+              inputEl.appendChild(opt);
+            });
+          } else if (field.type === 'radio') {
+            inputEl = document.createElement('div');
+            inputEl.style.display = 'flex';
+            inputEl.style.flexDirection = 'column';
+            inputEl.style.gap = '5px';
+            parsedChoices.forEach(function(choice, i) {
+              var lbl = document.createElement('label');
+              lbl.style.fontSize = resolvedStyles.inputSize + 'px';
+              lbl.style.fontFamily = resolvedStyles.fontFamily;
+              lbl.style.color = resolvedStyles.textColor;
+              lbl.style.display = 'flex';
+              lbl.style.gap = '8px';
+              
+              var rad = document.createElement('input');
+              rad.type = 'radio';
+              rad.name = 'field_' + field.id;
+              rad.value = choice.value || choice.label;
+              if (choice.defaultChecked || (field.required && i === 0)) rad.checked = true;
+              
+              lbl.appendChild(rad);
+              lbl.appendChild(document.createTextNode(choice.label));
+              inputEl.appendChild(lbl);
+            });
+          } else if (field.type === 'checkbox_list') {
+            inputEl = document.createElement('div');
+            inputEl.style.display = 'flex';
+            inputEl.style.flexDirection = 'column';
+            inputEl.style.gap = '5px';
+            parsedChoices.forEach(function(choice) {
+              var lbl = document.createElement('label');
+              lbl.style.fontSize = resolvedStyles.inputSize + 'px';
+              lbl.style.fontFamily = resolvedStyles.fontFamily;
+              lbl.style.color = resolvedStyles.textColor;
+              lbl.style.display = 'flex';
+              lbl.style.gap = '8px';
+              
+              var chk = document.createElement('input');
+              chk.type = 'checkbox';
+              chk.name = 'field_' + field.id;
+              chk.value = choice.value || choice.label;
+              if (choice.defaultChecked) chk.checked = true;
+              
+              lbl.appendChild(chk);
+              lbl.appendChild(document.createTextNode(choice.label));
+              inputEl.appendChild(lbl);
+            });
+          } else if (field.type === 'checkbox') {
+            inputEl = document.createElement('label');
+            inputEl.style.fontSize = resolvedStyles.inputSize + 'px';
+            inputEl.style.fontFamily = resolvedStyles.fontFamily;
+            inputEl.style.color = resolvedStyles.textColor;
+            inputEl.style.display = 'flex';
+            inputEl.style.gap = '8px';
+            
+            var chk = document.createElement('input');
+            chk.type = 'checkbox';
+            chk.name = 'field_' + field.id;
+            chk.required = field.required;
+            
+            inputEl.appendChild(chk);
+            inputEl.appendChild(document.createTextNode(field.placeholder || "Confirm / Agree"));
+          } else {
+            inputEl = document.createElement('input');
+            inputEl.type = field.type;
+            
+            // Inject Default Phone Prefix if configured & type is phone
+            if (field.type === 'phone' && form.defaultCountryPhoneCode) {
+              inputEl.value = form.defaultCountryPhoneCode.split(' ')[0] || '';
+            }
+            
+            if (field.type !== 'hidden') {
+              inputEl.placeholder = field.placeholder || '';
+            }
+          }
+          
+          if (field.type !== 'radio' && field.type !== 'checkbox' && field.type !== 'checkbox_list') {
+            inputEl.name = 'field_' + field.id;
+            inputEl.required = field.required;
+            inputEl.style.padding = resolvedStyles.inputPadding;
+            inputEl.style.fontSize = resolvedStyles.inputSize + 'px';
+            inputEl.style.width = '100%';
+            inputEl.style.boxSizing = 'border-box';
+            inputEl.style.backgroundColor = resolvedStyles.fieldBgColor;
+            inputEl.style.border = '1px solid ' + resolvedStyles.fieldBorderColor;
+            inputEl.style.borderRadius = resolvedStyles.borderRadius + 'px';
+            inputEl.style.color = resolvedStyles.textColor;
+            inputEl.style.outline = 'none';
+          }
+          
+          inputEl.dataset.label = field.label;
+          inputEl.dataset.type = field.type;
+          
+          fieldWrapper.appendChild(inputEl);
+        }
+        
+        fieldsWrap.appendChild(fieldWrapper);
+      });
+
+      // Apply button style values
+      if (submitBtn) {
+        submitBtn.style.padding = resolvedStyles.btnPadding;
+        submitBtn.style.fontSize = resolvedStyles.btnSize + 'px';
+        submitBtn.style.fontFamily = resolvedStyles.fontFamily;
+        submitBtn.style.borderRadius = resolvedStyles.borderRadius + 'px';
+        submitBtn.style.backgroundColor = resolvedStyles.btnBgColor;
+        submitBtn.style.color = resolvedStyles.btnTextColor;
+
+        // Setup hover transitions and scale animation dynamically
+        submitBtn.style.transition = 'background-color 0.2s ease, transform 0.1s ease';
+        var originalBtnBg = submitBtn.style.backgroundColor;
+        submitBtn.addEventListener('mouseenter', function() {
+          if (resolvedStyles.btnHoverBgColor && resolvedStyles.btnHoverBgColor !== '') {
+            submitBtn.style.backgroundColor = resolvedStyles.btnHoverBgColor;
+          } else {
+            submitBtn.style.opacity = '0.9';
+          }
+        });
+        submitBtn.addEventListener('mouseleave', function() {
+          if (resolvedStyles.btnHoverBgColor && resolvedStyles.btnHoverBgColor !== '') {
+            submitBtn.style.backgroundColor = originalBtnBg;
+          } else {
+            submitBtn.style.opacity = '1';
+          }
+        });
+        submitBtn.addEventListener('mousedown', function() {
+          submitBtn.style.transform = 'scale(0.98)';
+        });
+        submitBtn.addEventListener('mouseup', function() {
+          submitBtn.style.transform = 'scale(1)';
+        });
+      }
+      
+      // Apply success state styles
+      if (success) {
+        success.style.color = resolvedStyles.successColor;
+        success.style.backgroundColor = resolvedStyles.successBgColor;
+        success.style.borderRadius = resolvedStyles.borderRadius + 'px';
+        success.style.border = '1px solid ' + resolvedStyles.successColor;
+      }
+      
       loading.style.display = 'none';
       content.style.display = 'block';
     }).catch(function(err) {
@@ -281,6 +722,22 @@
     },
     { "type": "range", "id": "form_width", "label": "Form Width", "min": 420, "max": 1200, "step": 20, "default": 800 },
     { "type": "range", "id": "border_radius", "label": "Card Radius", "min": 0, "max": 32, "step": 2, "default": 8 },
+    { "type": "header", "content": "Design Presets" },
+    {
+      "type": "select",
+      "id": "preset_style",
+      "label": "Ready-Made Color Scheme",
+      "default": "app_theme",
+      "options": [
+        { "value": "app_theme", "label": "App Theme Colors (Use colors from App Builder)" },
+        { "value": "custom", "label": "Custom (Use Settings Below)" },
+        { "value": "shopify_default", "label": "Shopify Default" },
+        { "value": "minimal", "label": "Minimal" },
+        { "value": "modern", "label": "Modern" },
+        { "value": "premium", "label": "Premium" },
+        { "value": "dark", "label": "Dark Mode" }
+      ]
+    },
 
     { "type": "header", "content": "Colours" },
     { "type": "color", "id": "bg_color", "label": "Card Background", "default": "#ffffff" },

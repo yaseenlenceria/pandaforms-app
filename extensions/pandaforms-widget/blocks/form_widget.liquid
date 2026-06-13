@@ -84,13 +84,22 @@
     .then(res => {
       if (!res.ok) throw new Error("Proxy configuration fetch failed");
       return res.json();
-    })
-    .then(data => {
+    })    .then(data => {
       const form = data.form;
       wrapper.querySelector('.pandaforms-title').innerText = form.title || '';
       wrapper.querySelector('.pandaforms-desc').innerText = form.description || '';
       wrapper.querySelector('.pandaforms-success-msg').innerText = form.successMessage || 'Thank you!';
       redirectUrl = form.redirectUrl || '';
+
+      // Parse customStyles if configured
+      let customStyles = null;
+      if (form.customStyles) {
+        try {
+          customStyles = JSON.parse(form.customStyles);
+        } catch(e) {
+          console.error("Failed to parse customStyles", e);
+        }
+      }
 
       // Define Theme Styles Dictionaries matching the Form Builder
       const getThemeStyles = (selectedTheme) => {
@@ -106,22 +115,21 @@
             };
           case 'glassmorphism':
             return {
-              wrapper: { backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '40px 32px', borderRadius: '16px' },
-              content: { backgroundColor: 'rgba(255, 255, 255, 0.15)', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.2)', boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)', padding: '32px' },
-              title: { color: '#ffffff' },
-              desc: { color: 'rgba(255, 255, 255, 0.8)' },
-              label: { color: '#ffffff' },
-              input: { backgroundColor: 'rgba(255, 255, 255, 0.2)', border: '1px solid rgba(255, 255, 255, 0.3)', color: '#ffffff', borderRadius: '10px' },
-              button: { backgroundColor: '#ffffff', color: '#764ba2', border: 'none', borderRadius: '10px' }
+              wrapper: { backgroundColor: '#ffffff', color: '#1e293b', padding: '32px', borderRadius: '12px' },
+              title: { color: '#0f172a' },
+              desc: { color: '#64748b' },
+              label: { color: '#334155' },
+              input: { backgroundColor: '#ffffff', border: '1px solid #cbd5e1', color: '#1e293b', borderRadius: '6px' },
+              button: { backgroundColor: '#008060', color: '#ffffff', border: 'none', borderRadius: '6px' }
             };
           case 'playful':
             return {
-              wrapper: { backgroundColor: '#fef08a', color: '#1c1917', padding: '32px', borderRadius: '0px', border: '3px solid #1c1917', boxShadow: '8px 8px 0px #1c1917' },
-              title: { color: '#1c1917' },
-              desc: { color: '#44403c' },
-              label: { color: '#1c1917' },
-              input: { backgroundColor: '#ffffff', border: '3px solid #1c1917', color: '#1c1917', borderRadius: '0px', boxShadow: '4px 4px 0px #1c1917' },
-              button: { backgroundColor: '#f43f5e', color: '#ffffff', border: '3px solid #1c1917', borderRadius: '0px', boxShadow: '4px 4px 0px #1c1917' }
+              wrapper: { backgroundColor: '#ffffff', color: '#1e293b', padding: '32px', borderRadius: '8px' },
+              title: { color: '#0f172a' },
+              desc: { color: '#64748b' },
+              label: { color: '#334155' },
+              input: { backgroundColor: '#ffffff', border: '1px solid #cbd5e1', color: '#1e293b', borderRadius: '4px' },
+              button: { backgroundColor: '#18181b', color: '#ffffff', border: 'none', borderRadius: '4px' }
             };
           case 'classic':
             return {
@@ -147,106 +155,67 @@
 
       const themeStyles = getThemeStyles(form.theme || 'minimal');
 
-      // Apply wrapper theme styles
-      Object.assign(wrapper.style, themeStyles.wrapper);
-      
       // Ready-made Color Scheme Presets
       const presets = {
-        sleek_dark: {
-          bg_color: '#0f172a',
-          text_color: '#f8fafc',
-          border_color: '#334155',
-          input_bg_color: '#1e293b',
-          input_border_color: '#475569',
-          input_text_color: '#f8fafc',
-          btn_bg_color: '#10b981',
-          btn_text_color: '#ffffff',
-          btn_hover_bg_color: '#059669',
-          success_text_color: '#10b981'
-        },
-        fresh_forest: {
-          bg_color: '#f0f4f1',
-          text_color: '#1e3a1f',
-          border_color: '#c2d1c5',
-          input_bg_color: '#ffffff',
-          input_border_color: '#a3bfa7',
-          input_text_color: '#1e3a1f',
-          btn_bg_color: '#2d5a27',
-          btn_text_color: '#ffffff',
-          btn_hover_bg_color: '#1e3e1a',
-          success_text_color: '#2d5a27'
-        },
-        vibrant_ocean: {
-          bg_color: '#0b132b',
-          text_color: '#ffffff',
-          border_color: '#1c2541',
-          input_bg_color: '#1c2541',
-          input_border_color: '#3a506b',
-          input_text_color: '#ffffff',
-          btn_bg_color: '#00b4d8',
-          btn_text_color: '#0b132b',
-          btn_hover_bg_color: '#0077b6',
-          success_text_color: '#00b4d8'
-        },
-        sunset_coral: {
-          bg_color: '#22252a',
-          text_color: '#f5f5f7',
-          border_color: '#3a3f47',
-          input_bg_color: '#2d3139',
-          input_border_color: '#4e5562',
-          input_text_color: '#f5f5f7',
-          btn_bg_color: '#ff6f61',
-          btn_text_color: '#ffffff',
-          btn_hover_bg_color: '#e05346',
-          success_text_color: '#ff6f61'
-        },
-        classic_minimal: {
+        shopify_default: {
           bg_color: '#ffffff',
-          text_color: '#0f172a',
-          border_color: '#e2e8f0',
+          text_color: '#1e293b',
+          border_color: '#cbd5e1',
           input_bg_color: '#ffffff',
           input_border_color: '#cbd5e1',
-          input_text_color: '#0f172a',
+          input_text_color: '#1e293b',
+          btn_bg_color: '#008060',
+          btn_text_color: '#ffffff',
+          btn_hover_bg_color: '#005e46',
+          success_text_color: '#10b981'
+        },
+        minimal: {
+          bg_color: '#ffffff',
+          text_color: '#27272a',
+          border_color: '#e2e8f0',
+          input_bg_color: '#ffffff',
+          input_border_color: '#e2e8f0',
+          input_text_color: '#27272a',
+          btn_bg_color: '#18181b',
+          btn_text_color: '#ffffff',
+          btn_hover_bg_color: '#3f3f46',
+          success_text_color: '#16a34a'
+        },
+        modern: {
+          bg_color: '#ffffff',
+          text_color: '#09090b',
+          border_color: '#e2e8f0',
+          input_bg_color: '#f4f4f5',
+          input_border_color: '#e2e8f0',
+          input_text_color: '#09090b',
           btn_bg_color: '#0f172a',
           btn_text_color: '#ffffff',
           btn_hover_bg_color: '#1e293b',
-          success_text_color: '#0f172a'
+          success_text_color: '#10b981'
         },
-        retro_yellow: {
-          bg_color: '#fef08a',
+        premium: {
+          bg_color: '#ffffff',
           text_color: '#1c1917',
-          border_color: '#1c1917',
-          input_bg_color: '#ffffff',
-          input_border_color: '#1c1917',
+          border_color: '#cbd5e1',
+          input_bg_color: '#fafaf9',
+          input_border_color: '#cbd5e1',
           input_text_color: '#1c1917',
-          btn_bg_color: '#f43f5e',
+          btn_bg_color: '#1c1917',
           btn_text_color: '#ffffff',
-          btn_hover_bg_color: '#e11d48',
-          success_text_color: '#f43f5e'
+          btn_hover_bg_color: '#292524',
+          success_text_color: '#10b981'
         },
-        elegant_gold: {
-          bg_color: '#141416',
-          text_color: '#f3f4f6',
-          border_color: '#2d2d30',
-          input_bg_color: '#1f1f22',
-          input_border_color: '#3a3a3e',
-          input_text_color: '#f3f4f6',
-          btn_bg_color: '#d4af37',
-          btn_text_color: '#141416',
-          btn_hover_bg_color: '#aa8c2c',
-          success_text_color: '#d4af37'
-        },
-        purple_haze: {
-          bg_color: '#1e0b36',
-          text_color: '#f3e8ff',
-          border_color: '#3b1d68',
-          input_bg_color: '#2e1065',
-          input_border_color: '#581c87',
-          input_text_color: '#f3e8ff',
-          btn_bg_color: '#ec4899',
-          btn_text_color: '#ffffff',
-          btn_hover_bg_color: '#db2777',
-          success_text_color: '#ec4899'
+        dark: {
+          bg_color: '#09090b',
+          text_color: '#f4f4f5',
+          border_color: '#27272a',
+          input_bg_color: '#18181b',
+          input_border_color: '#27272a',
+          input_text_color: '#f4f4f5',
+          btn_bg_color: '#ffffff',
+          btn_text_color: '#09090b',
+          btn_hover_bg_color: '#e4e4e7',
+          success_text_color: '#10b981'
         }
       };
 
@@ -256,78 +225,182 @@
       // Determine if using minimal theme
       const isMinimalTheme = (form.theme || 'minimal') === 'minimal';
       const isAppTheme = presetStyle === 'app_theme';
-      
-      // Custom Block Styles Overrides
-      const blockBgColor = !isAppTheme ? (preset.bg_color || "{{ block.settings.bg_color }}") : "";
-      const blockTextColor = !isAppTheme ? (preset.text_color || "{{ block.settings.text_color }}") : "";
-      const blockBorderColor = !isAppTheme ? (preset.border_color || "{{ block.settings.border_color }}") : "";
 
-      if (blockBgColor && blockBgColor !== '') wrapper.style.backgroundColor = blockBgColor;
-      if (blockTextColor && blockTextColor !== '') {
-        wrapper.style.color = blockTextColor;
-        themeStyles.label.color = blockTextColor;
-      }
-      if (blockBorderColor && blockBorderColor !== '') {
-        wrapper.style.borderColor = blockBorderColor;
-        wrapper.style.borderStyle = 'solid';
-      }
-
-      // We only apply the range/number settings (border-radius, padding, border-width, shadow) from block settings if:
-      // 1. A preset is chosen (presetStyle !== 'custom')
-      // 2. OR the theme is 'minimal'
-      // 3. AND it is not the app theme (which should preserve its own dimensions)
-      const shouldApplyBlockRangeSettings = presetStyle === 'custom' ? isMinimalTheme : (presetStyle !== 'app_theme');
-
-      if (shouldApplyBlockRangeSettings) {
-        const blockBorderWidth = "{{ block.settings.border_width }}";
-        const blockBorderRadius = "{{ block.settings.border_radius }}";
-        const blockCardPadding = "{{ block.settings.card_padding }}";
-        const blockShowShadow = "{{ block.settings.show_shadow }}";
-
-        if (blockBorderWidth && blockBorderWidth !== '') wrapper.style.borderWidth = blockBorderWidth + 'px';
-        if (blockBorderRadius && blockBorderRadius !== '') wrapper.style.borderRadius = blockBorderRadius + 'px';
-        if (blockCardPadding && blockCardPadding !== '') wrapper.style.padding = blockCardPadding + 'px';
+      // Setup a unified design system config mapping to apply styles
+      var resolvedStyles = {
+        bgColor: themeStyles.wrapper.backgroundColor || '#ffffff',
+        textColor: themeStyles.wrapper.color || '#1e293b',
+        fieldBgColor: themeStyles.input.backgroundColor || '#ffffff',
+        fieldBorderColor: themeStyles.input.borderColor || '#cbd5e1',
+        labelColor: themeStyles.label.color || '#334155',
+        btnBgColor: themeStyles.button.backgroundColor || '#0f172a',
+        btnTextColor: themeStyles.button.color || '#ffffff',
+        btnHoverBgColor: '',
+        successColor: '#10b981',
+        successBgColor: '#f0fdf4',
+        errorColor: '#ef4444',
         
-        if (blockShowShadow === 'true') {
-          wrapper.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
-        } else if (blockShowShadow === 'false') {
-          wrapper.style.boxShadow = 'none';
+        formWidth: 800,
+        borderRadius: parseInt(themeStyles.wrapper.borderRadius) || 8,
+        shadow: themeStyles.wrapper.boxShadow ? 'medium' : 'none',
+        inputPadding: themeStyles.input.padding || '10px',
+        btnPadding: themeStyles.button.padding || '12px',
+        labelSpacing: 5,
+        desktopPadding: parseInt(themeStyles.wrapper.padding) || 24,
+        mobilePadding: 16,
+        fieldGap: 16,
+        
+        fontFamily: themeStyles.wrapper.fontFamily || 'sans-serif',
+        titleSize: 24,
+        descSize: 14,
+        labelSize: 13,
+        inputSize: 14,
+        btnSize: 16
+      };
+
+      // Apply presets overrides if not using the App Theme
+      if (!isAppTheme) {
+        if (preset.bg_color) resolvedStyles.bgColor = preset.bg_color;
+        if (preset.text_color) {
+          resolvedStyles.textColor = preset.text_color;
+          resolvedStyles.labelColor = preset.text_color;
+        }
+        if (preset.border_color) resolvedStyles.fieldBorderColor = preset.border_color;
+        if (preset.input_bg_color) resolvedStyles.fieldBgColor = preset.input_bg_color;
+        if (preset.input_border_color) resolvedStyles.fieldBorderColor = preset.input_border_color;
+        if (preset.input_text_color) resolvedStyles.textColor = preset.input_text_color;
+        if (preset.btn_bg_color) resolvedStyles.btnBgColor = preset.btn_bg_color;
+        if (preset.btn_text_color) resolvedStyles.btnTextColor = preset.btn_text_color;
+        if (preset.btn_hover_bg_color) resolvedStyles.btnHoverBgColor = preset.btn_hover_bg_color;
+        if (preset.success_text_color) resolvedStyles.successColor = preset.success_text_color;
+
+        // Custom block settings overrides
+        var blockBgColor = "{{ block.settings.bg_color }}";
+        var blockBtnBgColor = "{{ block.settings.btn_bg_color }}";
+        if (blockBgColor && blockBgColor !== '') resolvedStyles.bgColor = blockBgColor;
+        if (blockBtnBgColor && blockBtnBgColor !== '') resolvedStyles.btnBgColor = blockBtnBgColor;
+
+        // Block range overrides
+        var shouldApplyBlockRangeSettings = presetStyle === 'custom' ? isMinimalTheme : (presetStyle !== 'app_theme');
+        if (shouldApplyBlockRangeSettings) {
+          var blockBorderRadius = "{{ block.settings.border_radius }}";
+          var blockCardPadding = "{{ block.settings.card_padding }}";
+          var blockShowShadow = "{{ block.settings.show_shadow }}";
+          
+          if (blockBorderRadius && blockBorderRadius !== '') resolvedStyles.borderRadius = parseInt(blockBorderRadius);
+          if (blockCardPadding && blockCardPadding !== '') {
+            resolvedStyles.desktopPadding = parseInt(blockCardPadding);
+            resolvedStyles.mobilePadding = parseInt(blockCardPadding);
+          }
+          if (blockShowShadow === 'true') {
+            resolvedStyles.shadow = 'medium';
+          } else if (blockShowShadow === 'false') {
+            resolvedStyles.shadow = 'none';
+          }
         }
       }
 
-      // Background Image Overlay setup
-      {% if block.settings.bg_image %}
-        const bgImageUrl = "{{ block.settings.bg_image | image_url: width: 1200 }}";
-        if (bgImageUrl && bgImageUrl !== '') {
-          wrapper.style.position = 'relative';
-          wrapper.style.overflow = 'hidden';
-          
-          const bgOverlay = document.createElement('div');
-          bgOverlay.style.position = 'absolute';
-          bgOverlay.style.top = '0';
-          bgOverlay.style.left = '0';
-          bgOverlay.style.width = '100%';
-          bgOverlay.style.height = '100%';
-          bgOverlay.style.backgroundImage = `url('${bgImageUrl}')`;
-          bgOverlay.style.backgroundSize = "{{ block.settings.bg_image_size }}";
-          bgOverlay.style.backgroundRepeat = "{{ block.settings.bg_image_repeat }}";
-          bgOverlay.style.backgroundPosition = "{{ block.settings.bg_image_position }}";
-          bgOverlay.style.opacity = parseFloat("{{ block.settings.bg_image_opacity }}") / 100;
-          bgOverlay.style.zIndex = '1';
-          
-          wrapper.insertBefore(bgOverlay, wrapper.firstChild);
-          
-          Array.from(wrapper.children).forEach(child => {
-            if (child !== bgOverlay) {
-              child.style.position = 'relative';
-              child.style.zIndex = '2';
-            }
-          });
+      // If custom design system configurations exist, merge/overwrite resolved styles
+      if (customStyles && isAppTheme) {
+        resolvedStyles.bgColor = customStyles.colors.bgColor || resolvedStyles.bgColor;
+        resolvedStyles.textColor = customStyles.colors.textColor || resolvedStyles.textColor;
+        resolvedStyles.fieldBgColor = customStyles.colors.fieldBgColor || resolvedStyles.fieldBgColor;
+        resolvedStyles.fieldBorderColor = customStyles.colors.fieldBorderColor || resolvedStyles.fieldBorderColor;
+        resolvedStyles.labelColor = customStyles.colors.labelColor || resolvedStyles.labelColor;
+        resolvedStyles.btnBgColor = customStyles.colors.btnBgColor || resolvedStyles.btnBgColor;
+        resolvedStyles.btnTextColor = customStyles.colors.btnTextColor || resolvedStyles.btnTextColor;
+        resolvedStyles.btnHoverBgColor = customStyles.colors.btnHoverColor || resolvedStyles.btnHoverBgColor;
+        resolvedStyles.successColor = customStyles.colors.successColor || resolvedStyles.successColor;
+        resolvedStyles.successBgColor = customStyles.colors.successBgColor || resolvedStyles.successBgColor;
+        resolvedStyles.errorColor = customStyles.colors.errorColor || resolvedStyles.errorColor;
+        
+        resolvedStyles.formWidth = parseInt(customStyles.layout.formWidth) || resolvedStyles.formWidth;
+        resolvedStyles.borderRadius = parseInt(customStyles.layout.borderRadius) || resolvedStyles.borderRadius;
+        resolvedStyles.shadow = customStyles.layout.shadow || resolvedStyles.shadow;
+        
+        const inputSizeVal = customStyles.layout.inputSize || 'medium';
+        resolvedStyles.inputPadding = inputSizeVal === 'small' ? '8px 12px' :
+                                     inputSizeVal === 'large' ? '16px 20px' :
+                                     '12px 16px';
+                                     
+        const btnSizeVal = customStyles.layout.buttonSize || 'medium';
+        resolvedStyles.btnPadding = btnSizeVal === 'small' ? '10px 20px' :
+                                   btnSizeVal === 'large' ? '18px 36px' :
+                                   '14px 28px';
+                                   
+        resolvedStyles.labelSpacing = parseInt(customStyles.layout.labelSpacing) || resolvedStyles.labelSpacing;
+        resolvedStyles.desktopPadding = parseInt(customStyles.layout.desktopPadding) || resolvedStyles.desktopPadding;
+        resolvedStyles.mobilePadding = parseInt(customStyles.layout.mobilePadding) || resolvedStyles.mobilePadding;
+        resolvedStyles.fieldGap = parseInt(customStyles.layout.fieldGap) || resolvedStyles.fieldGap;
+        
+        resolvedStyles.fontFamily = customStyles.typography.fontFamily || resolvedStyles.fontFamily;
+        resolvedStyles.titleSize = parseInt(customStyles.typography.titleSize) || resolvedStyles.titleSize;
+        resolvedStyles.descSize = parseInt(customStyles.typography.descSize) || resolvedStyles.descSize;
+        resolvedStyles.labelSize = parseInt(customStyles.typography.labelSize) || resolvedStyles.labelSize;
+        resolvedStyles.inputSize = parseInt(customStyles.typography.inputSize) || resolvedStyles.inputSize;
+        resolvedStyles.btnSize = parseInt(customStyles.typography.btnSize) || resolvedStyles.btnSize;
+      }
+
+      // Apply Card wrapper style values
+      wrapper.style.backgroundColor = resolvedStyles.bgColor;
+      wrapper.style.color = resolvedStyles.textColor;
+      wrapper.style.borderRadius = resolvedStyles.borderRadius + 'px';
+      wrapper.style.fontFamily = resolvedStyles.fontFamily;
+
+      if (customStyles && isAppTheme) {
+        wrapper.style.backgroundImage = 'none';
+        wrapper.style.maxWidth = resolvedStyles.formWidth + 'px';
+        wrapper.style.border = '1px solid ' + resolvedStyles.fieldBorderColor;
+      } else {
+        if (themeStyles.wrapper.backgroundImage) {
+          wrapper.style.backgroundImage = themeStyles.wrapper.backgroundImage;
         }
-      {% endif %}
-      
-      // Handle Glassmorphism inner box
-      if (themeStyles.content && contentDiv) {
+        var blockBorderColor = !isAppTheme ? (preset.border_color || "{{ block.settings.border_color }}") : "";
+        if (blockBorderColor && blockBorderColor !== '') {
+          wrapper.style.borderColor = blockBorderColor;
+          wrapper.style.borderStyle = 'solid';
+        }
+        var shouldApplyBlockRangeSettings = presetStyle === 'custom' ? isMinimalTheme : (presetStyle !== 'app_theme');
+        if (shouldApplyBlockRangeSettings) {
+          var blockBorderWidth = "{{ block.settings.border_width }}";
+          if (blockBorderWidth && blockBorderWidth !== '') wrapper.style.borderWidth = blockBorderWidth + 'px';
+        }
+      }
+
+      // Card shadow
+      var shadowStyle = 'none';
+      if (resolvedStyles.shadow === 'subtle') {
+        shadowStyle = '0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05)';
+      } else if (resolvedStyles.shadow === 'medium') {
+        shadowStyle = '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)';
+      } else if (resolvedStyles.shadow === 'strong') {
+        shadowStyle = '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05), 0 20px 25px -5px rgba(0,0,0,0.1)';
+      }
+      wrapper.style.boxShadow = shadowStyle;
+
+      // Card responsive padding
+      var setResponsivePadding = function() {
+        if (window.innerWidth <= 600) {
+          wrapper.style.padding = resolvedStyles.mobilePadding + 'px';
+        } else {
+          wrapper.style.padding = resolvedStyles.desktopPadding + 'px';
+        }
+      };
+      setResponsivePadding();
+      window.addEventListener('resize', setResponsivePadding);
+
+      // Handle Glassmorphism inner box reset
+      if (customStyles && isAppTheme) {
+        if (contentDiv) {
+          contentDiv.style.backgroundColor = 'transparent';
+          contentDiv.style.backdropFilter = 'none';
+          contentDiv.style.webkitBackdropFilter = 'none';
+          contentDiv.style.boxShadow = 'none';
+          contentDiv.style.border = 'none';
+          contentDiv.style.padding = '0';
+          contentDiv.style.display = 'block';
+        }
+      } else if (themeStyles.content && contentDiv) {
         Object.assign(contentDiv.style, themeStyles.content);
         contentDiv.style.display = 'block';
       }
@@ -336,12 +409,15 @@
       const titleEl = wrapper.querySelector('.pandaforms-title');
       const descEl = wrapper.querySelector('.pandaforms-desc');
       if (titleEl) {
-        Object.assign(titleEl.style, themeStyles.title);
-        if (blockTextColor && blockTextColor !== '') titleEl.style.color = blockTextColor;
+        titleEl.style.fontSize = resolvedStyles.titleSize + 'px';
+        titleEl.style.color = resolvedStyles.textColor;
+        titleEl.style.fontFamily = resolvedStyles.fontFamily;
       }
       if (descEl) {
-        Object.assign(descEl.style, themeStyles.desc);
-        if (blockTextColor && blockTextColor !== '') descEl.style.color = blockTextColor;
+        descEl.style.fontSize = resolvedStyles.descSize + 'px';
+        descEl.style.color = resolvedStyles.textColor;
+        descEl.style.fontFamily = resolvedStyles.fontFamily;
+        descEl.style.opacity = '0.8';
       }
       
       // Handle Login Redirect configuration
@@ -354,17 +430,18 @@
         topCont.style.display = 'block';
         wrapper.querySelector('.pandaforms-login-prefix-top').innerText = prefix;
         wrapper.querySelector('.pandaforms-login-link-top').innerText = label;
-        if (themeStyles.label.color) {
-          topCont.style.color = themeStyles.label.color;
-        }
+        topCont.style.color = resolvedStyles.labelColor;
       } else if (pos === 'After Submit Button') {
         const botCont = wrapper.querySelector('.pandaforms-login-bottom');
         botCont.style.display = 'block';
         wrapper.querySelector('.pandaforms-login-prefix-bottom').innerText = prefix;
         wrapper.querySelector('.pandaforms-login-link-bottom').innerText = label;
-        if (themeStyles.label.color) {
-          botCont.style.color = themeStyles.label.color;
-        }
+        botCont.style.color = resolvedStyles.labelColor;
+      }
+
+      // Set fields container gap
+      if (fieldsContainer) {
+        fieldsContainer.style.gap = resolvedStyles.fieldGap + 'px';
       }
       
       // Render Fields
@@ -373,203 +450,221 @@
         fieldWrapper.className = `pandaforms-field-wrapper ${field.width === 'third' ? 'width-third' : field.width === 'half' ? 'width-half' : 'width-full'}`;
         fieldWrapper.style.display = field.type === 'hidden' ? 'none' : 'flex';
         fieldWrapper.style.flexDirection = 'column';
-        fieldWrapper.style.gap = '5px';
         fieldWrapper.style.boxSizing = 'border-box';
         
         // Dynamic styling for responsive width
         if (field.width === 'third') {
-          fieldWrapper.style.flex = '1 1 calc(33.33% - 11px)';
+          fieldWrapper.style.flex = `1 1 calc(33.33% - ${(resolvedStyles.fieldGap * 2 / 3)}px)`;
           fieldWrapper.style.minWidth = '180px';
         } else if (field.width === 'half') {
-          fieldWrapper.style.flex = '1 1 calc(50% - 8px)';
+          fieldWrapper.style.flex = `1 1 calc(50% - ${(resolvedStyles.fieldGap / 2)}px)`;
           fieldWrapper.style.minWidth = '240px';
         } else {
           fieldWrapper.style.flex = '1 1 100%';
         }
         
-        const labelEl = document.createElement('label');
-        labelEl.style.fontWeight = '600';
-        labelEl.style.fontSize = '13px';
-        if (themeStyles.label.color) {
-          labelEl.style.color = themeStyles.label.color;
+        if (field.type === 'step') {
+          fieldWrapper.style.width = '100%';
+          fieldWrapper.style.flex = '1 1 100%';
+          fieldWrapper.style.borderBottom = `2px dashed ${resolvedStyles.fieldBorderColor}`;
+          fieldWrapper.style.paddingBottom = '8px';
+          fieldWrapper.style.marginTop = '16px';
+          fieldWrapper.style.marginBottom = '8px';
+          
+          const spanEl = document.createElement('span');
+          spanEl.style.fontSize = '12px';
+          spanEl.style.fontWeight = '700';
+          spanEl.style.textTransform = 'uppercase';
+          spanEl.style.letterSpacing = '0.05em';
+          spanEl.style.color = resolvedStyles.textColor;
+          spanEl.innerText = `📍 ${field.label || 'Step Divider'}`;
+          
+          fieldWrapper.appendChild(spanEl);
+        } else if (field.type === 'title') {
+          fieldWrapper.style.width = '100%';
+          fieldWrapper.style.flex = '1 1 100%';
+          fieldWrapper.style.marginTop = '12px';
+          fieldWrapper.style.marginBottom = '4px';
+          
+          const h3El = document.createElement('h3');
+          h3El.style.margin = '0';
+          h3El.style.fontSize = '18px';
+          h3El.style.fontWeight = '600';
+          h3El.style.color = resolvedStyles.textColor;
+          h3El.innerText = field.label || 'Section Title';
+          
+          fieldWrapper.appendChild(h3El);
+        } else if (field.type === 'description') {
+          fieldWrapper.style.width = '100%';
+          fieldWrapper.style.flex = '1 1 100%';
+          fieldWrapper.style.marginTop = '4px';
+          fieldWrapper.style.marginBottom = '8px';
+          
+          const pEl = document.createElement('p');
+          pEl.style.margin = '0';
+          pEl.style.fontSize = '14px';
+          pEl.style.color = resolvedStyles.textColor;
+          pEl.style.opacity = '0.8';
+          pEl.style.lineHeight = '1.4';
+          pEl.innerText = field.label || 'Description text';
+          
+          fieldWrapper.appendChild(pEl);
         } else {
-          labelEl.style.color = "{{ block.settings.text_color }}";
-        }
-        labelEl.innerHTML = `${field.label} ${field.required ? '<span style="color: red;">*</span>' : ''}`;
-        fieldWrapper.appendChild(labelEl);
-        
-        let inputEl;
-        
-        // Safely parse options array from choices column
-        let parsedChoices = [];
-        try {
-          if (field.choices && (field.choices.startsWith('[') || field.choices.startsWith('{'))) {
-            parsedChoices = JSON.parse(field.choices);
-          } else if (field.choices) {
-            parsedChoices = field.choices.split(',').map(c => ({ label: c.trim(), value: c.trim() }));
-          }
-        } catch (e) {
-          parsedChoices = (field.choices || '').split(',').map(c => ({ label: c.trim(), value: c.trim() }));
-        }
+          // Regular form fields
+          fieldWrapper.style.gap = resolvedStyles.labelSpacing + 'px';
 
-        if (field.type === 'textarea') {
-          inputEl = document.createElement('textarea');
-          inputEl.style.minHeight = '80px';
-          inputEl.placeholder = field.placeholder || '';
-        } else if (field.type === 'select') {
-          inputEl = document.createElement('select');
-          parsedChoices.forEach(choice => {
-            const opt = document.createElement('option');
-            opt.value = choice.value || choice.label;
-            opt.innerText = choice.label;
-            inputEl.appendChild(opt);
-          });
-        } else if (field.type === 'radio') {
-          inputEl = document.createElement('div');
-          inputEl.style.display = 'flex';
-          inputEl.style.flexDirection = 'column';
-          inputEl.style.gap = '5px';
-          parsedChoices.forEach((choice, i) => {
-            const lbl = document.createElement('label');
-            lbl.style.fontSize = '13px';
-            lbl.style.display = 'flex';
-            lbl.style.gap = '8px';
-            if (themeStyles.label.color) {
-              lbl.style.color = themeStyles.label.color;
-            } else {
-              lbl.style.color = "{{ block.settings.text_color }}";
+          const labelEl = document.createElement('label');
+          labelEl.style.fontWeight = '600';
+          labelEl.style.fontSize = resolvedStyles.labelSize + 'px';
+          labelEl.style.color = resolvedStyles.labelColor;
+          labelEl.style.fontFamily = resolvedStyles.fontFamily;
+          labelEl.innerHTML = `${field.label} ${field.required ? '<span style="color: red;">*</span>' : ''}`;
+          fieldWrapper.appendChild(labelEl);
+          
+          let inputEl;
+          
+          // Safely parse options array from choices column
+          let parsedChoices = [];
+          try {
+            if (field.choices && (field.choices.startsWith('[') || field.choices.startsWith('{'))) {
+              parsedChoices = JSON.parse(field.choices);
+            } else if (field.choices) {
+              parsedChoices = field.choices.split(',').map(c => ({ label: c.trim(), value: c.trim() }));
             }
-            
-            const rad = document.createElement('input');
-            rad.type = 'radio';
-            rad.name = `field_${field.id}`;
-            rad.value = choice.value || choice.label;
-            if (choice.defaultChecked || (field.required && i === 0)) rad.checked = true;
-            
-            lbl.appendChild(rad);
-            lbl.appendChild(document.createTextNode(choice.label));
-            inputEl.appendChild(lbl);
-          });
-        } else if (field.type === 'checkbox_list') {
-          inputEl = document.createElement('div');
-          inputEl.style.display = 'flex';
-          inputEl.style.flexDirection = 'column';
-          inputEl.style.gap = '5px';
-          parsedChoices.forEach((choice) => {
-            const lbl = document.createElement('label');
-            lbl.style.fontSize = '13px';
-            lbl.style.display = 'flex';
-            lbl.style.gap = '8px';
-            if (themeStyles.label.color) {
-              lbl.style.color = themeStyles.label.color;
-            } else {
-              lbl.style.color = "{{ block.settings.text_color }}";
-            }
+          } catch (e) {
+            parsedChoices = (field.choices || '').split(',').map(c => ({ label: c.trim(), value: c.trim() }));
+          }
+
+          if (field.type === 'textarea') {
+            inputEl = document.createElement('textarea');
+            inputEl.style.minHeight = '80px';
+            inputEl.placeholder = field.placeholder || '';
+          } else if (field.type === 'select') {
+            inputEl = document.createElement('select');
+            parsedChoices.forEach(choice => {
+              const opt = document.createElement('option');
+              opt.value = choice.value || choice.label;
+              opt.innerText = choice.label;
+              inputEl.appendChild(opt);
+            });
+          } else if (field.type === 'radio') {
+            inputEl = document.createElement('div');
+            inputEl.style.display = 'flex';
+            inputEl.style.flexDirection = 'column';
+            inputEl.style.gap = '5px';
+            parsedChoices.forEach((choice, i) => {
+              const lbl = document.createElement('label');
+              lbl.style.fontSize = resolvedStyles.inputSize + 'px';
+              lbl.style.fontFamily = resolvedStyles.fontFamily;
+              lbl.style.color = resolvedStyles.textColor;
+              lbl.style.display = 'flex';
+              lbl.style.gap = '8px';
+              
+              const rad = document.createElement('input');
+              rad.type = 'radio';
+              rad.name = `field_${field.id}`;
+              rad.value = choice.value || choice.label;
+              if (choice.defaultChecked || (field.required && i === 0)) rad.checked = true;
+              
+              lbl.appendChild(rad);
+              lbl.appendChild(document.createTextNode(choice.label));
+              inputEl.appendChild(lbl);
+            });
+          } else if (field.type === 'checkbox_list') {
+            inputEl = document.createElement('div');
+            inputEl.style.display = 'flex';
+            inputEl.style.flexDirection = 'column';
+            inputEl.style.gap = '5px';
+            parsedChoices.forEach((choice) => {
+              const lbl = document.createElement('label');
+              lbl.style.fontSize = resolvedStyles.inputSize + 'px';
+              lbl.style.fontFamily = resolvedStyles.fontFamily;
+              lbl.style.color = resolvedStyles.textColor;
+              lbl.style.display = 'flex';
+              lbl.style.gap = '8px';
+              
+              const chk = document.createElement('input');
+              chk.type = 'checkbox';
+              chk.name = `field_${field.id}`;
+              chk.value = choice.value || choice.label;
+              if (choice.defaultChecked) chk.checked = true;
+              
+              lbl.appendChild(chk);
+              lbl.appendChild(document.createTextNode(choice.label));
+              inputEl.appendChild(lbl);
+            });
+          } else if (field.type === 'checkbox') {
+            inputEl = document.createElement('label');
+            inputEl.style.fontSize = resolvedStyles.inputSize + 'px';
+            inputEl.style.fontFamily = resolvedStyles.fontFamily;
+            inputEl.style.color = resolvedStyles.textColor;
+            inputEl.style.display = 'flex';
+            inputEl.style.gap = '8px';
             
             const chk = document.createElement('input');
             chk.type = 'checkbox';
             chk.name = `field_${field.id}`;
-            chk.value = choice.value || choice.label;
-            if (choice.defaultChecked) chk.checked = true;
+            chk.required = field.required;
             
-            lbl.appendChild(chk);
-            lbl.appendChild(document.createTextNode(choice.label));
-            inputEl.appendChild(lbl);
-          });
-        } else if (field.type === 'checkbox') {
-          inputEl = document.createElement('label');
-          inputEl.style.fontSize = '13px';
-          inputEl.style.display = 'flex';
-          inputEl.style.gap = '8px';
-          if (themeStyles.label.color) {
-            inputEl.style.color = themeStyles.label.color;
+            inputEl.appendChild(chk);
+            inputEl.appendChild(document.createTextNode(field.placeholder || "Confirm / Agree"));
           } else {
-            inputEl.style.color = "{{ block.settings.text_color }}";
+            inputEl = document.createElement('input');
+            inputEl.type = field.type;
+            
+            // Inject Default Phone Prefix if configured & type is phone
+            if (field.type === 'phone' && form.defaultCountryPhoneCode) {
+              inputEl.value = form.defaultCountryPhoneCode.split(' ')[0] || '';
+            }
+            
+            if (field.type !== 'hidden') {
+              inputEl.placeholder = field.placeholder || '';
+            }
           }
           
-          const chk = document.createElement('input');
-          chk.type = 'checkbox';
-          chk.name = `field_${field.id}`;
-          chk.required = field.required;
-          
-          inputEl.appendChild(chk);
-          inputEl.appendChild(document.createTextNode("Confirm / Agree"));
-        } else {
-          inputEl = document.createElement('input');
-          inputEl.type = field.type;
-          
-          // Inject Default Phone Prefix if configured & type is phone
-          if (field.type === 'phone' && form.defaultCountryPhoneCode) {
-            inputEl.value = form.defaultCountryPhoneCode.split(' ')[0] || '';
+          if (field.type !== 'radio' && field.type !== 'checkbox' && field.type !== 'checkbox_list') {
+            inputEl.name = `field_${field.id}`;
+            inputEl.required = field.required;
+            inputEl.style.padding = resolvedStyles.inputPadding;
+            inputEl.style.fontSize = resolvedStyles.inputSize + 'px';
+            inputEl.style.width = '100%';
+            inputEl.style.boxSizing = 'border-box';
+            inputEl.style.backgroundColor = resolvedStyles.fieldBgColor;
+            inputEl.style.border = '1px solid ' + resolvedStyles.fieldBorderColor;
+            inputEl.style.borderRadius = resolvedStyles.borderRadius + 'px';
+            inputEl.style.color = resolvedStyles.textColor;
+            inputEl.style.outline = 'none';
           }
           
-          if (field.type !== 'hidden') {
-            inputEl.placeholder = field.placeholder || '';
-          }
+          inputEl.dataset.label = field.label;
+          inputEl.dataset.type = field.type;
+          
+          fieldWrapper.appendChild(inputEl);
         }
         
-        if (field.type !== 'radio' && field.type !== 'checkbox' && field.type !== 'checkbox_list') {
-          inputEl.name = `field_${field.id}`;
-          inputEl.required = field.required;
-          inputEl.style.padding = '10px';
-          inputEl.style.fontSize = '14px';
-          inputEl.style.width = '100%';
-          inputEl.style.boxSizing = 'border-box';
-          // Apply theme styles to inputs
-          Object.assign(inputEl.style, themeStyles.input);
-
-          // Apply custom input settings overrides
-          const blockInputBgColor = !isAppTheme ? (preset.input_bg_color || "{{ block.settings.input_bg_color }}") : "";
-          const blockInputBorderColor = !isAppTheme ? (preset.input_border_color || "{{ block.settings.input_border_color }}") : "";
-          const blockInputTextColor = !isAppTheme ? (preset.input_text_color || "{{ block.settings.input_text_color }}") : "";
-          const blockInputBorderRadius = "{{ block.settings.input_border_radius }}";
-
-          if (blockInputBgColor && blockInputBgColor !== '') inputEl.style.backgroundColor = blockInputBgColor;
-          if (blockInputBorderColor && blockInputBorderColor !== '') {
-            inputEl.style.borderColor = blockInputBorderColor;
-            inputEl.style.borderStyle = 'solid';
-            inputEl.style.borderWidth = '1px';
-          }
-          if (blockInputTextColor && blockInputTextColor !== '') inputEl.style.color = blockInputTextColor;
-          if (shouldApplyBlockRangeSettings && blockInputBorderRadius && blockInputBorderRadius !== '') {
-            inputEl.style.borderRadius = blockInputBorderRadius + 'px';
-          }
-        }
-        
-        inputEl.dataset.label = field.label;
-        inputEl.dataset.type = field.type;
-        
-        fieldWrapper.appendChild(inputEl);
         fieldsContainer.appendChild(fieldWrapper);
       });
 
-      // Apply theme styles to submit button
-      Object.assign(submitBtn.style, themeStyles.button);
-
-      // Apply custom button settings overrides
-      const blockBtnBgColor = !isAppTheme ? (preset.btn_bg_color || "{{ block.settings.btn_bg_color }}") : "";
-      const blockBtnTextColor = !isAppTheme ? (preset.btn_text_color || "{{ block.settings.btn_text_color }}") : "";
-      const blockBtnHoverBgColor = !isAppTheme ? (preset.btn_hover_bg_color || "{{ block.settings.btn_hover_bg_color }}") : "";
-      const blockBtnBorderRadius = "{{ block.settings.btn_border_radius }}";
-
-      if (blockBtnBgColor && blockBtnBgColor !== '') submitBtn.style.backgroundColor = blockBtnBgColor;
-      if (blockBtnTextColor && blockBtnTextColor !== '') submitBtn.style.color = blockBtnTextColor;
-      if (shouldApplyBlockRangeSettings && blockBtnBorderRadius && blockBtnBorderRadius !== '') {
-        submitBtn.style.borderRadius = blockBtnBorderRadius + 'px';
-      }
+      // Apply button style values
+      submitBtn.style.padding = resolvedStyles.btnPadding;
+      submitBtn.style.fontSize = resolvedStyles.btnSize + 'px';
+      submitBtn.style.fontFamily = resolvedStyles.fontFamily;
+      submitBtn.style.borderRadius = resolvedStyles.borderRadius + 'px';
+      submitBtn.style.backgroundColor = resolvedStyles.btnBgColor;
+      submitBtn.style.color = resolvedStyles.btnTextColor;
 
       // Setup hover transitions and scale animation dynamically
       submitBtn.style.transition = 'background-color 0.2s ease, transform 0.1s ease';
       const originalBtnBg = submitBtn.style.backgroundColor;
       submitBtn.addEventListener('mouseenter', () => {
-        if (blockBtnHoverBgColor && blockBtnHoverBgColor !== '') {
-          submitBtn.style.backgroundColor = blockBtnHoverBgColor;
+        if (resolvedStyles.btnHoverBgColor && resolvedStyles.btnHoverBgColor !== '') {
+          submitBtn.style.backgroundColor = resolvedStyles.btnHoverBgColor;
         } else {
           submitBtn.style.opacity = '0.9';
         }
       });
       submitBtn.addEventListener('mouseleave', () => {
-        if (blockBtnHoverBgColor && blockBtnHoverBgColor !== '') {
+        if (resolvedStyles.btnHoverBgColor && resolvedStyles.btnHoverBgColor !== '') {
           submitBtn.style.backgroundColor = originalBtnBg;
         } else {
           submitBtn.style.opacity = '1';
@@ -581,6 +676,14 @@
       submitBtn.addEventListener('mouseup', () => {
         submitBtn.style.transform = 'scale(1)';
       });
+      
+      // Apply success state styles
+      if (successDiv) {
+        successDiv.style.color = resolvedStyles.successColor;
+        successDiv.style.backgroundColor = resolvedStyles.successBgColor;
+        successDiv.style.borderRadius = resolvedStyles.borderRadius + 'px';
+        successDiv.style.border = '1px solid ' + resolvedStyles.successColor;
+      }
       
       loadingDiv.style.display = 'none';
       contentDiv.style.display = 'block';
@@ -706,14 +809,11 @@
       "options": [
         { "value": "app_theme", "label": "App Theme Colors (Use colors from App Builder)" },
         { "value": "custom", "label": "Custom (Use Settings Below)" },
-        { "value": "sleek_dark", "label": "Sleek Dark (Slate / Emerald)" },
-        { "value": "fresh_forest", "label": "Fresh Forest (Sage / Forest)" },
-        { "value": "vibrant_ocean", "label": "Vibrant Ocean (Deep Blue / Sky Blue)" },
-        { "value": "sunset_coral", "label": "Sunset Coral (Charcoal / Coral)" },
-        { "value": "classic_minimal", "label": "Classic Minimal (White / Charcoal)" },
-        { "value": "retro_yellow", "label": "Retro Yellow (Yellow / Rose)" },
-        { "value": "elegant_gold", "label": "Elegant Gold (Dark Slate / Gold)" },
-        { "value": "purple_haze", "label": "Purple Haze (Deep Purple / Neon Pink)" }
+        { "value": "shopify_default", "label": "Shopify Default" },
+        { "value": "minimal", "label": "Minimal" },
+        { "value": "modern", "label": "Modern" },
+        { "value": "premium", "label": "Premium" },
+        { "value": "dark", "label": "Dark Mode" }
       ]
     },
 
