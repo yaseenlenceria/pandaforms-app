@@ -59,65 +59,6 @@
     return;
   }
 
-  function toStyleString(obj) {
-    if (!obj) return '';
-    return Object.keys(obj).map(function(key) {
-      var kebab = key.replace(/([A-Z])/g, '-$1').toLowerCase();
-      return kebab + ':' + obj[key];
-    }).join(';') + ';';
-  }
-
-  function getThemeStyles(selectedTheme) {
-    switch (selectedTheme) {
-      case 'dark':
-        return {
-          wrapper: { backgroundColor: '#0f172a', color: '#f8fafc', padding: '32px', borderRadius: '12px', border: '1px solid #334155' },
-          title: { color: '#f8fafc' },
-          desc: { color: '#94a3b8' },
-          label: { color: '#cbd5e1' },
-          input: { backgroundColor: '#1e293b', border: '1px solid #475569', color: '#f8fafc', borderRadius: '6px' },
-          button: { backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '6px' }
-        };
-      case 'glassmorphism':
-        return {
-          wrapper: { backgroundColor: '#ffffff', color: '#1e293b', padding: '32px', borderRadius: '12px' },
-          title: { color: '#0f172a' },
-          desc: { color: '#64748b' },
-          label: { color: '#334155' },
-          input: { backgroundColor: '#ffffff', border: '1px solid #cbd5e1', color: '#1e293b', borderRadius: '6px' },
-          button: { backgroundColor: '#008060', color: '#ffffff', border: 'none', borderRadius: '6px' }
-        };
-      case 'playful':
-        return {
-          wrapper: { backgroundColor: '#ffffff', color: '#1e293b', padding: '32px', borderRadius: '8px' },
-          title: { color: '#0f172a' },
-          desc: { color: '#64748b' },
-          label: { color: '#334155' },
-          input: { backgroundColor: '#ffffff', border: '1px solid #cbd5e1', color: '#1e293b', borderRadius: '4px' },
-          button: { backgroundColor: '#18181b', color: '#ffffff', border: 'none', borderRadius: '4px' }
-        };
-      case 'classic':
-        return {
-          wrapper: { backgroundColor: '#f6f6f7', color: '#202223', padding: '24px', borderRadius: '4px', border: '1px solid #e1e3e5' },
-          title: { color: '#202223' },
-          desc: { color: '#6d7175' },
-          label: { color: '#202223' },
-          input: { backgroundColor: '#ffffff', border: '1px solid #8c9196', color: '#202223', borderRadius: '4px' },
-          button: { backgroundColor: '#008060', color: '#ffffff', border: 'none', borderRadius: '4px' }
-        };
-      case 'minimal':
-      default:
-        return {
-          wrapper: { backgroundColor: '#ffffff', color: '#1e293b', padding: '24px', borderRadius: '8px', border: '1px solid #e2e8f0' },
-          title: { color: '#0f172a' },
-          desc: { color: '#64748b' },
-          label: { color: '#334155' },
-          input: { backgroundColor: '#ffffff', border: 'none', borderBottom: '2px solid #cbd5e1', color: '#1e293b', borderRadius: '0px' },
-          button: { backgroundColor: '#0f172a', color: '#ffffff', border: 'none', borderRadius: '8px' }
-        };
-    }
-  }
-
   function loadForm() {
     var timestamp = Date.now();
     var proxyUrl = '/apps/pandaforms/form-config?id=' + encodeURIComponent(formId) + '&t=' + timestamp;
@@ -134,7 +75,6 @@
     }).then(function(data) {
       var form = data.form || data;
       
-      var cardEl = root.querySelector('.pandaforms-card');
       var titleEl = root.querySelector('.pandaforms-title');
       var descEl = root.querySelector('.pandaforms-desc');
       
@@ -143,7 +83,6 @@
       root.querySelector('.pandaforms-success-msg').innerText = form.successMessage || 'Thank you!';
       redirectUrl = form.redirectUrl || '';
 
-      // Parse customStyles if configured
       var customStyles = null;
       if (form.customStyles) {
         try {
@@ -153,92 +92,204 @@
         }
       }
 
-      var themeStyles = getThemeStyles(form.theme || 'minimal');
-
-      // Ready-made Color Scheme Presets
       var presets = {
         shopify_default: {
-          bg_color: '#ffffff',
-          text_color: '#1e293b',
-          border_color: '#cbd5e1',
-          input_bg_color: '#ffffff',
-          input_border_color: '#cbd5e1',
-          input_text_color: '#1e293b',
-          btn_bg_color: '#008060',
-          btn_text_color: '#ffffff',
-          btn_hover_bg_color: '#005e46',
-          success_text_color: '#10b981'
+          colors: {
+            bgColor: "#ffffff",
+            fieldBgColor: "#ffffff",
+            fieldBorderColor: "#cbd5e1",
+            textColor: "#1e293b",
+            labelColor: "#334155",
+            btnBgColor: "#008060",
+            btnTextColor: "#ffffff",
+            btnHoverColor: "#005e46",
+            errorColor: "#ef4444",
+            successColor: "#10b981",
+            successBgColor: "#f0fdf4"
+          },
+          layout: {
+            formWidth: "650",
+            borderRadius: "4",
+            spacing: "16",
+            shadow: "subtle",
+            inputSize: "medium",
+            buttonSize: "medium",
+            labelSpacing: "6",
+            desktopPadding: "32",
+            mobilePadding: "16",
+            fieldGap: "16"
+          },
+          typography: {
+            fontFamily: "Inter, sans-serif",
+            titleSize: "24",
+            descSize: "14",
+            labelSize: "13",
+            inputSize: "14",
+            btnSize: "15"
+          }
         },
         minimal: {
-          bg_color: '#ffffff',
-          text_color: '#27272a',
-          border_color: '#e2e8f0',
-          input_bg_color: '#ffffff',
-          input_border_color: '#e2e8f0',
-          input_text_color: '#27272a',
-          btn_bg_color: '#18181b',
-          btn_text_color: '#ffffff',
-          btn_hover_bg_color: '#3f3f46',
-          success_text_color: '#16a34a'
+          colors: {
+            bgColor: "#ffffff",
+            fieldBgColor: "#ffffff",
+            fieldBorderColor: "#e2e8f0",
+            textColor: "#27272a",
+            labelColor: "#52525b",
+            btnBgColor: "#18181b",
+            btnTextColor: "#ffffff",
+            btnHoverColor: "#3f3f46",
+            errorColor: "#dc2626",
+            successColor: "#16a34a",
+            successBgColor: "#f0fdf4"
+          },
+          layout: {
+            formWidth: "600",
+            borderRadius: "0",
+            spacing: "12",
+            shadow: "none",
+            inputSize: "small",
+            buttonSize: "small",
+            labelSpacing: "4",
+            desktopPadding: "24",
+            mobilePadding: "12",
+            fieldGap: "12"
+          },
+          typography: {
+            fontFamily: "monospace",
+            titleSize: "22",
+            descSize: "13",
+            labelSize: "12",
+            inputSize: "13",
+            btnSize: "14"
+          }
         },
         modern: {
-          bg_color: '#ffffff',
-          text_color: '#09090b',
-          border_color: '#e2e8f0',
-          input_bg_color: '#f4f4f5',
-          input_border_color: '#e2e8f0',
-          input_text_color: '#09090b',
-          btn_bg_color: '#0f172a',
-          btn_text_color: '#ffffff',
-          btn_hover_bg_color: '#1e293b',
-          success_text_color: '#10b981'
+          colors: {
+            bgColor: "#ffffff",
+            fieldBgColor: "#f4f4f5",
+            fieldBorderColor: "#e2e8f0",
+            textColor: "#09090b",
+            labelColor: "#18181b",
+            btnBgColor: "#0f172a",
+            btnTextColor: "#ffffff",
+            btnHoverColor: "#1e293b",
+            errorColor: "#f43f5e",
+            successColor: "#10b981",
+            successBgColor: "#f0fdf4"
+          },
+          layout: {
+            formWidth: "650",
+            borderRadius: "12",
+            spacing: "20",
+            shadow: "medium",
+            inputSize: "large",
+            buttonSize: "large",
+            labelSpacing: "8",
+            desktopPadding: "36",
+            mobilePadding: "20",
+            fieldGap: "20"
+          },
+          typography: {
+            fontFamily: "system-ui, sans-serif",
+            titleSize: "26",
+            descSize: "15",
+            labelSize: "14",
+            inputSize: "15",
+            btnSize: "16"
+          }
         },
         premium: {
-          bg_color: '#ffffff',
-          text_color: '#1c1917',
-          border_color: '#cbd5e1',
-          input_bg_color: '#fafaf9',
-          input_border_color: '#cbd5e1',
-          input_text_color: '#1c1917',
-          btn_bg_color: '#1c1917',
-          btn_text_color: '#ffffff',
-          btn_hover_bg_color: '#292524',
-          success_text_color: '#10b981'
+          colors: {
+            bgColor: "#ffffff",
+            fieldBgColor: "#fafaf9",
+            fieldBorderColor: "#cbd5e1",
+            textColor: "#1c1917",
+            labelColor: "#44403c",
+            btnBgColor: "#1c1917",
+            btnTextColor: "#ffffff",
+            btnHoverColor: "#292524",
+            errorColor: "#f87171",
+            successColor: "#34d399",
+            successBgColor: "#fafaf9"
+          },
+          layout: {
+            formWidth: "700",
+            borderRadius: "6",
+            spacing: "18",
+            shadow: "strong",
+            inputSize: "medium",
+            buttonSize: "medium",
+            labelSpacing: "6",
+            desktopPadding: "40",
+            mobilePadding: "24",
+            fieldGap: "18"
+          },
+          typography: {
+            fontFamily: "Georgia, serif",
+            titleSize: "28",
+            descSize: "15",
+            labelSize: "13",
+            inputSize: "14",
+            btnSize: "15"
+          }
         },
         dark: {
-          bg_color: '#09090b',
-          text_color: '#f4f4f5',
-          border_color: '#27272a',
-          input_bg_color: '#18181b',
-          input_border_color: '#27272a',
-          input_text_color: '#f4f4f5',
-          btn_bg_color: '#ffffff',
-          btn_text_color: '#09090b',
-          btn_hover_bg_color: '#e4e4e7',
-          success_text_color: '#10b981'
+          colors: {
+            bgColor: "#09090b",
+            fieldBgColor: "#18181b",
+            fieldBorderColor: "#27272a",
+            textColor: "#f4f4f5",
+            labelColor: "#a1a1aa",
+            btnBgColor: "#ffffff",
+            btnTextColor: "#09090b",
+            btnHoverColor: "#e4e4e7",
+            errorColor: "#ef4444",
+            successColor: "#10b981",
+            successBgColor: "#18181b"
+          },
+          layout: {
+            formWidth: "650",
+            borderRadius: "8",
+            spacing: "16",
+            shadow: "medium",
+            inputSize: "medium",
+            buttonSize: "medium",
+            labelSpacing: "6",
+            desktopPadding: "32",
+            mobilePadding: "16",
+            fieldGap: "16"
+          },
+          typography: {
+            fontFamily: "sans-serif",
+            titleSize: "24",
+            descSize: "14",
+            labelSize: "13",
+            inputSize: "14",
+            btnSize: "16"
+          }
         }
       };
 
-      var presetStyle = "{{ block.settings.preset_style | default: 'app_theme' }}";
-      var preset = presets[presetStyle] || {};
+      var useAppStyling = {{ block.settings.use_app_styling | default: true | json }};
+      var overrideWidth = {{ block.settings.override_width | default: false | json }};
+      var blockWidth = parseInt({{ block.settings.form_width | default: 650 | json }});
 
-      var isMinimalTheme = (form.theme || 'minimal') === 'minimal';
-      var validPresets = ['shopify_default', 'minimal', 'modern', 'premium', 'dark', 'custom'];
-      var isAppTheme = presetStyle !== 'custom';
+      var activeStyles = null;
+      if (useAppStyling) {
+        activeStyles = customStyles || presets.shopify_default;
+      }
 
-      // Setup a unified design system config mapping to apply styles
       var resolvedStyles = {};
-
-      if (customStyles) {
-        var colors = customStyles.colors || {};
-        var layout = customStyles.layout || {};
-        var typography = customStyles.typography || {};
+      if (activeStyles) {
+        var colors = activeStyles.colors || {};
+        var layout = activeStyles.layout || {};
+        var typography = activeStyles.typography || {};
 
         resolvedStyles.bgColor = colors.bgColor || '#ffffff';
         resolvedStyles.textColor = colors.textColor || '#1e293b';
         resolvedStyles.fieldBgColor = colors.fieldBgColor || '#ffffff';
         resolvedStyles.fieldBorderColor = colors.fieldBorderColor || '#cbd5e1';
-        resolvedStyles.labelColor = colors.labelColor || '#334155';
+        resolvedStyles.labelColor = colors.textColor || colors.labelColor || '#334155';
         resolvedStyles.btnBgColor = colors.btnBgColor || '#008060';
         resolvedStyles.btnTextColor = colors.btnTextColor || '#ffffff';
         resolvedStyles.btnHoverBgColor = colors.btnHoverColor || '';
@@ -246,11 +297,17 @@
         resolvedStyles.successBgColor = colors.successBgColor || '#f0fdf4';
         resolvedStyles.errorColor = colors.errorColor || '#ef4444';
         
-        resolvedStyles.formWidth = parseInt(layout.formWidth) || 650;
+        resolvedStyles.formWidth = overrideWidth ? blockWidth : (parseInt(layout.formWidth) || 650);
         resolvedStyles.borderRadius = parseInt(layout.borderRadius) || 4;
         resolvedStyles.inputBorderRadius = parseInt(layout.borderRadius) || 4;
         resolvedStyles.btnBorderRadius = parseInt(layout.borderRadius) || 4;
         resolvedStyles.shadow = layout.shadow || 'subtle';
+        
+        var spacing = parseInt(layout.spacing || layout.fieldGap || 16);
+        resolvedStyles.fieldGap = spacing;
+        resolvedStyles.desktopPadding = spacing * 2;
+        resolvedStyles.mobilePadding = spacing;
+        resolvedStyles.labelSpacing = Math.round(spacing / 2.5);
         
         var inputSizeVal = layout.inputSize || 'medium';
         resolvedStyles.inputPadding = inputSizeVal === 'small' ? '8px 12px' :
@@ -262,183 +319,64 @@
                                    btnSizeVal === 'large' ? '18px 36px' :
                                    '14px 28px';
                                    
-        resolvedStyles.labelSpacing = parseInt(layout.labelSpacing) || 6;
-        resolvedStyles.desktopPadding = parseInt(layout.desktopPadding) || 32;
-        resolvedStyles.mobilePadding = parseInt(layout.mobilePadding) || 16;
-        resolvedStyles.fieldGap = parseInt(layout.fieldGap) || 16;
-        
         resolvedStyles.fontFamily = typography.fontFamily || 'sans-serif';
         resolvedStyles.titleSize = parseInt(typography.titleSize) || 24;
         resolvedStyles.descSize = parseInt(typography.descSize) || 14;
         resolvedStyles.labelSize = parseInt(typography.labelSize) || 13;
         resolvedStyles.inputSize = parseInt(typography.inputSize) || 14;
         resolvedStyles.btnSize = parseInt(typography.btnSize) || 16;
-      } else {
-        resolvedStyles = {
-          bgColor: themeStyles.wrapper.backgroundColor || '#ffffff',
-          textColor: themeStyles.wrapper.color || '#1e293b',
-          fieldBgColor: themeStyles.input.backgroundColor || '#ffffff',
-          fieldBorderColor: themeStyles.input.borderColor || '#cbd5e1',
-          labelColor: themeStyles.label.color || '#334155',
-          btnBgColor: themeStyles.button.backgroundColor || '#0f172a',
-          btnTextColor: themeStyles.button.color || '#ffffff',
-          btnHoverBgColor: '',
-          successColor: '#10b981',
-          successBgColor: '#f0fdf4',
-          errorColor: '#ef4444',
-          
-          formWidth: 800,
-          borderRadius: parseInt(themeStyles.wrapper.borderRadius) || 8,
-          inputBorderRadius: (themeStyles.input && themeStyles.input.borderRadius) ? parseInt(themeStyles.input.borderRadius) : 0,
-          btnBorderRadius: (themeStyles.button && themeStyles.button.borderRadius) ? parseInt(themeStyles.button.borderRadius) : 0,
-          shadow: themeStyles.wrapper.boxShadow ? 'medium' : 'none',
-          inputPadding: themeStyles.input.padding || '10px',
-          btnPadding: themeStyles.button.padding || '12px',
-          labelSpacing: 5,
-          desktopPadding: parseInt(themeStyles.wrapper.padding) || 24,
-          mobilePadding: 16,
-          fieldGap: 16,
-          
-          fontFamily: themeStyles.wrapper.fontFamily || 'sans-serif',
-          titleSize: 24,
-          descSize: 14,
-          labelSize: 13,
-          inputSize: 14,
-          btnSize: 16
-        };
 
-        // Apply presets overrides if not using the App Theme
-        if (!isAppTheme) {
-          if (preset.bg_color) resolvedStyles.bgColor = preset.bg_color;
-          if (preset.text_color) {
-            resolvedStyles.textColor = preset.text_color;
-            resolvedStyles.labelColor = preset.text_color;
-          }
-          if (preset.border_color) resolvedStyles.fieldBorderColor = preset.border_color;
-          if (preset.input_bg_color) resolvedStyles.fieldBgColor = preset.input_bg_color;
-          if (preset.input_border_color) resolvedStyles.fieldBorderColor = preset.input_border_color;
-          if (preset.input_text_color) resolvedStyles.textColor = preset.input_text_color;
-          if (preset.btn_bg_color) resolvedStyles.btnBgColor = preset.btn_bg_color;
-          if (preset.btn_text_color) resolvedStyles.btnTextColor = preset.btn_text_color;
-          if (preset.btn_hover_bg_color) resolvedStyles.btnHoverBgColor = preset.btn_hover_bg_color;
-          if (preset.success_text_color) resolvedStyles.successColor = preset.success_text_color;
-        }
-
-        // Apply Custom Color overrides from Theme Editor settings if presetStyle is 'custom'
-        if (presetStyle === 'custom') {
-          var blockBgColor = "{{ block.settings.bg_color }}";
-          var blockTextColor = "{{ block.settings.text_color }}";
-          var blockBorderColor = "{{ block.settings.border_color }}";
-          var blockInputBgColor = "{{ block.settings.input_bg_color }}";
-          var blockInputTextColor = "{{ block.settings.input_text_color }}";
-          var blockInputBorderColor = "{{ block.settings.input_border_color }}";
-          var blockBtnBgColor = "{{ block.settings.button_bg_color }}";
-          var blockBtnTextColor = "{{ block.settings.button_text_color }}";
-          var blockSuccessColor = "{{ block.settings.success_color }}";
-
-          if (blockBgColor && blockBgColor !== '') resolvedStyles.bgColor = blockBgColor;
-          if (blockTextColor && blockTextColor !== '') {
-            resolvedStyles.textColor = blockTextColor;
-            resolvedStyles.labelColor = blockTextColor;
-          }
-          if (blockBorderColor && blockBorderColor !== '') resolvedStyles.fieldBorderColor = blockBorderColor;
-          if (blockInputBgColor && blockInputBgColor !== '') resolvedStyles.fieldBgColor = blockInputBgColor;
-          if (blockInputTextColor && blockInputTextColor !== '') resolvedStyles.textColor = blockInputTextColor;
-          if (blockInputBorderColor && blockInputBorderColor !== '') resolvedStyles.fieldBorderColor = blockInputBorderColor;
-          if (blockBtnBgColor && blockBtnBgColor !== '') resolvedStyles.btnBgColor = blockBtnBgColor;
-          if (blockBtnTextColor && blockBtnTextColor !== '') resolvedStyles.btnTextColor = blockBtnTextColor;
-          if (blockSuccessColor && blockSuccessColor !== '') resolvedStyles.successColor = blockSuccessColor;
-        }
-
-        // Apply Custom Layout overrides from Theme Editor settings (always take precedence)
-        var blockFormWidth = "{{ block.settings.form_width }}";
-        var blockBorderRadius = "{{ block.settings.border_radius }}";
-        var blockButtonRadius = "{{ block.settings.button_radius }}";
-
-        if (blockFormWidth && blockFormWidth !== '') resolvedStyles.formWidth = parseInt(blockFormWidth);
-        if (blockBorderRadius && blockBorderRadius !== '') {
-          resolvedStyles.borderRadius = parseInt(blockBorderRadius);
-          resolvedStyles.inputBorderRadius = parseInt(blockBorderRadius);
-        }
-        if (blockButtonRadius && blockButtonRadius !== '') resolvedStyles.btnBorderRadius = parseInt(blockButtonRadius);
-      }
-
-      // Apply Card style values
-      if (cardEl) {
-        cardEl.style.backgroundColor = resolvedStyles.bgColor;
-        cardEl.style.color = resolvedStyles.textColor;
-        cardEl.style.borderRadius = resolvedStyles.borderRadius + 'px';
-        cardEl.style.fontFamily = resolvedStyles.fontFamily;
-
-        if (customStyles) {
+        if (cardEl) {
+          cardEl.style.backgroundColor = resolvedStyles.bgColor;
+          cardEl.style.color = resolvedStyles.textColor;
+          cardEl.style.borderRadius = resolvedStyles.borderRadius + 'px';
+          cardEl.style.fontFamily = resolvedStyles.fontFamily;
           cardEl.style.backgroundImage = 'none';
           cardEl.style.maxWidth = resolvedStyles.formWidth + 'px';
           cardEl.style.border = '1px solid ' + resolvedStyles.fieldBorderColor;
-        } else {
-          if (themeStyles.wrapper.backgroundImage) {
-            cardEl.style.backgroundImage = themeStyles.wrapper.backgroundImage;
+          
+          var shadowStyle = 'none';
+          if (resolvedStyles.shadow === 'subtle') {
+            shadowStyle = '0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05)';
+          } else if (resolvedStyles.shadow === 'medium') {
+            shadowStyle = '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)';
+          } else if (resolvedStyles.shadow === 'strong') {
+            shadowStyle = '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05), 0 20px 25px -5px rgba(0,0,0,0.1)';
           }
-          var blockBorderColor = !isAppTheme ? (preset.border_color || "{{ block.settings.border_color }}") : "";
-          if (blockBorderColor && blockBorderColor !== '') {
-            cardEl.style.borderColor = blockBorderColor;
-            cardEl.style.borderStyle = 'solid';
-          }
+          cardEl.style.boxShadow = shadowStyle;
+
+          var setResponsivePadding = function() {
+            if (window.innerWidth <= 600) {
+              cardEl.style.padding = resolvedStyles.mobilePadding + 'px';
+            } else {
+              cardEl.style.padding = resolvedStyles.desktopPadding + 'px';
+            }
+          };
+          setResponsivePadding();
+          window.addEventListener('resize', setResponsivePadding);
         }
+      } else {
+        if (cardEl) cardEl.style.maxWidth = blockWidth + 'px';
+      }
 
-        // Card shadow
-        var shadowStyle = 'none';
-        if (resolvedStyles.shadow === 'subtle') {
-          shadowStyle = '0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05)';
-        } else if (resolvedStyles.shadow === 'medium') {
-          shadowStyle = '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)';
-        } else if (resolvedStyles.shadow === 'strong') {
-          shadowStyle = '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05), 0 20px 25px -5px rgba(0,0,0,0.1)';
+      if (activeStyles) {
+        if (titleEl) {
+          titleEl.style.fontSize = resolvedStyles.titleSize + 'px';
+          titleEl.style.color = resolvedStyles.textColor;
+          titleEl.style.fontFamily = resolvedStyles.fontFamily;
         }
-        cardEl.style.boxShadow = shadowStyle;
-
-        // Card responsive padding
-        var setResponsivePadding = function() {
-          if (window.innerWidth <= 600) {
-            cardEl.style.padding = resolvedStyles.mobilePadding + 'px';
-          } else {
-            cardEl.style.padding = resolvedStyles.desktopPadding + 'px';
-          }
-        };
-        setResponsivePadding();
-        window.addEventListener('resize', setResponsivePadding);
-
-        // Handle Glassmorphism inner box reset
-        if (customStyles) {
-          cardEl.style.backgroundColor = resolvedStyles.bgColor;
-          cardEl.style.backdropFilter = 'none';
-          cardEl.style.webkitBackdropFilter = 'none';
-        } else if (themeStyles.innerWrapper) {
-          Object.assign(cardEl.style, themeStyles.innerWrapper);
-          var sectEl = root.querySelector('.pandaforms-section') || root;
-          sectEl.style.backgroundImage = themeStyles.wrapper.backgroundImage;
-          sectEl.style.color = themeStyles.wrapper.color;
+        if (descEl) {
+          descEl.style.fontSize = resolvedStyles.descSize + 'px';
+          descEl.style.color = resolvedStyles.textColor;
+          descEl.style.fontFamily = resolvedStyles.fontFamily;
+          descEl.style.opacity = '0.8';
         }
       }
 
-      // Titles/Desc styles
-      if (titleEl) {
-        titleEl.style.fontSize = resolvedStyles.titleSize + 'px';
-        titleEl.style.color = resolvedStyles.textColor;
-        titleEl.style.fontFamily = resolvedStyles.fontFamily;
-      }
-      if (descEl) {
-        descEl.style.fontSize = resolvedStyles.descSize + 'px';
-        descEl.style.color = resolvedStyles.textColor;
-        descEl.style.fontFamily = resolvedStyles.fontFamily;
-        descEl.style.opacity = '0.8';
-      }
-
-      // Set fields container gap
-      if (fieldsWrap) {
+      if (fieldsWrap && activeStyles) {
         fieldsWrap.style.gap = resolvedStyles.fieldGap + 'px';
       }
       
-      // Render Fields
       fieldsWrap.innerHTML = '';
       var fields = form.fields || [];
       fields.forEach(function(field) {
@@ -448,12 +386,12 @@
         fieldWrapper.style.flexDirection = 'column';
         fieldWrapper.style.boxSizing = 'border-box';
         
-        // Dynamic styling for responsive width
+        var fieldGapVal = activeStyles ? resolvedStyles.fieldGap : 16;
         if (field.width === 'third') {
-          fieldWrapper.style.flex = '1 1 calc(33.33% - ' + (resolvedStyles.fieldGap * 2 / 3) + 'px)';
+          fieldWrapper.style.flex = '1 1 calc(33.33% - ' + (fieldGapVal * 2 / 3) + 'px)';
           fieldWrapper.style.minWidth = '180px';
         } else if (field.width === 'half') {
-          fieldWrapper.style.flex = '1 1 calc(50% - ' + (resolvedStyles.fieldGap / 2) + 'px)';
+          fieldWrapper.style.flex = '1 1 calc(50% - ' + (fieldGapVal / 2) + 'px)';
           fieldWrapper.style.minWidth = '240px';
         } else {
           fieldWrapper.style.flex = '1 1 100%';
@@ -462,7 +400,9 @@
         if (field.type === 'step') {
           fieldWrapper.style.width = '100%';
           fieldWrapper.style.flex = '1 1 100%';
-          fieldWrapper.style.borderBottom = '2px dashed ' + resolvedStyles.fieldBorderColor;
+          if (activeStyles) {
+            fieldWrapper.style.borderBottom = '2px dashed ' + resolvedStyles.fieldBorderColor;
+          }
           fieldWrapper.style.paddingBottom = '8px';
           fieldWrapper.style.marginTop = '16px';
           fieldWrapper.style.marginBottom = '8px';
@@ -472,7 +412,7 @@
           spanEl.style.fontWeight = '700';
           spanEl.style.textTransform = 'uppercase';
           spanEl.style.letterSpacing = '0.05em';
-          spanEl.style.color = resolvedStyles.textColor;
+          if (activeStyles) spanEl.style.color = resolvedStyles.textColor;
           spanEl.innerText = '📍 ' + (field.label || 'Step Divider');
           
           fieldWrapper.appendChild(spanEl);
@@ -486,7 +426,7 @@
           h3El.style.margin = '0';
           h3El.style.fontSize = '18px';
           h3El.style.fontWeight = '600';
-          h3El.style.color = resolvedStyles.textColor;
+          if (activeStyles) h3El.style.color = resolvedStyles.textColor;
           h3El.innerText = field.label || 'Section Title';
           
           fieldWrapper.appendChild(h3El);
@@ -499,27 +439,28 @@
           var pEl = document.createElement('p');
           pEl.style.margin = '0';
           pEl.style.fontSize = '14px';
-          pEl.style.color = resolvedStyles.textColor;
+          if (activeStyles) pEl.style.color = resolvedStyles.textColor;
           pEl.style.opacity = '0.8';
           pEl.style.lineHeight = '1.4';
           pEl.innerText = field.label || 'Description text';
           
           fieldWrapper.appendChild(pEl);
         } else {
-          // Regular form fields
-          fieldWrapper.style.gap = resolvedStyles.labelSpacing + 'px';
+          if (activeStyles) {
+            fieldWrapper.style.gap = resolvedStyles.labelSpacing + 'px';
+          }
 
           var labelEl = document.createElement('label');
           labelEl.style.fontWeight = '600';
-          labelEl.style.fontSize = resolvedStyles.labelSize + 'px';
-          labelEl.style.color = resolvedStyles.labelColor;
-          labelEl.style.fontFamily = resolvedStyles.fontFamily;
+          if (activeStyles) {
+            labelEl.style.fontSize = resolvedStyles.labelSize + 'px';
+            labelEl.style.color = resolvedStyles.labelColor;
+            labelEl.style.fontFamily = resolvedStyles.fontFamily;
+          }
           labelEl.innerHTML = field.label + ' ' + (field.required ? '<span style="color: red;">*</span>' : '');
           fieldWrapper.appendChild(labelEl);
           
           var inputEl;
-          
-          // Safely parse options array from choices column
           var parsedChoices = [];
           try {
             if (field.choices && (field.choices.indexOf('[') === 0 || field.choices.indexOf('{') === 0)) {
@@ -550,9 +491,11 @@
             inputEl.style.gap = '5px';
             parsedChoices.forEach(function(choice, i) {
               var lbl = document.createElement('label');
-              lbl.style.fontSize = resolvedStyles.inputSize + 'px';
-              lbl.style.fontFamily = resolvedStyles.fontFamily;
-              lbl.style.color = resolvedStyles.textColor;
+              if (activeStyles) {
+                lbl.style.fontSize = resolvedStyles.inputSize + 'px';
+                lbl.style.fontFamily = resolvedStyles.fontFamily;
+                lbl.style.color = resolvedStyles.textColor;
+              }
               lbl.style.display = 'flex';
               lbl.style.gap = '8px';
               
@@ -573,9 +516,11 @@
             inputEl.style.gap = '5px';
             parsedChoices.forEach(function(choice) {
               var lbl = document.createElement('label');
-              lbl.style.fontSize = resolvedStyles.inputSize + 'px';
-              lbl.style.fontFamily = resolvedStyles.fontFamily;
-              lbl.style.color = resolvedStyles.textColor;
+              if (activeStyles) {
+                lbl.style.fontSize = resolvedStyles.inputSize + 'px';
+                lbl.style.fontFamily = resolvedStyles.fontFamily;
+                lbl.style.color = resolvedStyles.textColor;
+              }
               lbl.style.display = 'flex';
               lbl.style.gap = '8px';
               
@@ -591,9 +536,11 @@
             });
           } else if (field.type === 'checkbox') {
             inputEl = document.createElement('label');
-            inputEl.style.fontSize = resolvedStyles.inputSize + 'px';
-            inputEl.style.fontFamily = resolvedStyles.fontFamily;
-            inputEl.style.color = resolvedStyles.textColor;
+            if (activeStyles) {
+              inputEl.style.fontSize = resolvedStyles.inputSize + 'px';
+              inputEl.style.fontFamily = resolvedStyles.fontFamily;
+              inputEl.style.color = resolvedStyles.textColor;
+            }
             inputEl.style.display = 'flex';
             inputEl.style.gap = '8px';
             
@@ -607,72 +554,71 @@
           } else {
             inputEl = document.createElement('input');
             inputEl.type = field.type;
-            
-            // Inject Default Phone Prefix if configured & type is phone
             if (field.type === 'phone' && form.defaultCountryPhoneCode) {
               inputEl.value = form.defaultCountryPhoneCode.split(' ')[0] || '';
             }
-            
             if (field.type !== 'hidden') {
               inputEl.placeholder = field.placeholder || '';
             }
           }
           
-          if (field.type !== 'radio' && field.type !== 'checkbox' && field.type !== 'checkbox_list') {
+          if (inputEl && field.type !== 'radio' && field.type !== 'checkbox' && field.type !== 'checkbox_list') {
             inputEl.name = 'field_' + field.id;
             inputEl.required = field.required;
-            inputEl.style.padding = resolvedStyles.inputPadding;
-            inputEl.style.fontSize = resolvedStyles.inputSize + 'px';
             inputEl.style.width = '100%';
             inputEl.style.boxSizing = 'border-box';
-            inputEl.style.backgroundColor = resolvedStyles.fieldBgColor;
-            inputEl.style.border = '1px solid ' + resolvedStyles.fieldBorderColor;
-            inputEl.style.borderRadius = resolvedStyles.inputBorderRadius + 'px';
-            inputEl.style.color = resolvedStyles.textColor;
             inputEl.style.outline = 'none';
+            if (activeStyles) {
+              inputEl.style.padding = resolvedStyles.inputPadding;
+              inputEl.style.fontSize = resolvedStyles.inputSize + 'px';
+              inputEl.style.backgroundColor = resolvedStyles.fieldBgColor;
+              inputEl.style.border = '1px solid ' + resolvedStyles.fieldBorderColor;
+              inputEl.style.borderRadius = resolvedStyles.inputBorderRadius + 'px';
+              inputEl.style.color = resolvedStyles.textColor;
+            }
           }
           
-          inputEl.dataset.label = field.label;
-          inputEl.dataset.type = field.type;
-          
-          fieldWrapper.appendChild(inputEl);
+          if (inputEl) {
+            inputEl.dataset.label = field.label;
+            inputEl.dataset.type = field.type;
+            fieldWrapper.appendChild(inputEl);
+          }
         }
         
         fieldsWrap.appendChild(fieldWrapper);
       });
 
-      // Apply button style values
       if (submitBtn) {
-        submitBtn.style.padding = resolvedStyles.btnPadding;
-        submitBtn.style.fontSize = resolvedStyles.btnSize + 'px';
-        submitBtn.style.fontFamily = resolvedStyles.fontFamily;
-        submitBtn.style.borderRadius = resolvedStyles.btnBorderRadius + 'px';
-        submitBtn.style.backgroundColor = resolvedStyles.btnBgColor;
-        submitBtn.style.color = resolvedStyles.btnTextColor;
+        if (activeStyles) {
+          submitBtn.style.padding = resolvedStyles.btnPadding;
+          submitBtn.style.fontSize = resolvedStyles.btnSize + 'px';
+          submitBtn.style.fontFamily = resolvedStyles.fontFamily;
+          submitBtn.style.borderRadius = resolvedStyles.btnBorderRadius + 'px';
+          submitBtn.style.backgroundColor = resolvedStyles.btnBgColor;
+          submitBtn.style.color = resolvedStyles.btnTextColor;
 
-        // Apply button box shadow
-        var btnShadowStyle = 'none';
-        if (resolvedStyles.shadow === 'subtle') {
-          btnShadowStyle = '0 1px 3px rgba(0,0,0,0.05)';
-        } else if (resolvedStyles.shadow === 'medium') {
-          btnShadowStyle = '0 4px 6px -1px rgba(0,0,0,0.1)';
-        } else if (resolvedStyles.shadow === 'strong') {
-          btnShadowStyle = '0 10px 15px -3px rgba(0,0,0,0.1)';
+          var btnShadowStyle = 'none';
+          if (resolvedStyles.shadow === 'subtle') {
+            btnShadowStyle = '0 1px 3px rgba(0,0,0,0.05)';
+          } else if (resolvedStyles.shadow === 'medium') {
+            btnShadowStyle = '0 4px 6px -1px rgba(0,0,0,0.1)';
+          } else if (resolvedStyles.shadow === 'strong') {
+            btnShadowStyle = '0 10px 15px -3px rgba(0,0,0,0.1)';
+          }
+          submitBtn.style.boxShadow = btnShadowStyle;
         }
-        submitBtn.style.boxShadow = btnShadowStyle;
-
-        // Setup hover transitions and scale animation dynamically
+        
         submitBtn.style.transition = 'background-color 0.2s ease, transform 0.1s ease';
         var originalBtnBg = submitBtn.style.backgroundColor;
         submitBtn.addEventListener('mouseenter', function() {
-          if (resolvedStyles.btnHoverBgColor && resolvedStyles.btnHoverBgColor !== '') {
+          if (activeStyles && resolvedStyles.btnHoverBgColor && resolvedStyles.btnHoverBgColor !== '') {
             submitBtn.style.backgroundColor = resolvedStyles.btnHoverBgColor;
           } else {
             submitBtn.style.opacity = '0.9';
           }
         });
         submitBtn.addEventListener('mouseleave', function() {
-          if (resolvedStyles.btnHoverBgColor && resolvedStyles.btnHoverBgColor !== '') {
+          if (activeStyles && resolvedStyles.btnHoverBgColor && resolvedStyles.btnHoverBgColor !== '') {
             submitBtn.style.backgroundColor = originalBtnBg;
           } else {
             submitBtn.style.opacity = '1';
@@ -686,8 +632,7 @@
         });
       }
       
-      // Apply success state styles
-      if (success) {
+      if (success && activeStyles) {
         success.style.color = resolvedStyles.successColor;
         success.style.backgroundColor = resolvedStyles.successBgColor;
         success.style.borderRadius = resolvedStyles.borderRadius + 'px';
@@ -739,7 +684,7 @@
     }).finally(function() {
       submitBtn.disabled = false;
       submitBtn.style.opacity = '1';
-      submitBtn.textContent = {{ block.settings.button_text | json }};
+      submitBtn.textContent = 'Submit';
     });
   });
 
@@ -755,8 +700,11 @@
     { "type": "header", "content": "Form Setup" },
     { "type": "text", "id": "form_id", "label": "Form ID", "placeholder": "Paste Form ID from PandaForms" },
     { "type": "text", "id": "api_url", "label": "App URL", "default": "https://p01--pandaforms-app--77wd8gj6rv7k.code.run" },
-
-    { "type": "header", "content": "Layout" },
+    { "type": "header", "content": "Styling Source" },
+    { "type": "checkbox", "id": "use_app_styling", "label": "Use PandaForms app styling", "default": true },
+    { "type": "checkbox", "id": "override_width", "label": "Override width with setting below", "default": false },
+    { "type": "range", "id": "form_width", "label": "Form Width Override", "min": 320, "max": 1200, "step": 10, "default": 650 },
+    { "type": "header", "content": "Section Spacing" },
     {
       "type": "select",
       "id": "card_spacing",
@@ -769,40 +717,7 @@
         { "value": "large", "label": "Large" },
         { "value": "huge", "label": "Extra Large" }
       ]
-    },
-    { "type": "range", "id": "form_width", "label": "Form Width", "min": 420, "max": 1200, "step": 20, "default": 800 },
-    { "type": "range", "id": "border_radius", "label": "Card Radius", "min": 0, "max": 32, "step": 2, "default": 8 },
-    { "type": "header", "content": "Design Presets" },
-    {
-      "type": "select",
-      "id": "preset_style",
-      "label": "Ready-Made Color Scheme",
-      "default": "app_theme",
-      "options": [
-        { "value": "app_theme", "label": "App Theme Colors (Use colors from App Builder)" },
-        { "value": "custom", "label": "Custom (Use Settings Below)" },
-        { "value": "shopify_default", "label": "Shopify Default" },
-        { "value": "minimal", "label": "Minimal" },
-        { "value": "modern", "label": "Modern" },
-        { "value": "premium", "label": "Premium" },
-        { "value": "dark", "label": "Dark Mode" }
-      ]
-    },
-
-    { "type": "header", "content": "Colours" },
-    { "type": "color", "id": "bg_color", "label": "Card Background", "default": "#ffffff" },
-    { "type": "color", "id": "text_color", "label": "Text", "default": "#202223" },
-    { "type": "color", "id": "border_color", "label": "Border", "default": "#e1e3e5" },
-    { "type": "color", "id": "input_bg_color", "label": "Input Background", "default": "#ffffff" },
-    { "type": "color", "id": "input_text_color", "label": "Input Text", "default": "#202223" },
-    { "type": "color", "id": "input_border_color", "label": "Input Border", "default": "#8c9196" },
-    { "type": "color", "id": "button_bg_color", "label": "Button Background", "default": "#008060" },
-    { "type": "color", "id": "button_text_color", "label": "Button Text", "default": "#ffffff" },
-    { "type": "color", "id": "success_color", "label": "Success Text", "default": "#008060" },
-
-    { "type": "header", "content": "Button" },
-    { "type": "text", "id": "button_text", "label": "Button Text", "default": "Submit" },
-    { "type": "range", "id": "button_radius", "label": "Button Radius", "min": 0, "max": 32, "step": 2, "default": 6 }
+    }
   ]
 }
 {% endschema %}

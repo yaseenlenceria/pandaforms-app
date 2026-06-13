@@ -389,6 +389,7 @@ export default function FormBuilder() {
     layout: {
       formWidth: "650",
       borderRadius: "4",
+      spacing: "16",
       shadow: "subtle",
       inputSize: "medium",
       buttonSize: "medium",
@@ -426,6 +427,7 @@ export default function FormBuilder() {
       layout: {
         formWidth: "650",
         borderRadius: "4",
+        spacing: "16",
         shadow: "subtle",
         inputSize: "medium",
         buttonSize: "medium",
@@ -461,6 +463,7 @@ export default function FormBuilder() {
       layout: {
         formWidth: "600",
         borderRadius: "0",
+        spacing: "12",
         shadow: "none",
         inputSize: "small",
         buttonSize: "small",
@@ -496,6 +499,7 @@ export default function FormBuilder() {
       layout: {
         formWidth: "650",
         borderRadius: "12",
+        spacing: "20",
         shadow: "medium",
         inputSize: "large",
         buttonSize: "large",
@@ -531,6 +535,7 @@ export default function FormBuilder() {
       layout: {
         formWidth: "700",
         borderRadius: "6",
+        spacing: "18",
         shadow: "strong",
         inputSize: "medium",
         buttonSize: "medium",
@@ -566,6 +571,7 @@ export default function FormBuilder() {
       layout: {
         formWidth: "650",
         borderRadius: "8",
+        spacing: "16",
         shadow: "medium",
         inputSize: "medium",
         buttonSize: "medium",
@@ -611,13 +617,19 @@ export default function FormBuilder() {
   const renderColorField = (label: string, section: "colors", key: keyof typeof defaultDesignSystem.colors) => {
     const value = customStyles.colors[key];
     const onChange = (newVal: string) => {
-      setCustomStyles((prev) => ({
-        ...prev,
-        colors: {
+      setCustomStyles((prev) => {
+        const updatedColors = {
           ...prev.colors,
           [key]: newVal,
-        },
-      }));
+        };
+        if (key === "textColor") {
+          updatedColors.labelColor = newVal;
+        }
+        return {
+          ...prev,
+          colors: updatedColors
+        };
+      });
     };
     return (
       <TextField
@@ -859,6 +871,13 @@ export default function FormBuilder() {
   };
 
   const tStyle = getThemeStyles(theme);
+
+  // Derive layout spacing properties dynamically
+  const derivedSpacing = parseInt(customStyles.layout.spacing || customStyles.layout.fieldGap || "16");
+  const fieldGapVal = derivedSpacing;
+  const desktopPaddingVal = derivedSpacing * 2;
+  const mobilePaddingVal = derivedSpacing;
+  const labelSpacingVal = Math.round(derivedSpacing / 2.5);
 
   return (
     <Page
@@ -1372,7 +1391,7 @@ export default function FormBuilder() {
 
                       {/* Storefront Section Content */}
                       <div style={{
-                        padding: previewViewport === "mobile" ? `${customStyles.layout.mobilePadding || 16}px` : `${customStyles.layout.desktopPadding || 32}px`,
+                        padding: previewViewport === "mobile" ? `${mobilePaddingVal}px` : `${desktopPaddingVal}px`,
                         backgroundColor: "#f8fafc",
                         display: "flex",
                         justifyContent: "center",
@@ -1387,7 +1406,7 @@ export default function FormBuilder() {
                           backgroundColor: customStyles.colors.bgColor || "#ffffff",
                           color: customStyles.colors.textColor || "#1e293b",
                           borderRadius: `${customStyles.layout.borderRadius || 8}px`,
-                          padding: previewViewport === "mobile" ? `${customStyles.layout.mobilePadding || 16}px` : `${customStyles.layout.desktopPadding || 32}px`,
+                          padding: previewViewport === "mobile" ? `${mobilePaddingVal}px` : `${desktopPaddingVal}px`,
                           fontFamily: customStyles.typography.fontFamily || "sans-serif",
                           boxShadow: customStyles.layout.shadow === "none" ? "none" :
                                      customStyles.layout.shadow === "subtle" ? "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05)" :
@@ -1452,7 +1471,7 @@ export default function FormBuilder() {
                               <div style={{
                                 display: "flex",
                                 flexWrap: "wrap",
-                                gap: `${customStyles.layout.fieldGap || 16}px`
+                                gap: `${fieldGapVal}px`
                               }}>
                                 {fields
                                   .filter(f => f.type !== "hidden")
@@ -1460,13 +1479,13 @@ export default function FormBuilder() {
                                     const widthStyle = (() => {
                                       if (f.width === "third") {
                                         return {
-                                          flex: `1 1 calc(33.33% - ${(customStyles.layout.fieldGap || 16) * (2/3)}px)`,
+                                          flex: `1 1 calc(33.33% - ${fieldGapVal * (2/3)}px)`,
                                           minWidth: "160px"
                                         };
                                       }
                                       if (f.width === "half") {
                                         return {
-                                          flex: `1 1 calc(50% - ${(customStyles.layout.fieldGap || 16) / 2}px)`,
+                                          flex: `1 1 calc(50% - ${fieldGapVal / 2}px)`,
                                           minWidth: "220px"
                                         };
                                       }
@@ -1497,7 +1516,7 @@ export default function FormBuilder() {
                                         style={{
                                           display: "flex",
                                           flexDirection: "column",
-                                          gap: `${customStyles.layout.labelSpacing || 6}px`,
+                                          gap: `${labelSpacingVal}px`,
                                           ...widthStyle,
                                           boxSizing: "border-box"
                                         }}
@@ -1831,14 +1850,10 @@ export default function FormBuilder() {
                     <InlineGrid columns={2} gap="300">
                       {renderColorField("Background", "colors", "bgColor")}
                       {renderColorField("Text", "colors", "textColor")}
-                      {renderColorField("Field BG", "colors", "fieldBgColor")}
-                      {renderColorField("Field Border", "colors", "fieldBorderColor")}
-                      {renderColorField("Label Text", "colors", "labelColor")}
-                      {renderColorField("Button BG", "colors", "btnBgColor")}
+                      {renderColorField("Input Background", "colors", "fieldBgColor")}
+                      {renderColorField("Input Border", "colors", "fieldBorderColor")}
+                      {renderColorField("Button Background", "colors", "btnBgColor")}
                       {renderColorField("Button Text", "colors", "btnTextColor")}
-                      {renderColorField("Button Hover", "colors", "btnHoverColor")}
-                      {renderColorField("Error State", "colors", "errorColor")}
-                      {renderColorField("Success State", "colors", "successColor")}
                     </InlineGrid>
                   </BlockStack>
 
@@ -1862,63 +1877,24 @@ export default function FormBuilder() {
                         onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, borderRadius: val } }))}
                         autoComplete="off"
                       />
-                      <Select
-                        label="Container Shadow"
-                        options={[
-                          { label: "None", value: "none" },
-                          { label: "Subtle", value: "subtle" },
-                          { label: "Medium", value: "medium" },
-                          { label: "Strong", value: "strong" },
-                        ]}
-                        value={customStyles.layout.shadow}
-                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, shadow: val } }))}
-                      />
-                      <Select
-                        label="Input Size"
-                        options={[
-                          { label: "Small", value: "small" },
-                          { label: "Medium", value: "medium" },
-                          { label: "Large", value: "large" },
-                        ]}
-                        value={customStyles.layout.inputSize}
-                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, inputSize: val } }))}
-                      />
-                      <Select
-                        label="Button Size"
-                        options={[
-                          { label: "Small", value: "small" },
-                          { label: "Medium", value: "medium" },
-                          { label: "Large", value: "large" },
-                        ]}
-                        value={customStyles.layout.buttonSize}
-                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, buttonSize: val } }))}
-                      />
                       <TextField
                         type="number"
-                        label="Label Spacing (px)"
-                        value={customStyles.layout.labelSpacing}
-                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, labelSpacing: val } }))}
-                        autoComplete="off"
-                      />
-                      <TextField
-                        type="number"
-                        label="Desktop Padding (px)"
-                        value={customStyles.layout.desktopPadding}
-                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, desktopPadding: val } }))}
-                        autoComplete="off"
-                      />
-                      <TextField
-                        type="number"
-                        label="Mobile Padding (px)"
-                        value={customStyles.layout.mobilePadding}
-                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, mobilePadding: val } }))}
-                        autoComplete="off"
-                      />
-                      <TextField
-                        type="number"
-                        label="Field Gap (px)"
-                        value={customStyles.layout.fieldGap}
-                        onChange={(val) => setCustomStyles(prev => ({ ...prev, layout: { ...prev.layout, fieldGap: val } }))}
+                        label="Spacing (px)"
+                        value={customStyles.layout.spacing || customStyles.layout.fieldGap || "16"}
+                        onChange={(val) => {
+                          const numVal = parseInt(val) || 0;
+                          setCustomStyles(prev => ({
+                            ...prev,
+                            layout: {
+                              ...prev.layout,
+                              spacing: val,
+                              fieldGap: val,
+                              desktopPadding: String(numVal * 2),
+                              mobilePadding: val,
+                              labelSpacing: String(Math.round(numVal / 2.5))
+                            }
+                          }));
+                        }}
                         autoComplete="off"
                       />
                     </InlineGrid>

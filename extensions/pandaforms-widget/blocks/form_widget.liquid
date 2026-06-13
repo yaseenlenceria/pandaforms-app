@@ -1,18 +1,18 @@
 {%- assign spacing_px = '24px' -%}{%- if block.settings.card_spacing == 'none' -%}{%- assign spacing_px = '0px' -%}{%- elsif block.settings.card_spacing == 'small' -%}{%- assign spacing_px = '12px' -%}{%- elsif block.settings.card_spacing == 'large' -%}{%- assign spacing_px = '48px' -%}{%- elsif block.settings.card_spacing == 'huge' -%}{%- assign spacing_px = '80px' -%}{%- endif -%}<div style="padding-top: {{ spacing_px }}; padding-bottom: {{ spacing_px }}; width: 100%;">
-<div class="pandaforms-wrapper" id="pandaforms-{{ block.id }}" style="padding: 20px; border-radius: 8px; max-width: 800px; margin: 0 auto; font-family: sans-serif;">
+<div class="pandaforms-wrapper" id="pandaforms-{{ block.id }}" style="padding: 20px; border-radius: 8px; max-width: 800px; margin: 0 auto; font-family: sans-serif; border: 1px solid #cbd5e1; background-color: #ffffff; color: #1e293b;">
   <div class="pandaforms-loading" style="text-align: center; padding: 20px;">
     <p>Loading form...</p>
   </div>
   
   <div class="pandaforms-content" style="display: none;">
-    <h2 class="pandaforms-title" style="margin-bottom: 8px; text-align: center; color: {{ block.settings.text_color }};"></h2>
-    <p class="pandaforms-desc" style="margin-bottom: 20px; text-align: center; color: {{ block.settings.text_color }}; opacity: 0.8;"></p>
+    <h2 class="pandaforms-title" style="margin-bottom: 8px; text-align: center; color: #1e293b;"></h2>
+    <p class="pandaforms-desc" style="margin-bottom: 20px; text-align: center; color: #64748b; opacity: 0.8;"></p>
     
     <form class="pandaforms-form" style="display: flex; flex-direction: column; gap: 15px;">
       <!-- Login Link Top Container -->
-      <div class="pandaforms-login-top" style="display: none; text-align: center; margin-bottom: 15px; font-size: 14px; color: {{ block.settings.text_color }};">
+      <div class="pandaforms-login-top" style="display: none; text-align: center; margin-bottom: 15px; font-size: 14px; color: #1e293b;">
         <span class="pandaforms-login-prefix-top"></span>
-        <a class="pandaforms-login-link-top" href="{{ routes.account_login_url }}" style="margin-left: 5px; font-weight: 600; text-decoration: underline; color: {{ block.settings.btn_bg_color }};"></a>
+        <a class="pandaforms-login-link-top" href="{{ routes.account_login_url }}" style="margin-left: 5px; font-weight: 600; text-decoration: underline; color: #008060;"></a>
       </div>
 
       <!-- Fields flexbox wrapper -->
@@ -21,8 +21,8 @@
       <!-- Submit Button -->
       <div style="width: 100%;">
         <button type="submit" class="pandaforms-submit-btn" style="
-          background-color: {{ block.settings.btn_bg_color }};
-          color: {{ block.settings.btn_text_color }};
+          background-color: #008060;
+          color: #ffffff;
           border: none;
           padding: 12px;
           border-radius: 4px;
@@ -36,14 +36,14 @@
       </div>
 
       <!-- Login Link Bottom Container -->
-      <div class="pandaforms-login-bottom" style="display: none; text-align: center; margin-top: 15px; font-size: 14px; color: {{ block.settings.text_color }};">
+      <div class="pandaforms-login-bottom" style="display: none; text-align: center; margin-top: 15px; font-size: 14px; color: #1e293b;">
         <span class="pandaforms-login-prefix-bottom"></span>
-        <a class="pandaforms-login-link-bottom" href="{{ routes.account_login_url }}" style="margin-left: 5px; font-weight: 600; text-decoration: underline; color: {{ block.settings.btn_bg_color }};"></a>
+        <a class="pandaforms-login-link-bottom" href="{{ routes.account_login_url }}" style="margin-left: 5px; font-weight: 600; text-decoration: underline; color: #008060;"></a>
       </div>
     </form>
   </div>
   
-  <div class="pandaforms-success" style="display: none; text-align: center; padding: 20px; color: {% if block.settings.success_text_color != blank %}{{ block.settings.success_text_color }}{% else %}#008060{% endif %};">
+  <div class="pandaforms-success" style="display: none; text-align: center; padding: 20px; color: #008060;">
     <h3 style="margin-bottom: 10px; font-size: 20px;">✓ Success</h3>
     <p class="pandaforms-success-msg"></p>
   </div>
@@ -84,334 +84,105 @@
     .then(res => {
       if (!res.ok) throw new Error("Proxy configuration fetch failed");
       return res.json();
-    })    .then(data => {
+    })
+    .then(data => {
       const form = data.form;
       wrapper.querySelector('.pandaforms-title').innerText = form.title || '';
       wrapper.querySelector('.pandaforms-desc').innerText = form.description || '';
       wrapper.querySelector('.pandaforms-success-msg').innerText = form.successMessage || 'Thank you!';
       redirectUrl = form.redirectUrl || '';
-
-      // Parse customStyles if configured
+      
       let customStyles = null;
       if (form.customStyles) {
-        try {
-          customStyles = JSON.parse(form.customStyles);
-        } catch(e) {
-          console.error("Failed to parse customStyles", e);
-        }
+        try { customStyles = JSON.parse(form.customStyles); } catch(e) { console.error("Failed to parse customStyles", e); }
       }
 
-      // Define Theme Styles Dictionaries matching the Form Builder
-      const getThemeStyles = (selectedTheme) => {
-        switch (selectedTheme) {
-          case 'dark':
-            return {
-              wrapper: { backgroundColor: '#0f172a', color: '#f8fafc', padding: '32px', borderRadius: '12px' },
-              title: { color: '#f8fafc' },
-              desc: { color: '#94a3b8' },
-              label: { color: '#cbd5e1' },
-              input: { backgroundColor: '#1e293b', border: '1px solid #475569', color: '#f8fafc', borderRadius: '6px' },
-              button: { backgroundColor: '#10b981', color: '#ffffff', border: 'none', borderRadius: '6px' }
-            };
-          case 'glassmorphism':
-            return {
-              wrapper: { backgroundColor: '#ffffff', color: '#1e293b', padding: '32px', borderRadius: '12px' },
-              title: { color: '#0f172a' },
-              desc: { color: '#64748b' },
-              label: { color: '#334155' },
-              input: { backgroundColor: '#ffffff', border: '1px solid #cbd5e1', color: '#1e293b', borderRadius: '6px' },
-              button: { backgroundColor: '#008060', color: '#ffffff', border: 'none', borderRadius: '6px' }
-            };
-          case 'playful':
-            return {
-              wrapper: { backgroundColor: '#ffffff', color: '#1e293b', padding: '32px', borderRadius: '8px' },
-              title: { color: '#0f172a' },
-              desc: { color: '#64748b' },
-              label: { color: '#334155' },
-              input: { backgroundColor: '#ffffff', border: '1px solid #cbd5e1', color: '#1e293b', borderRadius: '4px' },
-              button: { backgroundColor: '#18181b', color: '#ffffff', border: 'none', borderRadius: '4px' }
-            };
-          case 'classic':
-            return {
-              wrapper: { backgroundColor: '#f6f6f7', color: '#202223', padding: '24px', borderRadius: '4px' },
-              title: { color: '#202223' },
-              desc: { color: '#6d7175' },
-              label: { color: '#202223' },
-              input: { backgroundColor: '#ffffff', border: '1px solid #8c9196', color: '#202223', borderRadius: '4px' },
-              button: { backgroundColor: '#008060', color: '#ffffff', border: 'none', borderRadius: '4px' }
-            };
-          case 'minimal':
-          default:
-            return {
-              wrapper: { backgroundColor: '#ffffff', color: '#1e293b', padding: '24px', borderRadius: '8px' },
-              title: { color: '#0f172a' },
-              desc: { color: '#64748b' },
-              label: { color: '#334155' },
-              input: { backgroundColor: '#ffffff', border: 'none', borderBottom: '2px solid #cbd5e1', color: '#1e293b', borderRadius: '0px' },
-              button: { backgroundColor: '#0f172a', color: '#ffffff', border: 'none', borderRadius: '8px' }
-            };
-        }
-      };
-
-      const themeStyles = getThemeStyles(form.theme || 'minimal');
-
-      // Ready-made Color Scheme Presets
       const presets = {
         shopify_default: {
-          bg_color: '#ffffff',
-          text_color: '#1e293b',
-          border_color: '#cbd5e1',
-          input_bg_color: '#ffffff',
-          input_border_color: '#cbd5e1',
-          input_text_color: '#1e293b',
-          btn_bg_color: '#008060',
-          btn_text_color: '#ffffff',
-          btn_hover_bg_color: '#005e46',
-          success_text_color: '#10b981'
-        },
-        minimal: {
-          bg_color: '#ffffff',
-          text_color: '#27272a',
-          border_color: '#e2e8f0',
-          input_bg_color: '#ffffff',
-          input_border_color: '#e2e8f0',
-          input_text_color: '#27272a',
-          btn_bg_color: '#18181b',
-          btn_text_color: '#ffffff',
-          btn_hover_bg_color: '#3f3f46',
-          success_text_color: '#16a34a'
-        },
-        modern: {
-          bg_color: '#ffffff',
-          text_color: '#09090b',
-          border_color: '#e2e8f0',
-          input_bg_color: '#f4f4f5',
-          input_border_color: '#e2e8f0',
-          input_text_color: '#09090b',
-          btn_bg_color: '#0f172a',
-          btn_text_color: '#ffffff',
-          btn_hover_bg_color: '#1e293b',
-          success_text_color: '#10b981'
-        },
-        premium: {
-          bg_color: '#ffffff',
-          text_color: '#1c1917',
-          border_color: '#cbd5e1',
-          input_bg_color: '#fafaf9',
-          input_border_color: '#cbd5e1',
-          input_text_color: '#1c1917',
-          btn_bg_color: '#1c1917',
-          btn_text_color: '#ffffff',
-          btn_hover_bg_color: '#292524',
-          success_text_color: '#10b981'
-        },
-        dark: {
-          bg_color: '#09090b',
-          text_color: '#f4f4f5',
-          border_color: '#27272a',
-          input_bg_color: '#18181b',
-          input_border_color: '#27272a',
-          input_text_color: '#f4f4f5',
-          btn_bg_color: '#ffffff',
-          btn_text_color: '#09090b',
-          btn_hover_bg_color: '#e4e4e7',
-          success_text_color: '#10b981'
+          colors: { bgColor: "#ffffff", fieldBgColor: "#ffffff", fieldBorderColor: "#cbd5e1", textColor: "#1e293b", btnBgColor: "#008060", btnTextColor: "#ffffff", btnHoverColor: "#005e46", successColor: "#10b981", successBgColor: "#f0fdf4", errorColor: "#ef4444" },
+          layout: { formWidth: "650", borderRadius: "4", spacing: "16", shadow: "subtle", inputSize: "medium", buttonSize: "medium" },
+          typography: { fontFamily: "Inter, sans-serif", titleSize: "24", descSize: "14", labelSize: "13", inputSize: "14", btnSize: "15" }
         }
       };
 
-      const presetStyle = "{{ block.settings.preset_style }}";
-      const preset = presets[presetStyle] || {};
+      const useAppStyling = {{ block.settings.use_app_styling | default: true | json }};
+      const overrideWidth = {{ block.settings.override_width | default: false | json }};
+      const blockWidth = parseInt({{ block.settings.form_width | default: 650 | json }});
 
-      // Determine if using minimal theme
-      const isMinimalTheme = (form.theme || 'minimal') === 'minimal';
-      const validPresets = ['shopify_default', 'minimal', 'modern', 'premium', 'dark', 'custom'];
-      const isAppTheme = presetStyle !== 'custom';
+      let activeStyles = null;
+      if (useAppStyling) { activeStyles = customStyles || presets.shopify_default; }
 
-      // Setup a unified design system config mapping to apply styles
       var resolvedStyles = {};
-
-      if (customStyles) {
-        const colors = customStyles.colors || {};
-        const layout = customStyles.layout || {};
-        const typography = customStyles.typography || {};
+      if (activeStyles) {
+        const colors = activeStyles.colors || {};
+        const layout = activeStyles.layout || {};
+        const typography = activeStyles.typography || {};
 
         resolvedStyles.bgColor = colors.bgColor || '#ffffff';
         resolvedStyles.textColor = colors.textColor || '#1e293b';
         resolvedStyles.fieldBgColor = colors.fieldBgColor || '#ffffff';
         resolvedStyles.fieldBorderColor = colors.fieldBorderColor || '#cbd5e1';
-        resolvedStyles.labelColor = colors.labelColor || '#334155';
+        resolvedStyles.labelColor = colors.textColor || colors.labelColor || '#334155';
         resolvedStyles.btnBgColor = colors.btnBgColor || '#008060';
         resolvedStyles.btnTextColor = colors.btnTextColor || '#ffffff';
         resolvedStyles.btnHoverBgColor = colors.btnHoverColor || '';
         resolvedStyles.successColor = colors.successColor || '#10b981';
         resolvedStyles.successBgColor = colors.successBgColor || '#f0fdf4';
-        resolvedStyles.errorColor = colors.errorColor || '#ef4444';
         
-        resolvedStyles.formWidth = parseInt(layout.formWidth) || 650;
+        resolvedStyles.formWidth = overrideWidth ? blockWidth : (parseInt(layout.formWidth) || 650);
         resolvedStyles.borderRadius = parseInt(layout.borderRadius) || 4;
         resolvedStyles.inputBorderRadius = parseInt(layout.borderRadius) || 4;
         resolvedStyles.btnBorderRadius = parseInt(layout.borderRadius) || 4;
         resolvedStyles.shadow = layout.shadow || 'subtle';
         
-        const inputSizeVal = layout.inputSize || 'medium';
-        resolvedStyles.inputPadding = inputSizeVal === 'small' ? '8px 12px' :
-                                     inputSizeVal === 'large' ? '16px 20px' :
-                                     '12px 16px';
-                                     
-        const btnSizeVal = layout.buttonSize || 'medium';
-        resolvedStyles.btnPadding = btnSizeVal === 'small' ? '10px 20px' :
-                                   btnSizeVal === 'large' ? '18px 36px' :
-                                   '14px 28px';
-                                   
-        resolvedStyles.labelSpacing = parseInt(layout.labelSpacing) || 6;
-        resolvedStyles.desktopPadding = parseInt(layout.desktopPadding) || 32;
-        resolvedStyles.mobilePadding = parseInt(layout.mobilePadding) || 16;
-        resolvedStyles.fieldGap = parseInt(layout.fieldGap) || 16;
+        const spacing = parseInt(layout.spacing || layout.fieldGap || 16);
+        resolvedStyles.fieldGap = spacing;
+        resolvedStyles.desktopPadding = spacing * 2;
+        resolvedStyles.mobilePadding = spacing;
+        resolvedStyles.labelSpacing = Math.round(spacing / 2.5);
         
+        const inputSizeVal = layout.inputSize || 'medium';
+        resolvedStyles.inputPadding = inputSizeVal === 'small' ? '8px 12px' : inputSizeVal === 'large' ? '16px 20px' : '12px 16px';
+        const btnSizeVal = layout.buttonSize || 'medium';
+        resolvedStyles.btnPadding = btnSizeVal === 'small' ? '10px 20px' : btnSizeVal === 'large' ? '18px 36px' : '14px 28px';
         resolvedStyles.fontFamily = typography.fontFamily || 'sans-serif';
         resolvedStyles.titleSize = parseInt(typography.titleSize) || 24;
         resolvedStyles.descSize = parseInt(typography.descSize) || 14;
         resolvedStyles.labelSize = parseInt(typography.labelSize) || 13;
         resolvedStyles.inputSize = parseInt(typography.inputSize) || 14;
         resolvedStyles.btnSize = parseInt(typography.btnSize) || 16;
-      } else {
-        resolvedStyles = {
-          bgColor: themeStyles.wrapper.backgroundColor || '#ffffff',
-          textColor: themeStyles.wrapper.color || '#1e293b',
-          fieldBgColor: themeStyles.input.backgroundColor || '#ffffff',
-          fieldBorderColor: themeStyles.input.borderColor || '#cbd5e1',
-          labelColor: themeStyles.label.color || '#334155',
-          btnBgColor: themeStyles.button.backgroundColor || '#0f172a',
-          btnTextColor: themeStyles.button.color || '#ffffff',
-          btnHoverBgColor: '',
-          successColor: '#10b981',
-          successBgColor: '#f0fdf4',
-          errorColor: '#ef4444',
-          
-          formWidth: 800,
-          borderRadius: parseInt(themeStyles.wrapper.borderRadius) || 8,
-          inputBorderRadius: (themeStyles.input && themeStyles.input.borderRadius) ? parseInt(themeStyles.input.borderRadius) : 0,
-          btnBorderRadius: (themeStyles.button && themeStyles.button.borderRadius) ? parseInt(themeStyles.button.borderRadius) : 0,
-          shadow: themeStyles.wrapper.boxShadow ? 'medium' : 'none',
-          inputPadding: themeStyles.input.padding || '10px',
-          btnPadding: themeStyles.button.padding || '12px',
-          labelSpacing: 5,
-          desktopPadding: parseInt(themeStyles.wrapper.padding) || 24,
-          mobilePadding: 16,
-          fieldGap: 16,
-          
-          fontFamily: themeStyles.wrapper.fontFamily || 'sans-serif',
-          titleSize: 24,
-          descSize: 14,
-          labelSize: 13,
-          inputSize: 14,
-          btnSize: 16
-        };
 
-        // Apply presets overrides if not using the App Theme
-        if (!isAppTheme) {
-          if (preset.bg_color) resolvedStyles.bgColor = preset.bg_color;
-          if (preset.text_color) {
-            resolvedStyles.textColor = preset.text_color;
-            resolvedStyles.labelColor = preset.text_color;
-          }
-          if (preset.border_color) resolvedStyles.fieldBorderColor = preset.border_color;
-          if (preset.input_bg_color) resolvedStyles.fieldBgColor = preset.input_bg_color;
-          if (preset.input_border_color) resolvedStyles.fieldBorderColor = preset.input_border_color;
-          if (preset.input_text_color) resolvedStyles.textColor = preset.input_text_color;
-          if (preset.btn_bg_color) resolvedStyles.btnBgColor = preset.btn_bg_color;
-          if (preset.btn_text_color) resolvedStyles.btnTextColor = preset.btn_text_color;
-          if (preset.btn_hover_bg_color) resolvedStyles.btnHoverBgColor = preset.btn_hover_bg_color;
-          if (preset.success_text_color) resolvedStyles.successColor = preset.success_text_color;
-        }
-
-        // Apply Custom overrides from Theme Editor settings (always take precedence if explicitly set by merchant)
-        var blockBgColor = "{{ block.settings.bg_color }}";
-        var blockBtnBgColor = "{{ block.settings.btn_bg_color }}";
-        if (blockBgColor && blockBgColor !== '') resolvedStyles.bgColor = blockBgColor;
-        if (blockBtnBgColor && blockBtnBgColor !== '') resolvedStyles.btnBgColor = blockBtnBgColor;
-      }
-
-      // Apply Card wrapper style values
-      wrapper.style.backgroundColor = resolvedStyles.bgColor;
-      wrapper.style.color = resolvedStyles.textColor;
-      wrapper.style.borderRadius = resolvedStyles.borderRadius + 'px';
-      wrapper.style.fontFamily = resolvedStyles.fontFamily;
-
-      if (customStyles) {
+        wrapper.style.backgroundColor = resolvedStyles.bgColor;
+        wrapper.style.color = resolvedStyles.textColor;
+        wrapper.style.borderRadius = resolvedStyles.borderRadius + 'px';
+        wrapper.style.fontFamily = resolvedStyles.fontFamily;
         wrapper.style.backgroundImage = 'none';
         wrapper.style.maxWidth = resolvedStyles.formWidth + 'px';
         wrapper.style.border = '1px solid ' + resolvedStyles.fieldBorderColor;
+        
+        var shadowStyle = 'none';
+        if (resolvedStyles.shadow === 'subtle') shadowStyle = '0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05)';
+        else if (resolvedStyles.shadow === 'medium') shadowStyle = '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)';
+        else if (resolvedStyles.shadow === 'strong') shadowStyle = '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05), 0 20px 25px -5px rgba(0,0,0,0.1)';
+        wrapper.style.boxShadow = shadowStyle;
+
+        var setResponsivePadding = function() {
+          if (window.innerWidth <= 600) wrapper.style.padding = resolvedStyles.mobilePadding + 'px';
+          else wrapper.style.padding = resolvedStyles.desktopPadding + 'px';
+        };
+        setResponsivePadding();
+        window.addEventListener('resize', setResponsivePadding);
       } else {
-        if (themeStyles.wrapper.backgroundImage) {
-          wrapper.style.backgroundImage = themeStyles.wrapper.backgroundImage;
-        }
-        var blockBorderColor = !isAppTheme ? (preset.border_color || "{{ block.settings.border_color }}") : "";
-        if (blockBorderColor && blockBorderColor !== '') {
-          wrapper.style.borderColor = blockBorderColor;
-          wrapper.style.borderStyle = 'solid';
-        }
-        var shouldApplyBlockRangeSettings = presetStyle === 'custom' ? isMinimalTheme : (presetStyle !== 'app_theme');
-        if (shouldApplyBlockRangeSettings) {
-          var blockBorderWidth = "{{ block.settings.border_width }}";
-          if (blockBorderWidth && blockBorderWidth !== '') wrapper.style.borderWidth = blockBorderWidth + 'px';
-        }
+        wrapper.style.maxWidth = blockWidth + 'px';
       }
 
-      // Card shadow
-      var shadowStyle = 'none';
-      if (resolvedStyles.shadow === 'subtle') {
-        shadowStyle = '0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.05)';
-      } else if (resolvedStyles.shadow === 'medium') {
-        shadowStyle = '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)';
-      } else if (resolvedStyles.shadow === 'strong') {
-        shadowStyle = '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05), 0 20px 25px -5px rgba(0,0,0,0.1)';
-      }
-      wrapper.style.boxShadow = shadowStyle;
-
-      // Card responsive padding
-      var setResponsivePadding = function() {
-        if (window.innerWidth <= 600) {
-          wrapper.style.padding = resolvedStyles.mobilePadding + 'px';
-        } else {
-          wrapper.style.padding = resolvedStyles.desktopPadding + 'px';
-        }
-      };
-      setResponsivePadding();
-      window.addEventListener('resize', setResponsivePadding);
-
-      // Handle Glassmorphism inner box reset
-      if (customStyles) {
-        if (contentDiv) {
-          contentDiv.style.backgroundColor = 'transparent';
-          contentDiv.style.backdropFilter = 'none';
-          contentDiv.style.webkitBackdropFilter = 'none';
-          contentDiv.style.boxShadow = 'none';
-          contentDiv.style.border = 'none';
-          contentDiv.style.padding = '0';
-          contentDiv.style.display = 'block';
-        }
-      } else if (themeStyles.content && contentDiv) {
-        Object.assign(contentDiv.style, themeStyles.content);
-        contentDiv.style.display = 'block';
-      }
-
-      // Titles/Desc dynamic styles
       const titleEl = wrapper.querySelector('.pandaforms-title');
       const descEl = wrapper.querySelector('.pandaforms-desc');
-      if (titleEl) {
-        titleEl.style.fontSize = resolvedStyles.titleSize + 'px';
-        titleEl.style.color = resolvedStyles.textColor;
-        titleEl.style.fontFamily = resolvedStyles.fontFamily;
-      }
-      if (descEl) {
-        descEl.style.fontSize = resolvedStyles.descSize + 'px';
-        descEl.style.color = resolvedStyles.textColor;
-        descEl.style.fontFamily = resolvedStyles.fontFamily;
-        descEl.style.opacity = '0.8';
+      if (activeStyles) {
+        if (titleEl) { titleEl.style.fontSize = resolvedStyles.titleSize + 'px'; titleEl.style.color = resolvedStyles.textColor; titleEl.style.fontFamily = resolvedStyles.fontFamily; }
+        if (descEl) { descEl.style.fontSize = resolvedStyles.descSize + 'px'; descEl.style.color = resolvedStyles.textColor; descEl.style.fontFamily = resolvedStyles.fontFamily; descEl.style.opacity = '0.8'; }
       }
       
-      // Handle Login Redirect configuration
       const prefix = form.loginLinkPrefix || 'Already have an account?';
       const label = form.loginLinkLabel || 'Sign In';
       const pos = form.loginLinkPosition || 'After Submit Button';
@@ -421,21 +192,17 @@
         topCont.style.display = 'block';
         wrapper.querySelector('.pandaforms-login-prefix-top').innerText = prefix;
         wrapper.querySelector('.pandaforms-login-link-top').innerText = label;
-        topCont.style.color = resolvedStyles.labelColor;
+        if (activeStyles) topCont.style.color = resolvedStyles.labelColor;
       } else if (pos === 'After Submit Button') {
         const botCont = wrapper.querySelector('.pandaforms-login-bottom');
         botCont.style.display = 'block';
         wrapper.querySelector('.pandaforms-login-prefix-bottom').innerText = prefix;
         wrapper.querySelector('.pandaforms-login-link-bottom').innerText = label;
-        botCont.style.color = resolvedStyles.labelColor;
+        if (activeStyles) botCont.style.color = resolvedStyles.labelColor;
       }
 
-      // Set fields container gap
-      if (fieldsContainer) {
-        fieldsContainer.style.gap = resolvedStyles.fieldGap + 'px';
-      }
+      if (fieldsContainer && activeStyles) fieldsContainer.style.gap = resolvedStyles.fieldGap + 'px';
       
-      // Render Fields
       form.fields.forEach(field => {
         const fieldWrapper = document.createElement('div');
         fieldWrapper.className = `pandaforms-field-wrapper ${field.width === 'third' ? 'width-third' : field.width === 'half' ? 'width-half' : 'width-full'}`;
@@ -443,339 +210,130 @@
         fieldWrapper.style.flexDirection = 'column';
         fieldWrapper.style.boxSizing = 'border-box';
         
-        // Dynamic styling for responsive width
-        if (field.width === 'third') {
-          fieldWrapper.style.flex = `1 1 calc(33.33% - ${(resolvedStyles.fieldGap * 2 / 3)}px)`;
-          fieldWrapper.style.minWidth = '180px';
-        } else if (field.width === 'half') {
-          fieldWrapper.style.flex = `1 1 calc(50% - ${(resolvedStyles.fieldGap / 2)}px)`;
-          fieldWrapper.style.minWidth = '240px';
-        } else {
-          fieldWrapper.style.flex = '1 1 100%';
-        }
+        const fieldGapVal = activeStyles ? resolvedStyles.fieldGap : 16;
+        if (field.width === 'third') { fieldWrapper.style.flex = `1 1 calc(33.33% - ${(fieldGapVal * 2 / 3)}px)`; fieldWrapper.style.minWidth = '180px'; }
+        else if (field.width === 'half') { fieldWrapper.style.flex = `1 1 calc(50% - ${(fieldGapVal / 2)}px)`; fieldWrapper.style.minWidth = '240px'; }
+        else { fieldWrapper.style.flex = '1 1 100%'; }
         
         if (field.type === 'step') {
-          fieldWrapper.style.width = '100%';
-          fieldWrapper.style.flex = '1 1 100%';
-          fieldWrapper.style.borderBottom = `2px dashed ${resolvedStyles.fieldBorderColor}`;
-          fieldWrapper.style.paddingBottom = '8px';
-          fieldWrapper.style.marginTop = '16px';
-          fieldWrapper.style.marginBottom = '8px';
-          
+          fieldWrapper.style.width = '100%'; fieldWrapper.style.flex = '1 1 100%';
+          if (activeStyles) fieldWrapper.style.borderBottom = `2px dashed ${resolvedStyles.fieldBorderColor}`;
+          fieldWrapper.style.paddingBottom = '8px'; fieldWrapper.style.marginTop = '16px'; fieldWrapper.style.marginBottom = '8px';
           const spanEl = document.createElement('span');
-          spanEl.style.fontSize = '12px';
-          spanEl.style.fontWeight = '700';
-          spanEl.style.textTransform = 'uppercase';
-          spanEl.style.letterSpacing = '0.05em';
-          spanEl.style.color = resolvedStyles.textColor;
+          spanEl.style.fontSize = '12px'; spanEl.style.fontWeight = '700'; spanEl.style.textTransform = 'uppercase'; spanEl.style.letterSpacing = '0.05em';
+          if (activeStyles) spanEl.style.color = resolvedStyles.textColor;
           spanEl.innerText = `📍 ${field.label || 'Step Divider'}`;
-          
           fieldWrapper.appendChild(spanEl);
         } else if (field.type === 'title') {
-          fieldWrapper.style.width = '100%';
-          fieldWrapper.style.flex = '1 1 100%';
-          fieldWrapper.style.marginTop = '12px';
-          fieldWrapper.style.marginBottom = '4px';
-          
+          fieldWrapper.style.width = '100%'; fieldWrapper.style.flex = '1 1 100%'; fieldWrapper.style.marginTop = '12px'; fieldWrapper.style.marginBottom = '4px';
           const h3El = document.createElement('h3');
-          h3El.style.margin = '0';
-          h3El.style.fontSize = '18px';
-          h3El.style.fontWeight = '600';
-          h3El.style.color = resolvedStyles.textColor;
+          h3El.style.margin = '0'; h3El.style.fontSize = '18px'; h3El.style.fontWeight = '600';
+          if (activeStyles) h3El.style.color = resolvedStyles.textColor;
           h3El.innerText = field.label || 'Section Title';
-          
           fieldWrapper.appendChild(h3El);
         } else if (field.type === 'description') {
-          fieldWrapper.style.width = '100%';
-          fieldWrapper.style.flex = '1 1 100%';
-          fieldWrapper.style.marginTop = '4px';
-          fieldWrapper.style.marginBottom = '8px';
-          
+          fieldWrapper.style.width = '100%'; fieldWrapper.style.flex = '1 1 100%'; fieldWrapper.style.marginTop = '4px'; fieldWrapper.style.marginBottom = '8px';
           const pEl = document.createElement('p');
-          pEl.style.margin = '0';
-          pEl.style.fontSize = '14px';
-          pEl.style.color = resolvedStyles.textColor;
-          pEl.style.opacity = '0.8';
-          pEl.style.lineHeight = '1.4';
-          pEl.innerText = field.label || 'Description text';
-          
+          pEl.style.margin = '0'; pEl.style.fontSize = '14px';
+          if (activeStyles) pEl.style.color = resolvedStyles.textColor;
+          pEl.style.opacity = '0.8'; pEl.style.lineHeight = '1.4'; pEl.innerText = field.label || 'Description text';
           fieldWrapper.appendChild(pEl);
         } else {
-          // Regular form fields
-          fieldWrapper.style.gap = resolvedStyles.labelSpacing + 'px';
-
+          if (activeStyles) fieldWrapper.style.gap = resolvedStyles.labelSpacing + 'px';
           const labelEl = document.createElement('label');
           labelEl.style.fontWeight = '600';
-          labelEl.style.fontSize = resolvedStyles.labelSize + 'px';
-          labelEl.style.color = resolvedStyles.labelColor;
-          labelEl.style.fontFamily = resolvedStyles.fontFamily;
+          if (activeStyles) { labelEl.style.fontSize = resolvedStyles.labelSize + 'px'; labelEl.style.color = resolvedStyles.labelColor; labelEl.style.fontFamily = resolvedStyles.fontFamily; }
           labelEl.innerHTML = `${field.label} ${field.required ? '<span style="color: red;">*</span>' : ''}`;
           fieldWrapper.appendChild(labelEl);
           
           let inputEl;
-          
-          // Safely parse options array from choices column
           let parsedChoices = [];
           try {
-            if (field.choices && (field.choices.startsWith('[') || field.choices.startsWith('{'))) {
-              parsedChoices = JSON.parse(field.choices);
-            } else if (field.choices) {
-              parsedChoices = field.choices.split(',').map(c => ({ label: c.trim(), value: c.trim() }));
-            }
-          } catch (e) {
-            parsedChoices = (field.choices || '').split(',').map(c => ({ label: c.trim(), value: c.trim() }));
-          }
+             if (field.choices && (field.choices.startsWith('[') || field.choices.startsWith('{'))) parsedChoices = JSON.parse(field.choices);
+             else if (field.choices) parsedChoices = field.choices.split(',').map(c => ({ label: c.trim(), value: c.trim() }));
+          } catch (e) { parsedChoices = (field.choices || '').split(',').map(c => ({ label: c.trim(), value: c.trim() })); }
 
-          if (field.type === 'textarea') {
-            inputEl = document.createElement('textarea');
-            inputEl.style.minHeight = '80px';
-            inputEl.placeholder = field.placeholder || '';
-          } else if (field.type === 'select') {
-            inputEl = document.createElement('select');
-            parsedChoices.forEach(choice => {
-              const opt = document.createElement('option');
-              opt.value = choice.value || choice.label;
-              opt.innerText = choice.label;
-              inputEl.appendChild(opt);
-            });
-          } else if (field.type === 'radio') {
-            inputEl = document.createElement('div');
-            inputEl.style.display = 'flex';
-            inputEl.style.flexDirection = 'column';
-            inputEl.style.gap = '5px';
+          if (field.type === 'textarea') { inputEl = document.createElement('textarea'); inputEl.style.minHeight = '80px'; inputEl.placeholder = field.placeholder || ''; }
+          else if (field.type === 'select') { inputEl = document.createElement('select'); parsedChoices.forEach(choice => { const opt = document.createElement('option'); opt.value = choice.value || choice.label; opt.innerText = choice.label; inputEl.appendChild(opt); }); }
+          else if (field.type === 'radio') {
+            inputEl = document.createElement('div'); inputEl.style.display = 'flex'; inputEl.style.flexDirection = 'column'; inputEl.style.gap = '5px';
             parsedChoices.forEach((choice, i) => {
               const lbl = document.createElement('label');
-              lbl.style.fontSize = resolvedStyles.inputSize + 'px';
-              lbl.style.fontFamily = resolvedStyles.fontFamily;
-              lbl.style.color = resolvedStyles.textColor;
-              lbl.style.display = 'flex';
-              lbl.style.gap = '8px';
-              
-              const rad = document.createElement('input');
-              rad.type = 'radio';
-              rad.name = `field_${field.id}`;
-              rad.value = choice.value || choice.label;
-              if (choice.defaultChecked || (field.required && i === 0)) rad.checked = true;
-              
-              lbl.appendChild(rad);
-              lbl.appendChild(document.createTextNode(choice.label));
-              inputEl.appendChild(lbl);
+              if (activeStyles) { lbl.style.fontSize = resolvedStyles.inputSize + 'px'; lbl.style.fontFamily = resolvedStyles.fontFamily; lbl.style.color = resolvedStyles.textColor; }
+              lbl.style.display = 'flex'; lbl.style.gap = '8px';
+              const rad = document.createElement('input'); rad.type = 'radio'; rad.name = `field_${field.id}`; rad.value = choice.value || choice.label; if (choice.defaultChecked || (field.required && i === 0)) rad.checked = true;
+              lbl.appendChild(rad); lbl.appendChild(document.createTextNode(choice.label)); inputEl.appendChild(lbl);
             });
           } else if (field.type === 'checkbox_list') {
-            inputEl = document.createElement('div');
-            inputEl.style.display = 'flex';
-            inputEl.style.flexDirection = 'column';
-            inputEl.style.gap = '5px';
+            inputEl = document.createElement('div'); inputEl.style.display = 'flex'; inputEl.style.flexDirection = 'column'; inputEl.style.gap = '5px';
             parsedChoices.forEach((choice) => {
               const lbl = document.createElement('label');
-              lbl.style.fontSize = resolvedStyles.inputSize + 'px';
-              lbl.style.fontFamily = resolvedStyles.fontFamily;
-              lbl.style.color = resolvedStyles.textColor;
-              lbl.style.display = 'flex';
-              lbl.style.gap = '8px';
-              
-              const chk = document.createElement('input');
-              chk.type = 'checkbox';
-              chk.name = `field_${field.id}`;
-              chk.value = choice.value || choice.label;
-              if (choice.defaultChecked) chk.checked = true;
-              
-              lbl.appendChild(chk);
-              lbl.appendChild(document.createTextNode(choice.label));
-              inputEl.appendChild(lbl);
+              if (activeStyles) { lbl.style.fontSize = resolvedStyles.inputSize + 'px'; lbl.style.fontFamily = resolvedStyles.fontFamily; lbl.style.color = resolvedStyles.textColor; }
+              lbl.style.display = 'flex'; lbl.style.gap = '8px';
+              const chk = document.createElement('input'); chk.type = 'checkbox'; chk.name = `field_${field.id}`; chk.value = choice.value || choice.label; if (choice.defaultChecked) chk.checked = true;
+              lbl.appendChild(chk); lbl.appendChild(document.createTextNode(choice.label)); inputEl.appendChild(lbl);
             });
           } else if (field.type === 'checkbox') {
             inputEl = document.createElement('label');
-            inputEl.style.fontSize = resolvedStyles.inputSize + 'px';
-            inputEl.style.fontFamily = resolvedStyles.fontFamily;
-            inputEl.style.color = resolvedStyles.textColor;
-            inputEl.style.display = 'flex';
-            inputEl.style.gap = '8px';
-            
-            const chk = document.createElement('input');
-            chk.type = 'checkbox';
-            chk.name = `field_${field.id}`;
-            chk.required = field.required;
-            
-            inputEl.appendChild(chk);
-            inputEl.appendChild(document.createTextNode(field.placeholder || "Confirm / Agree"));
+            if (activeStyles) { inputEl.style.fontSize = resolvedStyles.inputSize + 'px'; inputEl.style.fontFamily = resolvedStyles.fontFamily; inputEl.style.color = resolvedStyles.textColor; }
+            inputEl.style.display = 'flex'; inputEl.style.gap = '8px';
+            const chk = document.createElement('input'); chk.type = 'checkbox'; chk.name = `field_${field.id}`; chk.required = field.required;
+            inputEl.appendChild(chk); inputEl.appendChild(document.createTextNode(field.placeholder || "Confirm / Agree"));
           } else {
-            inputEl = document.createElement('input');
-            inputEl.type = field.type;
-            
-            // Inject Default Phone Prefix if configured & type is phone
-            if (field.type === 'phone' && form.defaultCountryPhoneCode) {
-              inputEl.value = form.defaultCountryPhoneCode.split(' ')[0] || '';
-            }
-            
-            if (field.type !== 'hidden') {
-              inputEl.placeholder = field.placeholder || '';
-            }
+            inputEl = document.createElement('input'); inputEl.type = field.type;
+            if (field.type === 'phone' && form.defaultCountryPhoneCode) inputEl.value = form.defaultCountryPhoneCode.split(' ')[0] || '';
+            if (field.type !== 'hidden') inputEl.placeholder = field.placeholder || '';
           }
           
-          if (field.type !== 'radio' && field.type !== 'checkbox' && field.type !== 'checkbox_list') {
-            inputEl.name = `field_${field.id}`;
-            inputEl.required = field.required;
-            inputEl.style.padding = resolvedStyles.inputPadding;
-            inputEl.style.fontSize = resolvedStyles.inputSize + 'px';
-            inputEl.style.width = '100%';
-            inputEl.style.boxSizing = 'border-box';
-            inputEl.style.backgroundColor = resolvedStyles.fieldBgColor;
-            inputEl.style.border = '1px solid ' + resolvedStyles.fieldBorderColor;
-            inputEl.style.borderRadius = resolvedStyles.inputBorderRadius + 'px';
-            inputEl.style.color = resolvedStyles.textColor;
-            inputEl.style.outline = 'none';
+          if (inputEl && field.type !== 'radio' && field.type !== 'checkbox' && field.type !== 'checkbox_list') {
+            inputEl.name = `field_${field.id}`; inputEl.required = field.required; inputEl.style.width = '100%'; inputEl.style.boxSizing = 'border-box'; inputEl.style.outline = 'none';
+            if (activeStyles) { inputEl.style.padding = resolvedStyles.inputPadding; inputEl.style.fontSize = resolvedStyles.inputSize + 'px'; inputEl.style.backgroundColor = resolvedStyles.fieldBgColor; inputEl.style.border = '1px solid ' + resolvedStyles.fieldBorderColor; inputEl.style.borderRadius = resolvedStyles.inputBorderRadius + 'px'; inputEl.style.color = resolvedStyles.textColor; }
           }
-          
-          inputEl.dataset.label = field.label;
-          inputEl.dataset.type = field.type;
-          
-          fieldWrapper.appendChild(inputEl);
+          if (inputEl) { inputEl.dataset.label = field.label; inputEl.dataset.type = field.type; fieldWrapper.appendChild(inputEl); }
         }
-        
         fieldsContainer.appendChild(fieldWrapper);
       });
 
-      // Apply button style values
-      submitBtn.style.padding = resolvedStyles.btnPadding;
-      submitBtn.style.fontSize = resolvedStyles.btnSize + 'px';
-      submitBtn.style.fontFamily = resolvedStyles.fontFamily;
-      submitBtn.style.borderRadius = resolvedStyles.btnBorderRadius + 'px';
-      submitBtn.style.backgroundColor = resolvedStyles.btnBgColor;
-      submitBtn.style.color = resolvedStyles.btnTextColor;
-
-      // Apply button box shadow
-      var btnShadowStyle = 'none';
-      if (resolvedStyles.shadow === 'subtle') {
-        btnShadowStyle = '0 1px 3px rgba(0,0,0,0.05)';
-      } else if (resolvedStyles.shadow === 'medium') {
-        btnShadowStyle = '0 4px 6px -1px rgba(0,0,0,0.1)';
-      } else if (resolvedStyles.shadow === 'strong') {
-        btnShadowStyle = '0 10px 15px -3px rgba(0,0,0,0.1)';
+      if (submitBtn && activeStyles) {
+        submitBtn.style.padding = resolvedStyles.btnPadding; submitBtn.style.fontSize = resolvedStyles.btnSize + 'px'; submitBtn.style.fontFamily = resolvedStyles.fontFamily; submitBtn.style.borderRadius = resolvedStyles.btnBorderRadius + 'px'; submitBtn.style.backgroundColor = resolvedStyles.btnBgColor; submitBtn.style.color = resolvedStyles.btnTextColor;
+        var btnShadowStyle = 'none';
+        if (resolvedStyles.shadow === 'subtle') btnShadowStyle = '0 1px 3px rgba(0,0,0,0.05)';
+        else if (resolvedStyles.shadow === 'medium') btnShadowStyle = '0 4px 6px -1px rgba(0,0,0,0.1)';
+        else if (resolvedStyles.shadow === 'strong') btnShadowStyle = '0 10px 15px -3px rgba(0,0,0,0.1)';
+        submitBtn.style.boxShadow = btnShadowStyle;
       }
-      submitBtn.style.boxShadow = btnShadowStyle;
-
-      // Setup hover transitions and scale animation dynamically
-      submitBtn.style.transition = 'background-color 0.2s ease, transform 0.1s ease';
-      const originalBtnBg = submitBtn.style.backgroundColor;
-      submitBtn.addEventListener('mouseenter', () => {
-        if (resolvedStyles.btnHoverBgColor && resolvedStyles.btnHoverBgColor !== '') {
-          submitBtn.style.backgroundColor = resolvedStyles.btnHoverBgColor;
-        } else {
-          submitBtn.style.opacity = '0.9';
-        }
-      });
-      submitBtn.addEventListener('mouseleave', () => {
-        if (resolvedStyles.btnHoverBgColor && resolvedStyles.btnHoverBgColor !== '') {
-          submitBtn.style.backgroundColor = originalBtnBg;
-        } else {
-          submitBtn.style.opacity = '1';
-        }
-      });
-      submitBtn.addEventListener('mousedown', () => {
-        submitBtn.style.transform = 'scale(0.98)';
-      });
-      submitBtn.addEventListener('mouseup', () => {
-        submitBtn.style.transform = 'scale(1)';
-      });
-      
-      // Apply success state styles
-      if (successDiv) {
-        successDiv.style.color = resolvedStyles.successColor;
-        successDiv.style.backgroundColor = resolvedStyles.successBgColor;
-        successDiv.style.borderRadius = resolvedStyles.borderRadius + 'px';
-        successDiv.style.border = '1px solid ' + resolvedStyles.successColor;
+      if (submitBtn) {
+        submitBtn.style.transition = 'background-color 0.2s ease, transform 0.1s ease';
+        const originalBtnBg = submitBtn.style.backgroundColor;
+        submitBtn.addEventListener('mouseenter', () => { if (activeStyles && resolvedStyles.btnHoverBgColor && resolvedStyles.btnHoverBgColor !== '') submitBtn.style.backgroundColor = resolvedStyles.btnHoverBgColor; else submitBtn.style.opacity = '0.9'; });
+        submitBtn.addEventListener('mouseleave', () => { if (activeStyles && resolvedStyles.btnHoverBgColor && resolvedStyles.btnHoverBgColor !== '') submitBtn.style.backgroundColor = originalBtnBg; else submitBtn.style.opacity = '1'; });
+        submitBtn.addEventListener('mousedown', () => submitBtn.style.transform = 'scale(0.98)');
+        submitBtn.addEventListener('mouseup', () => submitBtn.style.transform = 'scale(1)');
       }
-      
-      loadingDiv.style.display = 'none';
-      contentDiv.style.display = 'block';
+      if (successDiv && activeStyles) {
+        successDiv.style.color = resolvedStyles.successColor; successDiv.style.backgroundColor = resolvedStyles.successBgColor; successDiv.style.borderRadius = resolvedStyles.borderRadius + 'px'; successDiv.style.border = '1px solid ' + resolvedStyles.successColor;
+      }
+      loadingDiv.style.display = 'none'; contentDiv.style.display = 'block';
     })
-     .catch(err => {
+    .catch(err => {
        console.error('PandaForms fetch error:', err);
-       loadingDiv.innerHTML = `
-         <div style="padding: 16px; border: 1px solid #f87171; background-color: #fef2f2; color: #991b1b; border-radius: 6px; text-align: left; font-size: 14px; font-family: system-ui, sans-serif; max-width: 500px; margin: 20px auto;">
-           <strong style="display: block; margin-bottom: 8px; font-size: 15px; color: #b91c1c;">⚠️ PandaForms — Form Failed to Load</strong>
-           Could not connect to the PandaForms backend. Please check:<br/><br/>
-           1. <strong>shopify app dev</strong> is running in your terminal<br/>
-           2. The PandaForms app proxy is configured and deployed<br/>
-           3. Your Form ID is correct: <code style="background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13px;">${formId}</code>
-         </div>
-       `;
-     });
+       loadingDiv.innerHTML = `<p style='color: red;'>Could not load form. Please check your Form ID.</p>`;
+    });
     
-  // Handle Submission
   formEl.addEventListener('submit', function(e) {
     e.preventDefault();
-    submitBtn.disabled = true;
-    submitBtn.style.opacity = '0.5';
-    submitBtn.innerText = 'Submitting...';
-    
+    submitBtn.disabled = true; submitBtn.style.opacity = '0.5'; submitBtn.innerText = 'Submitting...';
     const fieldsData = {};
-    
-    // Collect values
-    formEl.querySelectorAll('[name^="field_"]').forEach(el => {
-      const label = el.dataset.label || el.name;
-      
-      if (el.type === 'checkbox') {
-        fieldsData[label] = el.checked ? 'Yes' : 'No';
-      } else if (el.type === 'radio') {
-        if (el.checked) {
-          fieldsData[label] = el.value;
-        }
-      } else {
-        fieldsData[label] = el.value;
-      }
-    });
-    
-    // For radio inputs, ensure we check the parent container dataset label
-    formEl.querySelectorAll('div[name^="field_"]').forEach(div => {
-      const checked = div.querySelector('input:checked');
-      if (checked) {
-        fieldsData[div.dataset.label] = checked.value;
-      }
-    });
-
-    const submitPayload = () => {
-      fetch(submitEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': 'true',
-          'bypass-tunnel-reminder': 'true'
-        },
-        body: JSON.stringify({
-          formId: formId,
-          fields: fieldsData
-        })
-      })
+    formEl.querySelectorAll('[name^="field_"]').forEach(el => { const label = el.dataset.label || el.name; if (el.type === 'checkbox') fieldsData[label] = el.checked ? 'Yes' : 'No'; else if (el.type === 'radio') { if (el.checked) fieldsData[label] = el.value; } else fieldsData[label] = el.value; });
+    formEl.querySelectorAll('div[name^="field_"]').forEach(div => { const checked = div.querySelector('input:checked'); if (checked) fieldsData[div.dataset.label] = checked.value; });
+    fetch(submitEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true', 'bypass-tunnel-reminder': 'true' }, body: JSON.stringify({ formId: formId, fields: fieldsData }) })
       .then(res => res.json())
       .then(resData => {
-        if (resData.success) {
-          if (redirectUrl) {
-            window.location.href = redirectUrl;
-          } else {
-            contentDiv.style.display = 'none';
-            successDiv.style.display = 'block';
-          }
-        } else {
-          alert('Submission error: ' + (resData.error || 'Unknown error'));
-          resetSubmitBtn();
-        }
+        if (resData.success) { if (redirectUrl) window.location.href = redirectUrl; else { contentDiv.style.display = 'none'; successDiv.style.display = 'block'; } }
+        else { alert('Submission error: ' + (resData.error || 'Unknown error')); resetSubmitBtn(); }
       })
-      .catch(err => {
-        console.error(err);
-        alert('Failed to submit form. Please try again.');
-        resetSubmitBtn();
-      });
-    };
-
-    const resetSubmitBtn = () => {
-      submitBtn.disabled = false;
-      submitBtn.style.opacity = '1';
-      submitBtn.innerText = 'Submit';
-    };
-
-    submitPayload();
+      .catch(err => { alert('Failed to submit form.'); resetSubmitBtn(); });
+    const resetSubmitBtn = () => { submitBtn.disabled = false; submitBtn.style.opacity = '1'; submitBtn.innerText = 'Submit'; };
   });
 })();
 </script>
@@ -787,6 +345,11 @@
   "settings": [
     { "type": "header", "content": "Form Setup" },
     { "type": "text", "id": "form_id", "label": "Form ID", "placeholder": "Enter Form UUID" },
+    { "type": "text", "id": "api_url", "label": "App URL", "default": "https://p01--pandaforms-app--77wd8gj6rv7k.code.run" },
+    { "type": "header", "content": "Styling Source" },
+    { "type": "checkbox", "id": "use_app_styling", "label": "Use PandaForms app styling", "default": true },
+    { "type": "checkbox", "id": "override_width", "label": "Override width with setting below", "default": false },
+    { "type": "range", "id": "form_width", "label": "Form Width Override", "min": 320, "max": 1200, "step": 10, "default": 650 },
     { "type": "header", "content": "Section Spacing" },
     {
       "type": "select",
@@ -800,28 +363,7 @@
         { "value": "large", "label": "Large (48px)" },
         { "value": "huge", "label": "Extra Large (80px)" }
       ]
-    },
-
-    { "type": "header", "content": "Design Presets" },
-    {
-      "type": "select",
-      "id": "preset_style",
-      "label": "Ready-Made Color Scheme",
-      "default": "app_theme",
-      "options": [
-        { "value": "app_theme", "label": "App Theme Colors (Use colors from App Builder)" },
-        { "value": "custom", "label": "Custom (Use Settings Below)" },
-        { "value": "shopify_default", "label": "Shopify Default" },
-        { "value": "minimal", "label": "Minimal" },
-        { "value": "modern", "label": "Modern" },
-        { "value": "premium", "label": "Premium" },
-        { "value": "dark", "label": "Dark Mode" }
-      ]
-    },
-
-    { "type": "header", "content": "Custom Override Colors" },
-    { "type": "color", "id": "bg_color", "label": "Card Background Color" },
-    { "type": "color", "id": "btn_bg_color", "label": "Button Background Color" }
+    }
   ]
 }
 {% endschema %}
