@@ -231,45 +231,49 @@
       var resolvedStyles = {};
 
       if (customStyles) {
-        resolvedStyles.bgColor = customStyles.colors.bgColor || '#ffffff';
-        resolvedStyles.textColor = customStyles.colors.textColor || '#1e293b';
-        resolvedStyles.fieldBgColor = customStyles.colors.fieldBgColor || '#ffffff';
-        resolvedStyles.fieldBorderColor = customStyles.colors.fieldBorderColor || '#cbd5e1';
-        resolvedStyles.labelColor = customStyles.colors.labelColor || '#334155';
-        resolvedStyles.btnBgColor = customStyles.colors.btnBgColor || '#008060';
-        resolvedStyles.btnTextColor = customStyles.colors.btnTextColor || '#ffffff';
-        resolvedStyles.btnHoverBgColor = customStyles.colors.btnHoverColor || '';
-        resolvedStyles.successColor = customStyles.colors.successColor || '#10b981';
-        resolvedStyles.successBgColor = customStyles.colors.successBgColor || '#f0fdf4';
-        resolvedStyles.errorColor = customStyles.colors.errorColor || '#ef4444';
+        const colors = customStyles.colors || {};
+        const layout = customStyles.layout || {};
+        const typography = customStyles.typography || {};
+
+        resolvedStyles.bgColor = colors.bgColor || '#ffffff';
+        resolvedStyles.textColor = colors.textColor || '#1e293b';
+        resolvedStyles.fieldBgColor = colors.fieldBgColor || '#ffffff';
+        resolvedStyles.fieldBorderColor = colors.fieldBorderColor || '#cbd5e1';
+        resolvedStyles.labelColor = colors.labelColor || '#334155';
+        resolvedStyles.btnBgColor = colors.btnBgColor || '#008060';
+        resolvedStyles.btnTextColor = colors.btnTextColor || '#ffffff';
+        resolvedStyles.btnHoverBgColor = colors.btnHoverColor || '';
+        resolvedStyles.successColor = colors.successColor || '#10b981';
+        resolvedStyles.successBgColor = colors.successBgColor || '#f0fdf4';
+        resolvedStyles.errorColor = colors.errorColor || '#ef4444';
         
-        resolvedStyles.formWidth = parseInt(customStyles.layout.formWidth) || 650;
-        resolvedStyles.borderRadius = parseInt(customStyles.layout.borderRadius) || 4;
-        resolvedStyles.inputBorderRadius = parseInt(customStyles.layout.borderRadius) || 4;
-        resolvedStyles.btnBorderRadius = parseInt(customStyles.layout.borderRadius) || 4;
-        resolvedStyles.shadow = customStyles.layout.shadow || 'subtle';
+        resolvedStyles.formWidth = parseInt(layout.formWidth) || 650;
+        resolvedStyles.borderRadius = parseInt(layout.borderRadius) || 4;
+        resolvedStyles.inputBorderRadius = parseInt(layout.borderRadius) || 4;
+        resolvedStyles.btnBorderRadius = parseInt(layout.borderRadius) || 4;
+        resolvedStyles.shadow = layout.shadow || 'subtle';
         
-        const inputSizeVal = customStyles.layout.inputSize || 'medium';
+        const inputSizeVal = layout.inputSize || 'medium';
         resolvedStyles.inputPadding = inputSizeVal === 'small' ? '8px 12px' :
                                      inputSizeVal === 'large' ? '16px 20px' :
                                      '12px 16px';
                                      
-        const btnSizeVal = customStyles.layout.buttonSize || 'medium';
+        const btnSizeVal = layout.buttonSize || 'medium';
         resolvedStyles.btnPadding = btnSizeVal === 'small' ? '10px 20px' :
                                    btnSizeVal === 'large' ? '18px 36px' :
                                    '14px 28px';
                                    
-        resolvedStyles.labelSpacing = parseInt(customStyles.layout.labelSpacing) || 6;
-        resolvedStyles.desktopPadding = parseInt(customStyles.layout.desktopPadding) || 32;
-        resolvedStyles.mobilePadding = parseInt(customStyles.layout.mobilePadding) || 16;
-        resolvedStyles.fieldGap = parseInt(customStyles.layout.fieldGap) || 16;
+        resolvedStyles.labelSpacing = parseInt(layout.labelSpacing) || 6;
+        resolvedStyles.desktopPadding = parseInt(layout.desktopPadding) || 32;
+        resolvedStyles.mobilePadding = parseInt(layout.mobilePadding) || 16;
+        resolvedStyles.fieldGap = parseInt(layout.fieldGap) || 16;
         
-        resolvedStyles.fontFamily = customStyles.typography.fontFamily || 'sans-serif';
-        resolvedStyles.titleSize = parseInt(customStyles.typography.titleSize) || 24;
-        resolvedStyles.descSize = parseInt(customStyles.typography.descSize) || 14;
-        resolvedStyles.labelSize = parseInt(customStyles.typography.labelSize) || 13;
-        resolvedStyles.inputSize = parseInt(customStyles.typography.inputSize) || 14;
-        resolvedStyles.btnSize = parseInt(customStyles.typography.btnSize) || 16;
+        resolvedStyles.fontFamily = typography.fontFamily || 'sans-serif';
+        resolvedStyles.titleSize = parseInt(typography.titleSize) || 24;
+        resolvedStyles.descSize = parseInt(typography.descSize) || 14;
+        resolvedStyles.labelSize = parseInt(typography.labelSize) || 13;
+        resolvedStyles.inputSize = parseInt(typography.inputSize) || 14;
+        resolvedStyles.btnSize = parseInt(typography.btnSize) || 16;
       } else {
         resolvedStyles = {
           bgColor: themeStyles.wrapper.backgroundColor || '#ffffff',
