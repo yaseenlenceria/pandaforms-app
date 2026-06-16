@@ -1658,7 +1658,7 @@ export default function FormBuilder() {
                     Storefront Theme Setup
                   </Text>
                   <Text variant="bodySm" as="p" tone="subdued">
-                    Copy the Form ID above, then add it to your store:
+                    Add this form to a page, or enable PandaForms once in app embeds.
                   </Text>
                   
                   <Divider />
@@ -1675,7 +1675,7 @@ export default function FormBuilder() {
                       2. Add globally via App Embed
                     </Text>
                     <Text variant="bodyXs" as="p" tone="subdued">
-                      Click the button below to enable the app embed globally on your theme, and configure your Form ID in settings.
+                      Click the button below, search app embeds for <strong>PandaForms Widget</strong>, enable it, and save. No Form ID is needed.
                     </Text>
                   </BlockStack>
 

@@ -318,7 +318,7 @@ export default function Index() {
                   Storefront setup
                 </Text>
                 <Text variant="bodyMd" as="p" tone="subdued">
-                  Add PandaForms to the theme once, then paste the form ID for the form you want to show.
+                  Enable PandaForms once in app embeds. No Form ID is needed.
                 </Text>
               </BlockStack>
               <Button
@@ -355,12 +355,12 @@ export default function Index() {
                   Alternative: enable the app embed
                 </Text>
                 <Text variant="bodyMd" as="p">
-                  Use this only when you want one configured form injected globally through the theme app embed.
+                  Use this when you want PandaForms injected globally through the theme app embed.
                 </Text>
                 <Box padding="300" background="bg-surface-active" borderRadius="200">
                   <BlockStack gap="100">
-                    <Text variant="bodySm" as="p"><strong>1.</strong> Open the theme editor and enable <strong>PandaForms Widget</strong> in app embeds.</Text>
-                    <Text variant="bodySm" as="p"><strong>2.</strong> Paste the form ID in the embed settings.</Text>
+                    <Text variant="bodySm" as="p"><strong>1.</strong> Open the theme editor and search app embeds for <strong>PandaForms Widget</strong>.</Text>
+                    <Text variant="bodySm" as="p"><strong>2.</strong> Enable the PandaForms app embed.</Text>
                     <Text variant="bodySm" as="p"><strong>3.</strong> Save the theme and test the storefront page.</Text>
                   </BlockStack>
                 </Box>

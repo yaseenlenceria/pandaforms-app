@@ -21,10 +21,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const id = url.searchParams.get("id");
 
-  if (!id) {
-    return json({ error: "Missing form id" }, { status: 400, headers: corsHeaders });
-  }
-
   // Try to authenticate via Shopify App Proxy (verifies HMAC signature).
   // If this succeeds we can scope the lookup to the correct shop.
   // If it fails (e.g. direct call, missing sig) we fall back to ID-only lookup
@@ -39,10 +35,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     shop = null;
   }
 
-  // Look up the form. If we have a shop, scope to that shop for extra safety.
-  const whereClause = shop
-    ? { id, shop }
-    : { id };
+  if (!id && !shop) {
+    return json({ error: "Missing form id" }, { status: 400, headers: corsHeaders });
+  }
+
+  // Look up the form. If no ID is provided by the app embed, use the
+  // shop's latest active form so merchants only need to enable the embed.
+  const whereClause = id
+    ? shop
+      ? { id, shop }
+      : { id }
+    : { shop: shop as string, status: "ACTIVE" };
 
   const formRecord = await db.form.findFirst({
     where: whereClause,
@@ -51,6 +54,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
         orderBy: { position: "asc" },
       },
     },
+    orderBy: id ? undefined : { updatedAt: "desc" },
   });
 
   if (!formRecord) {

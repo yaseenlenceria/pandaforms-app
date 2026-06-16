@@ -51,8 +51,8 @@
 <script>
 (function() {
   var blockId = "{{ block.id }}";
-  var formId = "{{ block.settings.form_id }}";
-  var apiUrl = {{ block.settings.api_url | json }}.replace(/\/$/, "");
+  var formId = "";
+  var apiUrl = "https://p01--pandaforms-app--77wd8gj6rv7k.code.run";
   var useAppStyling = {{ block.settings.use_app_styling | default: true | json }};
   var adoptThemeStyling = {{ block.settings.adopt_theme_styling | default: false | json }};
   var widgetFontSource = {{ block.settings.widget_font_source | default: "app" | json }};
@@ -67,14 +67,9 @@
   var formEl = wrapper.querySelector(".pandaforms-form");
   var submitBtn = wrapper.querySelector(".pandaforms-submit-btn");
 
-  if (!formId) {
-    loadingDiv.innerHTML = "<p style='color:#b42318;'>PandaForms: Please add a Form ID in the Theme Editor.</p>";
-    return;
-  }
-
   var redirectUrl = "";
-  var configEndpoint = "/apps/pandaforms/form-config?id=" + encodeURIComponent(formId) + "&t=" + Date.now();
-  var directConfigEndpoint = apiUrl + "/api/form-config?id=" + encodeURIComponent(formId) + "&t=" + Date.now();
+  var configEndpoint = "/apps/pandaforms/form-config?t=" + Date.now();
+  var directConfigEndpoint = apiUrl + "/api/form-config?t=" + Date.now();
   var submitEndpoint = "/apps/pandaforms/submit";
   var directSubmitEndpoint = apiUrl + "/api/submit";
 
@@ -140,6 +135,7 @@
   .then(function(data) {
     var form = data.form;
     if (!form) throw new Error("No form data returned");
+    formId = form.id;
 
     // Populate static text
     wrapper.querySelector(".pandaforms-title").innerText = form.title || "";
@@ -471,11 +467,9 @@
     loadingDiv.innerHTML =
       "<div style='padding:16px;border:1px solid #fca5a5;border-radius:6px;background:#fef2f2;color:#b42318;font-family:sans-serif;font-size:14px;'>" +
         "<strong style='display:block;margin-bottom:6px;'>⚠️ PandaForms — Could not load form</strong>" +
-        "Form ID used: <code style='background:rgba(0,0,0,0.07);padding:2px 6px;border-radius:4px;font-size:13px;'>" + formId + "</code><br><br>" +
         "Please verify:<br>" +
-        "1. The Form ID above matches the ID shown inside the PandaForms app.<br>" +
-        "2. The form is not archived or deleted.<br>" +
-        "3. The PandaForms app is installed and running on this store." +
+        "1. The store has at least one active PandaForms form.<br>" +
+        "2. The PandaForms app is installed and running on this store." +
       "</div>";
   });
 
@@ -541,9 +535,6 @@
   "name": "PandaForms Widget",
   "target": "body",
   "settings": [
-    { "type": "header", "content": "Form Setup" },
-    { "type": "text", "id": "form_id", "label": "Form ID", "placeholder": "Paste Form ID from PandaForms app" },
-    { "type": "text", "id": "api_url", "label": "App URL", "default": "https://p01--pandaforms-app--77wd8gj6rv7k.code.run" },
     { "type": "header", "content": "Styling" },
     {
       "type": "select",
